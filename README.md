@@ -9,7 +9,7 @@
 
 基于 **Astro** 的个人数字空间，用来整理文章、碎片笔记、项目与发现。暖纸色主题、克制的排版，以及中英文共用的页面结构。
 
-[快速开始](#快速开始) · [当前进度](#当前进度) · [项目结构](#项目结构) · [设计系统](docs/design-system.md)
+[快速开始](#快速开始) · [当前进度](#当前进度) · [项目结构](#项目结构) · [技术与设计](#技术与设计)
 
 <picture>
   <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/readme/index-mobile-dark.webp">
@@ -59,7 +59,7 @@ npm run dev
 
 **Astro 7 · TypeScript 6 · Tailwind CSS 4 · Motion · Lucide**
 
-页面与公共 UI 优先使用 Astro 组件，React Islands 留给需要复杂交互的模块。内容在构建时生成静态 HTML；不依赖数据库或 CMS。MDX、SEO、Sitemap 与 RSS 工具已接入基础层，具体职责见 [项目架构](docs/architecture.md)。
+页面与公共 UI 优先使用 Astro 组件，React Islands 留给需要复杂交互的模块。内容在构建时生成静态 HTML；不依赖数据库或 CMS。MDX、SEO、Sitemap 与 RSS 工具已接入基础层，目录职责见 [项目结构](#项目结构)。
 
 视觉规范来自 [design.md](design.md)：公共颜色、字号、间距和容器集中在 Design Tokens，组件与正文复用同一套样式。Geist Sans / Mono 在本站托管，中文采用系统字体回退。动画参数集中配置，明暗主题与语言沿用公共脚本。
 
@@ -98,10 +98,8 @@ src/
 
 ## 继续构建
 
-- [项目架构](docs/architecture.md)：目录职责、路由、内容系统与发布方式。
-- [公共设计系统](docs/design-system.md)：Token、组件接口与交互规范。
-- [内容编写约定](docs/content-authoring.md)：字段、草稿与文件组织。
-- [板块规划](docs/blog-sections.md) / [技术栈规划](docs/blog-tech-stack.md)：第一版的产品与技术参考。
+- [公共设计规范](design.md)：视觉主题、排版与交互规范。
+- [内容模型](src/lib/content/schemas.ts)：内容字段与校验规则。
 - [AGENTS.md](AGENTS.md) / [CLAUDE.md](CLAUDE.md)：AI 编程协作入口。
 
 下一步是逐步制作其余栏目页，并加入真实内容。当前尚未部署站点，也未指定开源许可证。

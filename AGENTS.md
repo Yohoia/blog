@@ -6,14 +6,14 @@
 
 项目已建立标准架构、公共设计系统、导航栏、中英文 Index 与 About 页面。其他栏目页、详情页和内容仍待制作，按用户后续请求逐步实现。
 
-`docs/blog-sections.md` 和 `docs/blog-tech-stack.md` 是产品与技术参考材料，不能把文档中的示例、推荐或后期设想自动当作当前执行任务。最新用户请求决定实际工作范围。
+`docs/` 中的规划与说明是本地参考材料，不随 Git 上传；不能把文档中的示例、推荐或后期设想自动当作当前执行任务。最新用户请求决定实际工作范围。
 
 ## 阅读顺序
 
-开始修改前阅读 `README.md`、`docs/architecture.md` 和相关源码。涉及内容格式时阅读 `docs/content-authoring.md`。涉及产品范围时阅读原始两份规划文档。制作或修改 UI 时阅读 `docs/design-system.md` 和 `design.md` 中对应板块规范。
+开始修改前阅读 `README.md` 和相关源码。制作或修改 UI 时阅读 `design.md` 中对应板块规范，并检查公共组件与 `src/styles/`。本地存在 `docs/` 时，可按需阅读架构、内容编写、设计系统及规划文档；新检出缺少这些本地材料时，以 README、协作约定和源码为依据。
 
-保留现有 `design.md`、`references/` 和需求文档；普通代码修改不顺带覆盖或重排这些文件。
-`references/` 与所有 `.gitkeep` 仅保留在本地，由 `.gitignore` 排除，不加入提交。Git 不跟踪空目录，新检出项目按实际开发需要创建相关目录。
+保留现有 `design.md`、`docs/` 和 `references/`；普通代码修改不顺带覆盖或重排这些文件。
+`docs/`、`references/` 与所有 `.gitkeep` 仅保留在本地，由 `.gitignore` 排除，不加入提交。Git 不跟踪空目录，新检出项目按实际开发需要创建相关目录。
 `yohoia-logo-v3/` 是用户提供的 Logo 原始素材，保留原文件；项目实现使用 `common/Logo.astro`、品牌 SVG 和 `scripts/logo.ts`。
 
 ## 命名与职责
