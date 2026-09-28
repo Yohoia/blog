@@ -1,0 +1,30 @@
+---
+import { siteConfig } from '@/config/site';
+
+const username = siteConfig.name.toLowerCase();
+---
+
+<span class="prompt-prefix" aria-hidden="true">
+  <span class="prompt-user">{username}</span>
+  <span class="prompt-muted">@</span>
+  <span class="prompt-host">space</span>
+  <span class="prompt-muted">:~$</span>
+</span>
+
+<style>
+  .prompt-prefix {
+    white-space: nowrap;
+    margin-inline-end: 0.5rem;
+  }
+  .prompt-user {
+    color: var(--terminal-user);
+    font-weight: 600;
+  }
+  .prompt-host {
+    color: var(--terminal-host);
+    font-weight: 600;
+  }
+  .prompt-muted {
+    color: var(--muted-text);
+  }
+</style>

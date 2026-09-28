@@ -143,8 +143,9 @@ const isCurrent = (href: string) => pathname.startsWith(href);
   .site-navigation[data-scrolled] .header-shell,
   .site-navigation:has(.mobile-navigation[open]) .header-shell {
     background: color-mix(in srgb, var(--canvas) 85%, transparent);
-    backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+    /* 标准属性置于前缀之后，防止构建压缩只保留旧前缀。 */
+    backdrop-filter: blur(12px);
     border-color: var(--border);
   }
   .header-inner {

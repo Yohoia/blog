@@ -16,6 +16,15 @@ export const motionTokens = {
   distance: { small: 4, medium: 8, large: 12 },
   scale: { pressed: 0.98, resting: 1 },
   reduced: { duration: 0.12 },
+  /** 首页匀速打字与逐行输出；打字、输出和光标均由 Motion 驱动。 */
+  terminal: {
+    initialDelay: 1,
+    characterDelay: 0.09,
+    enterDelay: 0.3,
+    outputDelay: 0.6,
+    lineReveal: { duration: 0.22, interval: 0.12, distance: 4 },
+    cursorDuration: 1,
+  },
   /** 品牌书写时序保留 yohoia-logo-v3 的连续笔迹，区别于通用 UI 过渡。 */
   logo: {
     strokes: [

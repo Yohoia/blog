@@ -1,0 +1,117 @@
+---
+import { Image } from 'astro:assets';
+import { ArrowLeft } from '@lucide/astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Container from '@/components/layout/Container.astro';
+import { iconTokens } from '@/config/icons';
+import { getLocale, localizePath } from '@/lib/i18n';
+import { errorActions, errorPages, type ErrorCode } from './config';
+
+interface Props {
+  code: ErrorCode;
+}
+
+const { code } = Astro.props;
+const locale = getLocale(Astro.url.pathname);
+const page = errorPages[code];
+const content = page.content[locale];
+// 开发 / 服务端响应保留真实状态码；静态 HTML 的状态由托管服务器决定。
+Astro.response.status = code;
+---
+
+<BaseLayout
+  title={`${code} · ${content.heading}`}
+  description={content.description}
+  noindex
+  bodyClass="error-document"
+>
+  <Container
+    as="main"
+    id="main-content"
+    width="compact"
+    class="error-page"
+    data-error-code={code}
+    aria-labelledby="error-heading"
+  >
+    <div class="error-content" data-language-block="error">
+      <Image
+        src={page.image}
+        width={1448}
+        height={1086}
+        alt={`${code} · ${content.heading}`}
+        class="error-illustration"
+        loading="eager"
+        fetchpriority="high"
+        data-error-illustration
+      />
+      <div class="error-message">
+        <h1 id="error-heading" class="text-section font-medium">
+          <span class="font-mono">{code}</span> ·{' '}
+          <span data-error-heading>{content.heading}</span>
+        </h1>
+        <p class="text-meta" data-error-description>
+          {content.description}
+        </p>
+      </div>
+      <a
+        href={localizePath('/', locale)}
+        class="ui-button"
+        data-variant="outline"
+        data-astro-reload
+        data-error-home
+      >
+        <ArrowLeft
+          size={iconTokens.size.small}
+          stroke-width={iconTokens.strokeWidth}
+          aria-hidden="true"
+        />
+        <span data-error-home-label>{errorActions[locale].home}</span>
+      </a>
+    </div>
+  </Container>
+</BaseLayout>
+
+<script>
+  import { initializeErrorPage } from '@/scripts/error-page';
+  initializeErrorPage();
+</script>
+
+<style>
+  :global(body.error-document) {
+    min-block-size: 100svh;
+    display: flex;
+    flex-direction: column;
+  }
+  .error-page {
+    flex: 1;
+    display: grid;
+    place-items: center;
+    padding-block: var(--item-gap);
+  }
+  .error-content {
+    inline-size: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--item-gap);
+    text-align: center;
+  }
+  .error-illustration {
+    display: block;
+    inline-size: auto;
+    block-size: auto;
+    max-inline-size: 100%;
+    max-block-size: min(50svh, 30rem);
+    object-fit: contain;
+    /* 原插图含深色字样，固定纸色底使暗色模式也能完整辨认。 */
+    background: var(--illustration-canvas);
+    border-radius: var(--radius-media);
+  }
+  .error-message {
+    display: grid;
+    gap: var(--inline-gap);
+  }
+  .error-message p {
+    max-inline-size: 48ch;
+  }
+</style>

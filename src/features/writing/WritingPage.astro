@@ -1,0 +1,122 @@
+---
+import { ArrowLeft } from '@lucide/astro';
+import SiteLayout from '@/layouts/SiteLayout.astro';
+import Container from '@/components/layout/Container.astro';
+import TextLink from '@/components/ui/TextLink.astro';
+import { iconTokens } from '@/config/icons';
+import { siteConfig } from '@/config/site';
+import { sectionPaths } from '@/config/navigation';
+import { getLocale, localizePath } from '@/lib/i18n';
+import { ui } from '@/i18n/ui';
+import { referenceWritingEntries, writingContent } from './config';
+
+const locale = getLocale(Astro.url.pathname);
+const content = writingContent[locale];
+const entries = [...referenceWritingEntries].reverse();
+---
+
+<SiteLayout
+  title={ui[locale].navigation.writing}
+  description={content.introduction}
+>
+  <Container as="main" id="main-content" width="reading" class="writing-page">
+    <header class="writing-introduction" data-language-block="introduction">
+      <p class="micro-label">Writing · {siteConfig.name}</p>
+      <h1 class="text-page font-medium">{ui[locale].navigation.writing}</h1>
+      <p class="text-body">{content.introduction}</p>
+      <p class="metadata">
+        {entries.length} {content.count}
+      </p>
+    </header>
+
+    <ul class="writing-list">
+      {entries.map((entry) => (
+        <li
+          id={entry.filename}
+          class="writing-entry"
+          data-language-block={`writing-${entry.filename}`}
+        >
+          <span class="metadata font-mono" lang="en">
+            {entry.date}
+          </span>
+          <div class="writing-entry-content" lang="en">
+            <h2 class="text-item font-medium text-heading">{entry.title}</h2>
+            <p class="writing-filename micro-label">{entry.filename}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+
+    <footer class="writing-footer" data-language-block="footer">
+      <p class="metadata">{content.note}</p>
+      <TextLink
+        href={localizePath(sectionPaths.index, locale)}
+        class="writing-back"
+        data-astro-reload
+      >
+        <ArrowLeft
+          size={iconTokens.size.small}
+          stroke-width={iconTokens.strokeWidth}
+          aria-hidden="true"
+        />
+        {content.back}
+      </TextLink>
+    </footer>
+  </Container>
+</SiteLayout>
+
+<style>
+  .writing-page {
+    padding-block: var(--section-gap);
+  }
+  .writing-introduction {
+    margin-block-end: var(--group-gap);
+  }
+  .writing-introduction h1 {
+    margin-block: var(--item-gap);
+  }
+  .writing-introduction .metadata {
+    margin-block-start: var(--inline-gap);
+  }
+  .writing-introduction > .text-body {
+    min-block-size: 2lh;
+  }
+  .writing-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .writing-entry {
+    display: grid;
+    grid-template-columns: 4rem minmax(0, 1fr);
+    align-items: baseline;
+    gap: var(--item-gap);
+    border-block-start: 1px solid var(--border);
+    padding-block: var(--item-gap);
+  }
+  .writing-entry-content {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+  .writing-filename {
+    margin-block-start: var(--inline-gap);
+  }
+  .writing-footer {
+    border-block-start: 1px solid var(--border);
+    padding-block-start: var(--item-gap);
+  }
+  .writing-footer :global(.writing-back) {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--inline-gap);
+    min-block-size: var(--touch-target);
+    margin-block-start: var(--item-gap);
+    font-size: var(--text-meta);
+  }
+  @media (max-width: 35rem) {
+    .writing-entry {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--inline-gap);
+    }
+  }
+</style>

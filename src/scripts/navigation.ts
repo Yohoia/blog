@@ -134,6 +134,21 @@ export function registerNavigation(): void {
         passive: true,
         signal,
       });
+      const syncAfterNavigation = () => {
+        // 页面替换时内容可能短暂收起；等同一轮事件中的阅读位置恢复后再同步。
+        // scrollTo 恢复到原位置时，浏览器不一定会再派发 scroll 事件。
+        queueMicrotask(() => {
+          if (signal.aborted || !this.isConnected) return;
+          syncScroll(true);
+          syncHighlight();
+        });
+      };
+      document.addEventListener('astro:after-swap', syncAfterNavigation, {
+        signal,
+      });
+      document.addEventListener('astro:page-load', syncAfterNavigation, {
+        signal,
+      });
       reducedMotion.addEventListener(
         'change',
         () => {

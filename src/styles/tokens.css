@@ -3,6 +3,7 @@
   color-scheme: light;
   --canvas: #f6f5f1;
   --surface: #fbfaf7;
+  --illustration-canvas: #f6f5f1;
   --heading: #1b1b18;
   --body: #5f5e58;
   --muted: #8a8982;
@@ -30,6 +31,11 @@
   --inline-gap: clamp(0.5rem, 0.25rem + 0.625vw, 0.75rem);
   --touch-target: 2.75rem;
   --icon-stroke: 1.75;
+  /* 首页命令提示符；浅色文字增强对比度，光标保留柔和的绿色。 */
+  --terminal-user: #237b45;
+  --terminal-host: #2463c7;
+  --terminal-cursor: #56c878;
+  --terminal-cursor-glow: rgb(86 200 120 / 0.22);
 }
 @media (min-width: 48rem) {
   :root {
@@ -57,6 +63,8 @@
     --muted-text: #85847d;
     --signal-text: #6b8cff;
     --floating-shadow: 0 8px 32px rgb(0 0 0 / 0.18);
+    --terminal-user: #3fb950;
+    --terminal-host: #58a6ff;
   }
 }
 :root[data-theme='dark'] {
@@ -73,6 +81,8 @@
   --muted-text: #85847d;
   --signal-text: #6b8cff;
   --floating-shadow: 0 8px 32px rgb(0 0 0 / 0.18);
+  --terminal-user: #3fb950;
+  --terminal-host: #58a6ff;
 }
 @theme inline {
   --color-canvas: var(--canvas);

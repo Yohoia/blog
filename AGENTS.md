@@ -4,7 +4,9 @@
 
 这是一个 Astro 个人博客，采用 TypeScript、Tailwind CSS、Motion、Lucide、Content Collections、Markdown / MDX，以及按需 React Islands。
 
-项目已建立标准架构、公共设计系统、导航栏、中英文 Index 与 About 页面。其他栏目页、详情页和内容仍待制作，按用户后续请求逐步实现。
+项目已建立标准架构、公共设计系统、导航栏、中英文 Index、Writing 列表与 About 页面。其他栏目页、详情页和内容仍待制作，按用户后续请求逐步实现。
+
+403、404、500、502 中英文错误页面已实现，共用 `features/errors/ErrorPage.astro` 与配置；插图原件保留在 `public/images/`。
 
 `docs/` 中的规划与说明是本地参考材料，不随 Git 上传；不能把文档中的示例、推荐或后期设想自动当作当前执行任务。最新用户请求决定实际工作范围。
 
@@ -44,11 +46,17 @@
 - 图标参数读取 `config/icons.ts`；Astro 使用 `stroke-width`，React 使用 `strokeWidth`。图标按钮必须提供可访问名称，移动端控件触摸区域至少 44px。
 - Astro 动画使用 `motion`，React 动画使用 `motion/react`；统一读取 `config/motion.ts`，尊重减少动画的系统偏好。
 - Logo 保留原始 SVG 轮廓与遮罩显现顺序，用 Motion 时间线播放；不添加 CSS keyframes、SMIL 或 React hydration 重复驱动动画。其品牌时序位于 `motionTokens.logo`，多个实例必须拥有独立遮罩 ID。
-- Astro 图标使用 `@lucide/astro`，React 图标使用 `lucide-react`，按图标名导入。
+- 首页介绍沿用参考稿内容与播放节奏：Astro 输出完整内容，Motion 驱动打字与光标，参数位于 `motionTokens.terminal`。按用户最新要求直接平铺在页面中，使用公共容器、颜色和明暗主题，不添加终端窗口外框、标签栏、状态栏或内部滚动。进入或刷新重播，语言切换保留播放进度、访问时间和页面阅读位置；播放不强制滚动页面，减少动画模式立即展示完整内容。
+- 首页内容区相对视口居中，正文左对齐；各部分使用公共边框颜色的 1px 横线分隔，横线上下各 12px，避免恢复原先 32–48px 的大组间距。页面对称预留滚动条空间，保持内容与导航的中心一致。
+- 首页提示符的用户名用绿色，主机名用蓝色，光标为柔和绿色；颜色读取公共 Token，并保留浅色主题的文字对比度。命令匀速逐字输入，输出按语义行依次淡入；当前行数与输出阶段也要纳入语言切换快照。输出过程中隐藏下一条空提示符，等整部分输出完毕后再显示分隔线与下一条提示符。每条命令开始时从可见相位重新闪烁，等待下一条输入时保持光标可见；历史命令行不复制光标。
+- 通用界面图标使用 `@lucide/astro` 或 `lucide-react`，按图标名导入。用户明确要求社交渠道使用对应品牌图标，首页 Gmail、QQ、X、小红书、Bilibili 与 GitHub 使用本地 Simple Icons SVG；来源提交与 CC0 许可位于 `src/assets/icons/social/`，由 Astro 内联并沿用公共尺寸和颜色，不引入远程运行时或徽章样式。
 - 图片使用 `astro:assets` 的 Image / Picture；代码高亮使用 Astro 内置 Shiki。
+- 错误页按用户要求使用 `BaseLayout` 的独立全屏布局，不显示 Header、Logo、导航或顶部操作区；插图与简短说明在整个视口居中、保持比例，保留返回首页入口。原图的深色字样用公共 `--illustration-canvas` 纸色底保证暗色可辨认，主题继承现有脚本。错误页设为 `noindex` 并从 Sitemap 排除；`404.astro` 是未知地址的兜底入口。静态托管只回传根错误文件时，`scripts/error-page.ts` 从实际 URL 同步文案与返回首页链接的语言。不能把静态预览路由当作已部署的服务器错误拦截；真正的 403 / 500 / 502 由托管服务器绑定，Nginx 示例位于 `deploy/nginx-errors.conf`。
+- 站内链接保持目录尾部斜杠；Astro 使用 `trailingSlash: 'ignore'` 接受两种输入，保证无斜杠的未知地址也由自定义 404 接管，不能恢复会让静态预览提前返回默认错误页的严格匹配。
 - 暗色模式调用现有主题脚本，统一使用 `data-theme`，不另建 React 主题管理系统。
 - 中英版本使用 Astro 原生 i18n，配置源为 `config/i18n.ts`；中文无前缀，英文 `/en/`。语言从 URL 读取，站内链接使用 `lib/i18n.ts` 的 `localizePath()`；公共翻译放在 `i18n/ui.ts`，板块文案放在对应 feature 配置。版式复用 feature 页面，不复制两套 UI；不得把原文自动视为真实译文。
 - 语言按钮使用 ClientRouter 的无动画 swap，普通站内入口保留 `data-astro-reload`。阅读区块使用 `data-language-block` 保留滚动位置，切换时不重播 Logo。双语短文案允许响应式最小行数占位；不能用固定高度、截断或隐藏溢出掩盖翻译长度差异。
+- 导航在 `astro:after-swap` 和 `astro:page-load` 后，通过微任务重新读取恢复后的滚动位置并同步背景、收紧状态与高亮。不能仅依赖元素连接时的滚动位置或 `scroll` 事件：首页播放内容在替换期间会短暂收起，恢复到原位置时浏览器可能不再触发滚动事件。生命周期监听随导航断开一起清理。
 - 不提前引入数据库、CMS、全局状态库、GSAP、Three.js、WebSocket 或大型 UI 库。
 - 需要新依赖时说明具体用途，统一使用 npm 并同步 `package-lock.json`。
 
@@ -58,6 +66,9 @@
 - 公共列表、详情静态路径与 RSS 必须过滤草稿，优先复用 `getPublishedEntries()`。
 - Writing / Fragments / Projects 的详情路径使用 `getEntryPath()` 与 `[...id].astro`，支持嵌套内容目录。
 - 不编造文章、作品、个人身份、联系方式或 News 新闻来填充目录。
+- 姓名和联系方式统一读取 `config/site.ts`。首页 `cat links.md` 按用户提供的顺序展示 Email、QQ、X、小红书、Bilibili 与 GitHub，邮箱为 `imyohoia@gmail.com`；完整渠道、标签和目标 URL 集中在 `siteConfig.contactLinks`，保留原逐行播放，不恢复 LinkedIn、简历或旧邮箱。首页公司、履历与统计经用户明确要求暂留参考内容，集中在 `features/index/config.ts`，不能自动视为真实个人资料或已接入的数据；待用户提供资料后替换。
+- 首页文章区使用用户确认的 `yohoia@space:~$ ls -ltr writing/ | tail -n 6`，用户名和文件所有者来自 `siteConfig.name`。参考文章集中在 `features/writing/config.ts`，按日期由旧到新排列，同日沿用用户提供顺序；首页取末尾 6 条，Writing 列表显示全部 9 条并按新到旧排列。`Writing — full blog` 跳转到对应语言的本站列表，文件名定位列表条目。保留逐行播放、响应式换行与语言切换进度；参考记录没有正文，不能视为本站已发布文章或已实现的阅读器。
+- 首页文章输出不显示 `total 6 posts`；底部入口仅在 `Writing` 文字下显示虚线，`— full blog` 无下划线，整段入口保持可点击。
 - News 的信息源通过 `features/news/providers/` 适配成统一类型；静态构建不会自动产生实时更新。
 - `SITE_URL` 在 `.env` 中配置；未确定域名时不填假生产域名。
 - RSS 构建函数已在 `lib/rss.ts` 中准备，实际内容路由完成后再创建公开 RSS 端点。
@@ -76,7 +87,7 @@ npm run build
 
 修改后先执行相关验证，再执行格式检查和生产构建。`npm run build` 包含 Astro 类型检查。只针对重要行为和实际风险增加测试；不为目录占位、配置字面量或简单可逆修改建立测试框架。
 
-首页 `/`、`/en/` 与 About `/about/`、`/en/about/` 应正常显示；其他栏目页目前未实现。空内容集合的提示属于预期，Recently 使用真实空状态。验证集成需要临时样例时，验证后移除样例，不能把测试页面变成产品页面。
+首页 `/`、`/en/`、Writing `/writing/`、`/en/writing/` 与 About `/about/`、`/en/about/` 应正常显示；其他栏目页目前未实现。空内容集合的提示属于预期。首页当前展示平铺介绍，已移除原 Recently 模块。验证集成需要临时样例时，验证后移除样例，不能把测试页面变成产品页面。
 
 不修改 `node_modules/`、`.astro/`、`dist/` 等生成文件；提交源文件、配置与锁文件，忽略 `.env`。未经用户要求不自动初始化 Git、提交、推送或部署。
 

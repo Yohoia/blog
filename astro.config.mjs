@@ -31,9 +31,23 @@ if (site) {
 export default defineConfig({
   site,
   output: 'static',
-  trailingSlash: 'always',
+  // 站内链接仍使用目录尾斜杠；允许输入无斜杠的地址进入自定义 404。
+  // always 会让生产预览提前返回 Astro 的默认错误页。
+  trailingSlash: 'ignore',
   i18n: i18nConfig,
-  integrations: [react(), mdx(), ...(site ? [sitemap()] : [])],
+  integrations: [
+    react(),
+    mdx(),
+    ...(site
+      ? [
+          sitemap({
+            // 错误页可直接预览，但不作为正常内容提交给搜索引擎。
+            filter: (page) =>
+              !/^\/(?:en\/)?[45]\d{2}\/?$/.test(new URL(page).pathname),
+          }),
+        ]
+      : []),
+  ],
   markdown: {
     syntaxHighlight: 'shiki',
     shikiConfig: {

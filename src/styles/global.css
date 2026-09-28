@@ -10,7 +10,8 @@
   html {
     background: var(--canvas);
     scroll-padding-top: 5rem;
-    scrollbar-gutter: stable;
+    /* 两侧对称预留滚动条空间，保持内容相对整个视口居中。 */
+    scrollbar-gutter: stable both-edges;
   }
   body {
     @apply bg-canvas font-sans text-body text-copy antialiased;

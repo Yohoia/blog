@@ -1,0 +1,33 @@
+---
+import Gmail from '@/assets/icons/social/gmail.svg';
+import QQ from '@/assets/icons/social/qq.svg';
+import X from '@/assets/icons/social/x.svg';
+import Xiaohongshu from '@/assets/icons/social/xiaohongshu.svg';
+import Bilibili from '@/assets/icons/social/bilibili.svg';
+import GitHub from '@/assets/icons/social/github.svg';
+import { iconTokens } from '@/config/icons';
+import type { siteConfig } from '@/config/site';
+
+interface Props {
+  name: (typeof siteConfig.contactLinks)[number]['icon'];
+}
+
+/** 品牌图标来源与许可：src/assets/icons/social/README.md。 */
+const icons = {
+  gmail: Gmail,
+  qq: QQ,
+  x: X,
+  xiaohongshu: Xiaohongshu,
+  bilibili: Bilibili,
+  github: GitHub,
+};
+const Icon = icons[Astro.props.name];
+---
+
+<Icon
+  width={iconTokens.size.small}
+  height={iconTokens.size.small}
+  fill="currentColor"
+  aria-hidden="true"
+  focusable="false"
+/>

@@ -15,21 +15,25 @@
   <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="./assets/readme/index-mobile-dark.webp">
   <source media="(max-width: 600px)" srcset="./assets/readme/index-mobile-light.webp">
   <source media="(prefers-color-scheme: dark)" srcset="./assets/readme/index-dark.webp">
-  <img src="./assets/readme/index-light.webp" width="100%" alt="实际首页：Yohoia 导航、UTC 时钟、介绍、栏目入口与最近更新的空状态，支持明暗主题">
+  <img src="./assets/readme/index-light.webp" width="100%" alt="实际首页：Yohoia 公共导航与直接平铺的个人介绍，支持明暗主题">
 </picture>
 
-_当前首页的真实截图。最近更新从内容集合读取，尚无内容时显示空状态。_
+_当前首页的真实截图。介绍逐字播放，内容直接在页面中向下展开。_
 
 ## 当前进度
 
-已完成中英文 **Index** 与 **About**，对应 `/`、`/en/`、`/about/`、`/en/about/` 四个静态页面。
+已完成中英文 **Index**、**Writing 列表**与 **About**，对应 `/`、`/en/`、`/writing/`、`/en/writing/`、`/about/`、`/en/about/` 六个静态页面。
 
 - **公共导航**：滚动收紧、胶囊高亮、移动端菜单和明暗主题切换。
 - **中英切换**：保留查询参数、锚点、主题和阅读位置，减少翻译长度导致的布局变化。
 - **手写 Logo**：进入或刷新时播放一次，悬浮或键盘聚焦时重播；遵循系统减少动画偏好。
+- **平铺首页**：介绍在页面中居中排布，正文左对齐，各部分以细横线和紧凑间距分隔，随内容自然增高；绿色用户名、蓝色主机名和柔和绿色光标，Motion 驱动匀速逐字输入与逐行淡入。访问时间读取浏览器本地时间，语言切换保留播放进度、已显示的输出行与阅读位置，减少动画模式直接展示完整内容。
 - **内容基础**：Markdown / MDX、Content Collections、字段校验、草稿过滤和统一内容路径。
+- **错误页面**：403、404、500、502 使用独立的全屏布局，不显示 Header；插图和说明在整个视口中居中，继承站点明暗主题，按 URL 显示中英文并提供返回首页入口。
 
-Writing、Fragments、Projects、Finder、News、Now、Profile 已预留结构，栏目页与详情页仍待制作。主导航保留计划路径，当前只有上述四个页面可访问。内容集合为空；News 数据源与公开 RSS 端点尚未接入。
+首页姓名与联系方式已使用 Yohoia 的信息。`cat links.md` 展示 Email（`imyohoia@gmail.com`）、QQ、X、小红书、Bilibili 与 GitHub，渠道、标签及链接集中在 `src/config/site.ts`，对应品牌 SVG 在本地托管，沿用单色图标与文本链接样式。其余公司、履历与统计按用户要求暂留参考稿内容，集中在 `src/features/index/config.ts` 等待替换。文章区使用 `yohoia@space:~$ ls -ltr writing/ | tail -n 6`，从 Writing 共用的参考列表取最新 6 条，保留从旧到新的输出顺序；`Writing — full blog` 进入本站对应语言的完整列表，文件名定位到列表条目。9 条参考文章集中在 `src/features/writing/config.ts`，目前尚无正文或文章详情页。
+
+Fragments、Projects、Finder、News、Now、Profile 已预留结构，栏目页与详情页仍待制作。主导航保留计划路径，尚未实现的地址显示自定义 404 页面。内容集合为空，Writing 目前展示用户提供的参考记录；News 数据源与公开 RSS 端点尚未接入。
 
 ## 快速开始
 
@@ -55,13 +59,30 @@ npm run dev
 
 正式域名确定后，复制 `.env.example` 为 `.env`，填写 `SITE_URL`。留空也能开发和构建；配置后才启用 Sitemap 与 Canonical / hreflang。静态托管使用 `npm ci` 安装、`npm run build` 构建、`dist/` 发布。
 
+### 错误页与部署路由
+
+| 状态码 | 中文预览路径 | 英文预览路径 | 静态产物              |
+| ------ | ------------ | ------------ | --------------------- |
+| 403    | `/403/`      | `/en/403/`   | `dist/403/index.html` |
+| 404    | `/404/`      | `/en/404/`   | `dist/404.html`       |
+| 500    | `/500/`      | `/en/500/`   | `dist/500.html`       |
+| 502    | `/502/`      | `/en/502/`   | `dist/502/index.html` |
+
+八个入口共用 `src/features/errors/ErrorPage.astro`，文案和图片映射位于同目录的 `config.ts`；原始 PNG 保留在 `public/images/`。错误页标记 `noindex`，并从 Sitemap 排除。英文产物均位于 `dist/en/<状态码>/index.html`。
+
+站内链接继续使用尾部斜杠，路由匹配允许两种写法，避免生产预览在无斜杠的未知地址上提前返回 Astro 默认错误页。
+
+Astro 开发服务器会将未知地址交给 `src/pages/404.astro`，静态构建生成根目录的 `404.html`；托管平台须把找不到的请求交给这份文件并保留 HTTP 404。静态托管共用根错误文件时，浏览器脚本根据实际 URL 的 `/en/` 前缀同步文案和返回首页链接；无 JavaScript 时根文件显示默认中文，显式英文路由仍正常显示英文。参见 [Astro 错误页文档](https://docs.astro.build/en/basics/astro-pages/#custom-404-error-page)。
+
+当前采用静态输出，访问错误页地址用于预览；线上真正的 403、500、502 由服务器或代理产生，需要在对应服务绑定这些 HTML。尚未选择部署平台，因此不添加平台适配器。使用 Nginx 时可在静态站点的 `server` 块中引入 [`deploy/nginx-errors.conf`](deploy/nginx-errors.conf)，并把 `root` 指向 `dist`；反向代理还需在页面请求所在的 `location` 配置 `proxy_intercept_errors on`。这是待部署时启用的示例，参见 [Nginx error_page 文档](https://nginx.org/en/docs/http/ngx_http_core_module.html#error_page)。
+
 ## 技术与设计
 
 **Astro 7 · TypeScript 6 · Tailwind CSS 4 · Motion · Lucide**
 
 页面与公共 UI 优先使用 Astro 组件，React Islands 留给需要复杂交互的模块。内容在构建时生成静态 HTML；不依赖数据库或 CMS。MDX、SEO、Sitemap 与 RSS 工具已接入基础层，目录职责见 [项目结构](#项目结构)。
 
-视觉规范来自 [design.md](design.md)：公共颜色、字号、间距和容器集中在 Design Tokens，组件与正文复用同一套样式。Geist Sans / Mono 在本站托管，中文采用系统字体回退。动画参数集中配置，明暗主题与语言沿用公共脚本。
+视觉规范来自 [design.md](design.md)：公共颜色、字号、间距和容器集中在 Design Tokens，组件与正文复用同一套样式。首页采用透明的平铺内容，沿用公共明暗主题与阅读宽度。Geist Sans / Mono 在本站托管，中文采用系统字体回退。动画参数集中配置，明暗主题与语言沿用公共脚本。
 
 ## 项目结构
 
@@ -81,18 +102,18 @@ src/
 └── islands/          # React 交互模块预留
 ```
 
-路由组合 `features`、布局和公共组件；板块模块调用 `lib` 与 `config`，基础层不反向依赖页面。默认中文不加前缀，英文使用 `/en/`；首页与 About 各维护一份版式。内容标题与正文保留原文，内容级翻译仍需真实译文。
+路由组合 `features`、布局和公共组件；板块模块调用 `lib` 与 `config`，基础层不反向依赖页面。默认中文不加前缀，英文使用 `/en/`；首页、Writing 与 About 各维护一份版式。内容标题与正文保留原文，内容级翻译仍需真实译文。
 
 <details>
 <summary>常用配置入口</summary>
 
-| 配置                 | 文件                                                                                                      |
-| -------------------- | --------------------------------------------------------------------------------------------------------- |
-| 站点名称、简介、时区 | [`src/config/site.ts`](src/config/site.ts)                                                                |
-| 语言、导航与公共翻译 | [`i18n.ts`](src/config/i18n.ts) · [`navigation.ts`](src/config/navigation.ts) · [`ui.ts`](src/i18n/ui.ts) |
-| 首页与 About 文案    | [`index/config.ts`](src/features/index/config.ts) · [`about/config.ts`](src/features/about/config.ts)     |
-| 设计与动画参数       | [`tokens.css`](src/styles/tokens.css) · [`motion.ts`](src/config/motion.ts)                               |
-| 内容模型与分类       | [`schemas.ts`](src/lib/content/schemas.ts) · [`categories.ts`](src/config/categories.ts)                  |
+| 配置                 | 文件                                                                                                                                                          |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 站点信息与联系方式   | [`src/config/site.ts`](src/config/site.ts)                                                                                                                    |
+| 语言、导航与公共翻译 | [`i18n.ts`](src/config/i18n.ts) · [`navigation.ts`](src/config/navigation.ts) · [`ui.ts`](src/i18n/ui.ts)                                                     |
+| 板块文案与参考文章   | [`index/config.ts`](src/features/index/config.ts) · [`writing/config.ts`](src/features/writing/config.ts) · [`about/config.ts`](src/features/about/config.ts) |
+| 设计与动画参数       | [`tokens.css`](src/styles/tokens.css) · [`motion.ts`](src/config/motion.ts)                                                                                   |
+| 内容模型与分类       | [`schemas.ts`](src/lib/content/schemas.ts) · [`categories.ts`](src/config/categories.ts)                                                                      |
 
 </details>
 

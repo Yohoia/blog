@@ -1,0 +1,356 @@
+---
+import { siteConfig } from '@/config/site';
+import { sectionPaths } from '@/config/navigation';
+import { getLocale, localizePath } from '@/lib/i18n';
+import { referenceWritingEntries } from '@/features/writing/config';
+import TerminalPrompt from './TerminalPrompt.astro';
+import TerminalBrandIcon from './TerminalBrandIcon.astro';
+import { terminalContent, terminalLabels, terminalSequence } from './config';
+
+const locale = getLocale(Astro.url.pathname);
+const labels = terminalLabels[locale];
+const username = siteConfig.name.toLowerCase();
+const latestPosts = referenceWritingEntries.slice(-terminalContent.posts.limit);
+const writingUrl = localizePath(sectionPaths.writing, locale);
+---
+
+<yohoia-terminal class="index-introduction" data-language-block="introduction">
+  <div
+    class="introduction-content"
+    data-terminal-body
+    role="region"
+    aria-label={labels.output}
+    aria-live="off"
+  >
+    <p class="last-login c-muted">
+      Last login:{' '}
+      <time data-terminal-login title={labels.dateFallback}>
+        —
+      </time>{' '}
+      on ttys001
+    </p>
+
+    <div data-terminal-history>
+      {terminalSequence.map((step) => (
+        <div
+          class="introduction-section"
+          data-terminal-step
+          data-command={step.command}
+        >
+          <div class="prompt-line">
+            <TerminalPrompt />
+            <span class="cmd-text">{step.command}</span>
+          </div>
+
+          {step.id === 'identity' && (
+            <div class="output-block">
+              <p class="terminal-name c-white" data-terminal-line>
+                {siteConfig.name}
+              </p>
+              <p class="c-muted" data-terminal-line>
+                {terminalContent.identity.role}{' '}
+                <span class="term-link">
+                  {terminalContent.identity.company}
+                </span>
+              </p>
+              <p class="c-muted" data-terminal-line>
+                {terminalContent.identity.experience}
+              </p>
+              <p class="c-muted" data-terminal-line>
+                {terminalContent.identity.location}
+              </p>
+            </div>
+          )}
+
+          {step.id === 'philosophy' && (
+            <div class="output-block">
+              <p class="philosophy c-orange" lang="zh-CN" data-terminal-line>
+                {terminalContent.philosophy.zh}
+              </p>
+              <div class="c-muted" lang="en">
+                {terminalContent.philosophy.en.map((line) => (
+                  <p data-terminal-line>{line}</p>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {step.id === 'workflows' && (
+            <div class="output-block output-stack">
+              {terminalContent.workflows.map((line) => (
+                <p
+                  class:list={{ 'c-muted': 'muted' in line && line.muted }}
+                  data-terminal-line
+                >
+                  <span class="c-green" aria-hidden="true">
+                    ■
+                  </span>{' '}
+                  {'emphasis' in line && (
+                    <>
+                      <span class="c-white">{line.emphasis}</span>{' '}
+                    </>
+                  )}
+                  {line.text}
+                </p>
+              ))}
+            </div>
+          )}
+
+          {step.id === 'posts' && (
+            <div class="output-block posts-output" lang="en">
+              <ul class="post-list">
+                {latestPosts.map((post) => (
+                  <li class="post-row" data-terminal-line>
+                    <span class="post-meta c-muted">
+                      {terminalContent.posts.permissions}
+                      {'  '}
+                      {username}
+                      {'  '}
+                      {post.date}
+                    </span>
+                    <span class="post-details">
+                      <a
+                        class="term-link"
+                        href={`${writingUrl}#${post.filename}`}
+                        data-astro-reload
+                      >
+                        {post.filename}
+                      </a>{' '}
+                      <span class="c-muted">— {post.title}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <p class="c-muted" data-terminal-line>
+                {terminalContent.posts.hint}
+              </p>
+              <p data-terminal-line>
+                →{' '}
+                <a class="writing-link" href={writingUrl} data-astro-reload>
+                  <span class="term-link">Writing</span>{' '}
+                  <span class="c-muted">— full blog</span>
+                </a>
+              </p>
+            </div>
+          )}
+
+          {step.id === 'agents' && (
+            <div class="output-block">
+              {terminalContent.agents.map((agent) => (
+                <div class="agent-row" data-terminal-line>
+                  <span class="c-blue">{agent.name}</span>
+                  <span class="c-muted">{agent.description}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {step.id === 'career' && (
+            <div class="output-block output-stack">
+              {terminalContent.career.map((entry) => (
+                <p data-terminal-line>
+                  <span class="c-yellow">{entry.hash}</span>{' '}
+                  <span class="c-muted">{entry.year}</span> {entry.role}{' '}
+                  <span class="c-white">{entry.company}</span>{' '}
+                  <span class="c-muted">{entry.description}</span>
+                </p>
+              ))}
+            </div>
+          )}
+
+          {step.id === 'links' && (
+            <div class="output-block output-stack terminal-links">
+              {siteConfig.contactLinks.map((contact) => (
+                <div class="link-row" data-terminal-line>
+                  <TerminalBrandIcon name={contact.icon} />
+                  <a class="term-link" href={contact.href}>
+                    {contact.label}
+                  </a>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {step.id !== 'links' && (
+            <hr
+              class="introduction-divider"
+              data-terminal-divider
+              aria-hidden="true"
+            />
+          )}
+        </div>
+      ))}
+    </div>
+
+    <div class="prompt-line" data-terminal-prompt aria-hidden="true">
+      <TerminalPrompt />
+      <div class="typing-line">
+        <span class="cmd-text" data-terminal-typing></span>
+        <span class="cursor" data-terminal-cursor></span>
+      </div>
+    </div>
+  </div>
+</yohoia-terminal>
+
+<script>
+  import { registerTerminal } from '@/scripts/terminal';
+  registerTerminal();
+</script>
+
+<style>
+  .index-introduction {
+    display: block;
+    color: var(--body);
+    overflow-anchor: none;
+  }
+  .introduction-content {
+    overflow-wrap: anywhere;
+    font-family: var(--font-mono);
+    font-size: var(--text-meta);
+    line-height: 1.7;
+  }
+  .last-login {
+    margin-block-end: 1rem;
+  }
+  .output-block {
+    margin-block-end: 0;
+  }
+  .introduction-divider {
+    border: 0;
+    border-block-start: 1px solid var(--border);
+    margin-block: 0.75rem;
+  }
+  .introduction-section:last-child {
+    margin-block-end: 1rem;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html[data-terminal-js]) [data-terminal-step]:not([data-visible]),
+    :global(html[data-terminal-js])
+      [data-terminal-line]:not([data-line-visible]),
+    :global(html[data-terminal-js])
+      [data-terminal-divider]:not([data-visible]) {
+      display: none;
+    }
+  }
+  .prompt-line {
+    display: flex;
+    margin-block-end: 0.5rem;
+  }
+  .prompt-line[hidden] {
+    display: none;
+  }
+  .typing-line,
+  .cmd-text {
+    min-inline-size: 0;
+  }
+  .cmd-text {
+    color: var(--heading);
+    font-weight: 600;
+  }
+  .terminal-name {
+    font-size: var(--text-item);
+    margin-block-end: 0.5rem;
+  }
+  .philosophy {
+    font-style: italic;
+    margin-block-end: 0.5rem;
+  }
+  .output-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .agent-row {
+    display: grid;
+    grid-template-columns: 10rem minmax(0, 1fr);
+    gap: 0.5rem;
+    margin-block-end: 0.25rem;
+  }
+  .agent-row:last-child {
+    margin-block-end: 0;
+  }
+  .posts-output > p + p {
+    margin-block-start: 0.25rem;
+  }
+  .post-list {
+    list-style: none;
+    padding: 0;
+    margin-block: 0.25rem;
+  }
+  .post-row {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    column-gap: 0.75rem;
+  }
+  .post-row + .post-row {
+    margin-block-start: 0.25rem;
+  }
+  .post-meta {
+    white-space: pre;
+  }
+  .post-details {
+    min-inline-size: 0;
+  }
+  .c-green {
+    color: var(--heading);
+  }
+  .c-blue {
+    color: var(--signal-text);
+  }
+  .c-yellow {
+    color: var(--muted-text);
+  }
+  .c-orange {
+    color: var(--body);
+  }
+  .c-muted {
+    color: var(--muted-text);
+  }
+  .c-white {
+    color: var(--heading);
+    font-weight: 600;
+  }
+  .term-link {
+    color: var(--signal-text);
+    text-decoration: none;
+    border-block-end: 1px dotted currentColor;
+    padding-block-end: 1px;
+  }
+  .writing-link {
+    text-decoration: none;
+  }
+  .terminal-links {
+    margin-inline-start: 0.5rem;
+  }
+  .link-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-block-end: 0.25rem;
+  }
+  .link-row :global(svg) {
+    flex-shrink: 0;
+    inline-size: 0.875rem;
+    block-size: 0.875rem;
+    color: var(--signal-text);
+  }
+  .cursor {
+    display: inline-block;
+    inline-size: 0.5rem;
+    block-size: 1rem;
+    background: var(--terminal-cursor);
+    border-radius: 1px;
+    box-shadow: 0 0 0.5rem var(--terminal-cursor-glow);
+    vertical-align: middle;
+  }
+  @media (max-width: 35rem) {
+    .post-row {
+      grid-template-columns: 1fr;
+    }
+    .agent-row {
+      grid-template-columns: 1fr;
+      gap: 0.25rem;
+      margin-block-end: 0.75rem;
+    }
+  }
+</style>
