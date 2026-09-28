@@ -1,0 +1,96 @@
+---
+import { siteConfig } from '@/config/site';
+import { getLocale } from '@/lib/i18n';
+import TerminalBrandIcon from './TerminalBrandIcon.astro';
+import { terminalLabels } from './config';
+
+const labels = terminalLabels[getLocale(Astro.url.pathname)];
+const midpoint = Math.ceil(siteConfig.contactLinks.length / 2);
+const left = siteConfig.contactLinks.slice(0, midpoint);
+const right = siteConfig.contactLinks.slice(midpoint);
+---
+
+<terminal-contacts class="terminal-links output-block">
+  {left.map((contact, index) => (
+    <div class="contact-row" data-terminal-line>
+      {[contact, right[index]].map(
+        (entry) =>
+          entry && (
+            <div class="contact-item">
+              <TerminalBrandIcon name={entry.icon} />
+              {'href' in entry ? (
+                <a class="contact-link" href={entry.href}>
+                  {entry.label}
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  class="contact-link copy-contact"
+                  title={labels.copyWeChat}
+                  aria-label={`${labels.copyWeChat}: ${entry.copyValue}`}
+                  data-copy-contact={entry.copyValue}
+                  data-copy-success={labels.copiedWeChat}
+                  data-copy-failed={labels.copyFailed}
+                >
+                  {entry.label}
+                </button>
+              )}
+            </div>
+          ),
+      )}
+    </div>
+  ))}
+  <p class="sr-only" role="status" data-copy-status></p>
+</terminal-contacts>
+
+<script>
+  import { registerTerminalContacts } from '@/scripts/terminal-contacts';
+  registerTerminalContacts();
+</script>
+
+<style>
+  .terminal-links {
+    display: grid;
+    gap: 0.5rem;
+    margin-inline-start: 0.5rem;
+  }
+  .contact-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--item-gap);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html[data-terminal-js]) .contact-row:not([data-line-visible]) {
+      display: none;
+    }
+  }
+  .contact-item {
+    display: flex;
+    align-items: baseline;
+    min-inline-size: 0;
+    gap: 0.5rem;
+  }
+  .contact-item :global(svg) {
+    flex-shrink: 0;
+    inline-size: 0.875rem;
+    block-size: 0.875rem;
+    color: var(--signal-text);
+    align-self: start;
+    margin-block-start: 0.3em;
+  }
+  .contact-link {
+    min-inline-size: 0;
+    color: var(--signal-text);
+    text-decoration: underline dotted;
+    text-underline-offset: 0.25em;
+    overflow-wrap: anywhere;
+  }
+  .copy-contact {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+  }
+</style>

@@ -41,5 +41,15 @@ export const siteConfig = {
       label: 'GitHub: @Yohoia',
       href: github,
     },
+    {
+      icon: 'wechat',
+      label: '微信: 13870096885',
+      copyValue: '13870096885',
+    },
+    {
+      icon: 'telegram',
+      label: 'TG: @Yohoia',
+      href: 'https://t.me/Yohoia',
+    },
   ],
 } as const;

@@ -85,7 +85,7 @@ export const terminalSequence = [
   },
   { id: 'agents', command: 'ls compute-labs/agents/' },
   { id: 'career', command: 'git log --oneline --reverse career/' },
-  { id: 'links', command: 'cat links.md' },
+  { id: 'links', command: 'pr -2 -t links.md' },
 ] as const;
 
 export const terminalLabels = {
@@ -93,10 +93,18 @@ export const terminalLabels = {
     title: 'Yohoia 的个人介绍',
     output: '自动播放的个人介绍，随页面向下展开',
     dateFallback: '启用 JavaScript 后显示访问时间',
+    avatar: 'Yohoia 的像素头像，点击重播聚合动画',
+    copyWeChat: '复制微信号码',
+    copiedWeChat: '微信号码已复制',
+    copyFailed: '无法复制，请手动复制微信号码',
   },
   en: {
     title: 'Yohoia’s introduction',
     output: 'An automated introduction that unfolds down the page.',
     dateFallback: 'Visit time is available with JavaScript enabled',
+    avatar: 'Yohoia’s pixel portrait. Activate to replay the animation.',
+    copyWeChat: 'Copy WeChat number',
+    copiedWeChat: 'WeChat number copied',
+    copyFailed: 'Unable to copy. Please copy the WeChat number manually.',
   },
 } as const;

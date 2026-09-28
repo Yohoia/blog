@@ -11,7 +11,9 @@ const locale = getLocale(Astro.url.pathname);
 
 <SiteLayout title={ui[locale].navigation.index}>
   <script slot="head" is:inline>
-    document.documentElement.dataset.terminalJs = 'true';
+    if (performance.getEntriesByType('navigation')[0]?.type === 'reload') {
+      document.documentElement.dataset.terminalJs = 'true';
+    }
   </script>
   <Container as="main" width="index" id="main-content" class="index-page">
     <h1 class="sr-only">{terminalLabels[locale].title}</h1>

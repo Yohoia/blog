@@ -25,6 +25,7 @@
 - `src/pages/`：精简的路由、静态路径生成与端点。
 - `src/layouts/`：全局 HTML、SEO、主题与页面布局；页面使用 `BaseLayout` 或其衍生布局。
 - 常规站点页面使用 `SiteLayout`，复用 Header 和 SkipLink；页面主内容须包含 `id="main-content"`。Header 的激活态依据实际路径，导航配置统一从 `config/navigation.ts` 读取。
+- Header 的 Logo 与操作按钮分置视口两侧，以公共 Gutter 和 4vw / 64px 上限保留边距；桌面主导航居中。960px 以下显示移动菜单，CSS 与 `scripts/navigation.ts` 的断点保持一致，避免中间导航挤压 Logo。
 - `src/components/`：跨板块复用的 Astro 组件。
 - `src/features/<section>/`：板块专属组件、查询与业务逻辑。
 - `src/islands/`：可复用 React 交互组件；板块专属 Island 可以归入对应 feature。
@@ -46,10 +47,11 @@
 - 图标参数读取 `config/icons.ts`；Astro 使用 `stroke-width`，React 使用 `strokeWidth`。图标按钮必须提供可访问名称，移动端控件触摸区域至少 44px。
 - Astro 动画使用 `motion`，React 动画使用 `motion/react`；统一读取 `config/motion.ts`，尊重减少动画的系统偏好。
 - Logo 保留原始 SVG 轮廓与遮罩显现顺序，用 Motion 时间线播放；不添加 CSS keyframes、SMIL 或 React hydration 重复驱动动画。其品牌时序位于 `motionTokens.logo`，多个实例必须拥有独立遮罩 ID。
-- 首页介绍沿用参考稿内容与播放节奏：Astro 输出完整内容，Motion 驱动打字与光标，参数位于 `motionTokens.terminal`。按用户最新要求直接平铺在页面中，使用公共容器、颜色和明暗主题，不添加终端窗口外框、标签栏、状态栏或内部滚动。进入或刷新重播，语言切换保留播放进度、访问时间和页面阅读位置；播放不强制滚动页面，减少动画模式立即展示完整内容。
+- 首页介绍沿用参考稿内容与播放节奏：Astro 输出完整内容，Motion 驱动打字与光标，参数位于 `motionTokens.terminal`。按用户最新要求直接平铺在页面中，使用公共容器、颜色和明暗主题，不添加终端窗口外框、标签栏、状态栏或内部滚动。仅浏览器刷新自动播放，直接访问、站内跳转与历史返回立即展示完整内容；`scripts/page-visit.ts` 结合 Navigation Timing 与 ClientRouter 生命周期判断，不能只检查 Navigation Timing 后在客户端返回时重复播放。语言切换保留当前播放进度、访问时间和页面阅读位置；播放结束停止光标循环，进入历史缓存前完成内容，减少动画模式立即展示完整内容。Logo 的自动播放也仅在刷新时触发，保留悬浮与聚焦重播。
 - 首页内容区相对视口居中，正文左对齐；各部分使用公共边框颜色的 1px 横线分隔，横线上下各 12px，避免恢复原先 32–48px 的大组间距。页面对称预留滚动条空间，保持内容与导航的中心一致。
 - 首页提示符的用户名用绿色，主机名用蓝色，光标为柔和绿色；颜色读取公共 Token，并保留浅色主题的文字对比度。命令匀速逐字输入，输出按语义行依次淡入；当前行数与输出阶段也要纳入语言切换快照。输出过程中隐藏下一条空提示符，等整部分输出完毕后再显示分隔线与下一条提示符。每条命令开始时从可见相位重新闪烁，等待下一条输入时保持光标可见；历史命令行不复制光标。
-- 通用界面图标使用 `@lucide/astro` 或 `lucide-react`，按图标名导入。用户明确要求社交渠道使用对应品牌图标，首页 Gmail、QQ、X、小红书、Bilibili 与 GitHub 使用本地 Simple Icons SVG；来源提交与 CC0 许可位于 `src/assets/icons/social/`，由 Astro 内联并沿用公共尺寸和颜色，不引入远程运行时或徽章样式。
+- `whoami` 右侧使用 `features/index/PixelAvatar.astro`，原始头像与 64×64 圆点 SVG 保留在 `src/assets/images/`。首轮聚合从第一行信息开始，与完整输出同步结束；下一部分等待文字和头像都完成。`scripts/pixel-avatar.ts` 使用一个 Motion 时钟驱动 Canvas，参数来自 `motionTokens.avatar`，配色读取公共 Token，完成后保留 Canvas 最后一帧并停止动画，避免 Canvas / SVG 交接造成细点闪变。语言切换保存头像进度，离开页面清理动画和观察器；静态访问、减少动画或无脚本时显示完整 SVG。桌面端默认 144px，隐藏的 identity 行提前保留完整文字高度，聚合开始前同步头像尺寸；手机端使用 128px / 100px，保持命令全宽。不要在逐行输出结束时才测量和缩放头像，不要恢复过大的头像导致左侧底部空白，也不要把本地 HTML 原型的调试控件加入首页。
+- 通用界面图标使用 `@lucide/astro` 或 `lucide-react`，按图标名导入。用户明确要求社交渠道使用对应品牌图标，首页 Gmail、QQ、X、小红书、Bilibili、GitHub、微信与 Telegram 使用本地 Simple Icons SVG；来源提交与 CC0 许可位于 `src/assets/icons/social/`，由 Astro 内联并沿用公共尺寸和颜色，不引入远程运行时或徽章样式。
 - 图片使用 `astro:assets` 的 Image / Picture；代码高亮使用 Astro 内置 Shiki。
 - 错误页按用户要求使用 `BaseLayout` 的独立全屏布局，不显示 Header、Logo、导航或顶部操作区；插图与简短说明在整个视口居中、保持比例，保留返回首页入口。原图的深色字样用公共 `--illustration-canvas` 纸色底保证暗色可辨认，主题继承现有脚本。错误页设为 `noindex` 并从 Sitemap 排除；`404.astro` 是未知地址的兜底入口。静态托管只回传根错误文件时，`scripts/error-page.ts` 从实际 URL 同步文案与返回首页链接的语言。不能把静态预览路由当作已部署的服务器错误拦截；真正的 403 / 500 / 502 由托管服务器绑定，Nginx 示例位于 `deploy/nginx-errors.conf`。
 - 站内链接保持目录尾部斜杠；Astro 使用 `trailingSlash: 'ignore'` 接受两种输入，保证无斜杠的未知地址也由自定义 404 接管，不能恢复会让静态预览提前返回默认错误页的严格匹配。
@@ -66,7 +68,7 @@
 - 公共列表、详情静态路径与 RSS 必须过滤草稿，优先复用 `getPublishedEntries()`。
 - Writing / Fragments / Projects 的详情路径使用 `getEntryPath()` 与 `[...id].astro`，支持嵌套内容目录。
 - 不编造文章、作品、个人身份、联系方式或 News 新闻来填充目录。
-- 姓名和联系方式统一读取 `config/site.ts`。首页 `cat links.md` 按用户提供的顺序展示 Email、QQ、X、小红书、Bilibili 与 GitHub，邮箱为 `imyohoia@gmail.com`；完整渠道、标签和目标 URL 集中在 `siteConfig.contactLinks`，保留原逐行播放，不恢复 LinkedIn、简历或旧邮箱。首页公司、履历与统计经用户明确要求暂留参考内容，集中在 `features/index/config.ts`，不能自动视为真实个人资料或已接入的数据；待用户提供资料后替换。
+- 姓名和联系方式统一读取 `config/site.ts`。首页使用 `pr -2 -t links.md` 与 `features/index/TerminalContacts.astro`，左侧 Email、QQ、X、小红书，右侧 Bilibili、GitHub、微信、Telegram，各四个。邮箱为 `imyohoia@gmail.com`，微信号码为 `13870096885`（点击复制），TG 为 `@Yohoia`（`https://t.me/Yohoia`）；渠道、标签、复制值和目标 URL 集中在 `siteConfig.contactLinks`，刷新播放时每行同时展示两列，不恢复 LinkedIn、简历或旧邮箱。首页公司、履历与统计经用户明确要求暂留参考内容，集中在 `features/index/config.ts`，不能自动视为真实个人资料或已接入的数据；待用户提供资料后替换。
 - 首页文章区使用用户确认的 `yohoia@space:~$ ls -ltr writing/ | tail -n 6`，用户名和文件所有者来自 `siteConfig.name`。参考文章集中在 `features/writing/config.ts`，按日期由旧到新排列，同日沿用用户提供顺序；首页取末尾 6 条，Writing 列表显示全部 9 条并按新到旧排列。`Writing — full blog` 跳转到对应语言的本站列表，文件名定位列表条目。保留逐行播放、响应式换行与语言切换进度；参考记录没有正文，不能视为本站已发布文章或已实现的阅读器。
 - 首页文章输出不显示 `total 6 posts`；底部入口仅在 `Writing` 文字下显示虚线，`— full blog` 无下划线，整段入口保持可点击。
 - News 的信息源通过 `features/news/providers/` 适配成统一类型；静态构建不会自动产生实时更新。

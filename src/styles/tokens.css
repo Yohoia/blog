@@ -36,6 +36,8 @@
   --terminal-host: #2463c7;
   --terminal-cursor: #56c878;
   --terminal-cursor-glow: rgb(86 200 120 / 0.22);
+  --avatar-blue: #1653f4;
+  --avatar-yellow: #f2cb17;
 }
 @media (min-width: 48rem) {
   :root {
@@ -65,6 +67,8 @@
     --floating-shadow: 0 8px 32px rgb(0 0 0 / 0.18);
     --terminal-user: #3fb950;
     --terminal-host: #58a6ff;
+    --avatar-blue: #6491ff;
+    --avatar-yellow: #f8d633;
   }
 }
 :root[data-theme='dark'] {
@@ -83,6 +87,8 @@
   --floating-shadow: 0 8px 32px rgb(0 0 0 / 0.18);
   --terminal-user: #3fb950;
   --terminal-host: #58a6ff;
+  --avatar-blue: #6491ff;
+  --avatar-yellow: #f8d633;
 }
 @theme inline {
   --color-canvas: var(--canvas);

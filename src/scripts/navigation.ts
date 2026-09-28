@@ -24,7 +24,7 @@ export function registerNavigation(): void {
       const reducedMotion = window.matchMedia(
         '(prefers-reduced-motion: reduce)',
       );
-      const mobile = window.matchMedia('(max-width: 55.999rem)');
+      const mobile = window.matchMedia('(max-width: 59.999rem)');
       const active = navigation.querySelector<HTMLAnchorElement>(
         '[aria-current="page"]',
       );

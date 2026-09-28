@@ -4,7 +4,8 @@ import { sectionPaths } from '@/config/navigation';
 import { getLocale, localizePath } from '@/lib/i18n';
 import { referenceWritingEntries } from '@/features/writing/config';
 import TerminalPrompt from './TerminalPrompt.astro';
-import TerminalBrandIcon from './TerminalBrandIcon.astro';
+import TerminalContacts from './TerminalContacts.astro';
+import PixelAvatar from './PixelAvatar.astro';
 import { terminalContent, terminalLabels, terminalSequence } from './config';
 
 const locale = getLocale(Astro.url.pathname);
@@ -37,139 +38,137 @@ const writingUrl = localizePath(sectionPaths.writing, locale);
           data-terminal-step
           data-command={step.command}
         >
-          <div class="prompt-line">
-            <TerminalPrompt />
-            <span class="cmd-text">{step.command}</span>
-          </div>
-
-          {step.id === 'identity' && (
-            <div class="output-block">
-              <p class="terminal-name c-white" data-terminal-line>
-                {siteConfig.name}
-              </p>
-              <p class="c-muted" data-terminal-line>
-                {terminalContent.identity.role}{' '}
-                <span class="term-link">
-                  {terminalContent.identity.company}
-                </span>
-              </p>
-              <p class="c-muted" data-terminal-line>
-                {terminalContent.identity.experience}
-              </p>
-              <p class="c-muted" data-terminal-line>
-                {terminalContent.identity.location}
-              </p>
-            </div>
-          )}
-
-          {step.id === 'philosophy' && (
-            <div class="output-block">
-              <p class="philosophy c-orange" lang="zh-CN" data-terminal-line>
-                {terminalContent.philosophy.zh}
-              </p>
-              <div class="c-muted" lang="en">
-                {terminalContent.philosophy.en.map((line) => (
-                  <p data-terminal-line>{line}</p>
-                ))}
+          <div class:list={{ 'identity-layout': step.id === 'identity' }}>
+            <div>
+              <div class="prompt-line">
+                <TerminalPrompt />
+                <span class="cmd-text">{step.command}</span>
               </div>
-            </div>
-          )}
 
-          {step.id === 'workflows' && (
-            <div class="output-block output-stack">
-              {terminalContent.workflows.map((line) => (
-                <p
-                  class:list={{ 'c-muted': 'muted' in line && line.muted }}
-                  data-terminal-line
-                >
-                  <span class="c-green" aria-hidden="true">
-                    ■
-                  </span>{' '}
-                  {'emphasis' in line && (
-                    <>
-                      <span class="c-white">{line.emphasis}</span>{' '}
-                    </>
-                  )}
-                  {line.text}
-                </p>
-              ))}
-            </div>
-          )}
-
-          {step.id === 'posts' && (
-            <div class="output-block posts-output" lang="en">
-              <ul class="post-list">
-                {latestPosts.map((post) => (
-                  <li class="post-row" data-terminal-line>
-                    <span class="post-meta c-muted">
-                      {terminalContent.posts.permissions}
-                      {'  '}
-                      {username}
-                      {'  '}
-                      {post.date}
+              {step.id === 'identity' && (
+                <div class="output-block identity-copy">
+                  <p class="terminal-name c-white" data-terminal-line>
+                    {siteConfig.name}
+                  </p>
+                  <p class="c-muted" data-terminal-line>
+                    {terminalContent.identity.role}{' '}
+                    <span class="term-link">
+                      {terminalContent.identity.company}
                     </span>
-                    <span class="post-details">
-                      <a
-                        class="term-link"
-                        href={`${writingUrl}#${post.filename}`}
-                        data-astro-reload
-                      >
-                        {post.filename}
-                      </a>{' '}
-                      <span class="c-muted">— {post.title}</span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <p class="c-muted" data-terminal-line>
-                {terminalContent.posts.hint}
-              </p>
-              <p data-terminal-line>
-                →{' '}
-                <a class="writing-link" href={writingUrl} data-astro-reload>
-                  <span class="term-link">Writing</span>{' '}
-                  <span class="c-muted">— full blog</span>
-                </a>
-              </p>
-            </div>
-          )}
-
-          {step.id === 'agents' && (
-            <div class="output-block">
-              {terminalContent.agents.map((agent) => (
-                <div class="agent-row" data-terminal-line>
-                  <span class="c-blue">{agent.name}</span>
-                  <span class="c-muted">{agent.description}</span>
+                  </p>
+                  <p class="c-muted" data-terminal-line>
+                    {terminalContent.identity.experience}
+                  </p>
+                  <p class="c-muted" data-terminal-line>
+                    {terminalContent.identity.location}
+                  </p>
                 </div>
-              ))}
-            </div>
-          )}
+              )}
 
-          {step.id === 'career' && (
-            <div class="output-block output-stack">
-              {terminalContent.career.map((entry) => (
-                <p data-terminal-line>
-                  <span class="c-yellow">{entry.hash}</span>{' '}
-                  <span class="c-muted">{entry.year}</span> {entry.role}{' '}
-                  <span class="c-white">{entry.company}</span>{' '}
-                  <span class="c-muted">{entry.description}</span>
-                </p>
-              ))}
-            </div>
-          )}
-
-          {step.id === 'links' && (
-            <div class="output-block output-stack terminal-links">
-              {siteConfig.contactLinks.map((contact) => (
-                <div class="link-row" data-terminal-line>
-                  <TerminalBrandIcon name={contact.icon} />
-                  <a class="term-link" href={contact.href}>
-                    {contact.label}
-                  </a>
+              {step.id === 'philosophy' && (
+                <div class="output-block">
+                  <p
+                    class="philosophy c-orange"
+                    lang="zh-CN"
+                    data-terminal-line
+                  >
+                    {terminalContent.philosophy.zh}
+                  </p>
+                  <div class="c-muted" lang="en">
+                    {terminalContent.philosophy.en.map((line) => (
+                      <p data-terminal-line>{line}</p>
+                    ))}
+                  </div>
                 </div>
-              ))}
+              )}
+
+              {step.id === 'workflows' && (
+                <div class="output-block output-stack">
+                  {terminalContent.workflows.map((line) => (
+                    <p
+                      class:list={{ 'c-muted': 'muted' in line && line.muted }}
+                      data-terminal-line
+                    >
+                      <span class="c-green" aria-hidden="true">
+                        ■
+                      </span>{' '}
+                      {'emphasis' in line && (
+                        <>
+                          <span class="c-white">{line.emphasis}</span>{' '}
+                        </>
+                      )}
+                      {line.text}
+                    </p>
+                  ))}
+                </div>
+              )}
+
+              {step.id === 'posts' && (
+                <div class="output-block posts-output" lang="en">
+                  <ul class="post-list">
+                    {latestPosts.map((post) => (
+                      <li class="post-row" data-terminal-line>
+                        <span class="post-meta c-muted">
+                          {terminalContent.posts.permissions}
+                          {'  '}
+                          {username}
+                          {'  '}
+                          {post.date}
+                        </span>
+                        <span class="post-details">
+                          <a
+                            class="term-link"
+                            href={`${writingUrl}#${post.filename}`}
+                            data-astro-reload
+                          >
+                            {post.filename}
+                          </a>{' '}
+                          <span class="c-muted">— {post.title}</span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p class="c-muted" data-terminal-line>
+                    {terminalContent.posts.hint}
+                  </p>
+                  <p data-terminal-line>
+                    →{' '}
+                    <a class="writing-link" href={writingUrl} data-astro-reload>
+                      <span class="term-link">Writing</span>{' '}
+                      <span class="c-muted">— full blog</span>
+                    </a>
+                  </p>
+                </div>
+              )}
+
+              {step.id === 'agents' && (
+                <div class="output-block">
+                  {terminalContent.agents.map((agent) => (
+                    <div class="agent-row" data-terminal-line>
+                      <span class="c-blue">{agent.name}</span>
+                      <span class="c-muted">{agent.description}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {step.id === 'career' && (
+                <div class="output-block output-stack">
+                  {terminalContent.career.map((entry) => (
+                    <p data-terminal-line>
+                      <span class="c-yellow">{entry.hash}</span>{' '}
+                      <span class="c-muted">{entry.year}</span> {entry.role}{' '}
+                      <span class="c-white">{entry.company}</span>{' '}
+                      <span class="c-muted">{entry.description}</span>
+                    </p>
+                  ))}
+                </div>
+              )}
+
+              {step.id === 'links' && <TerminalContacts />}
             </div>
-          )}
+            {step.id === 'identity' && <PixelAvatar label={labels.avatar} />}
+          </div>
 
           {step.id !== 'links' && (
             <hr
@@ -215,6 +214,13 @@ const writingUrl = localizePath(sectionPaths.writing, locale);
   .output-block {
     margin-block-end: 0;
   }
+  .identity-layout {
+    --avatar-size: 9rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--avatar-size);
+    gap: var(--group-gap);
+    align-items: start;
+  }
   .introduction-divider {
     border: 0;
     border-block-start: 1px solid var(--border);
@@ -230,6 +236,13 @@ const writingUrl = localizePath(sectionPaths.writing, locale);
     :global(html[data-terminal-js])
       [data-terminal-divider]:not([data-visible]) {
       display: none;
+    }
+    /* 首轮输出前就保留完整文字的高度，头像不随逐行出现而改大小。 */
+    :global(html[data-terminal-js])
+      .identity-copy
+      [data-terminal-line]:not([data-line-visible]) {
+      display: block;
+      visibility: hidden;
     }
   }
   .prompt-line {
@@ -319,21 +332,6 @@ const writingUrl = localizePath(sectionPaths.writing, locale);
   .writing-link {
     text-decoration: none;
   }
-  .terminal-links {
-    margin-inline-start: 0.5rem;
-  }
-  .link-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-block-end: 0.25rem;
-  }
-  .link-row :global(svg) {
-    flex-shrink: 0;
-    inline-size: 0.875rem;
-    block-size: 0.875rem;
-    color: var(--signal-text);
-  }
   .cursor {
     display: inline-block;
     inline-size: 0.5rem;
@@ -344,6 +342,20 @@ const writingUrl = localizePath(sectionPaths.writing, locale);
     vertical-align: middle;
   }
   @media (max-width: 35rem) {
+    .identity-layout {
+      --avatar-size: 8rem;
+      position: relative;
+      display: block;
+    }
+    .identity-copy {
+      padding-inline-end: calc(var(--avatar-size) + var(--item-gap));
+      min-block-size: var(--avatar-size);
+    }
+    .identity-layout :global([data-terminal-avatar]) {
+      position: absolute;
+      inset-inline-end: 0;
+      inset-block-start: calc(1lh + 0.5rem);
+    }
     .post-row {
       grid-template-columns: 1fr;
     }
@@ -351,6 +363,11 @@ const writingUrl = localizePath(sectionPaths.writing, locale);
       grid-template-columns: 1fr;
       gap: 0.25rem;
       margin-block-end: 0.75rem;
+    }
+  }
+  @media (max-width: 24.999rem) {
+    .identity-layout {
+      --avatar-size: 6.25rem;
     }
   }
 </style>

@@ -4,6 +4,7 @@ import {
   type AnimationSequence,
 } from 'motion';
 import { motionTokens } from '@/config/motion';
+import { isRefreshVisit } from '@/scripts/page-visit';
 
 type StrokeTiming = (typeof motionTokens.logo.strokes)[number];
 interface LogoStroke {
@@ -63,7 +64,7 @@ export function registerLogo(): void {
         controller.abort();
         this.finish();
       };
-      if (this.dataset.logoSkipIntro === 'true') {
+      if (this.dataset.logoSkipIntro === 'true' || !isRefreshVisit()) {
         delete this.dataset.logoSkipIntro;
         this.finish();
       } else {

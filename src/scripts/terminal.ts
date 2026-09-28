@@ -1,6 +1,11 @@
 import { animate, type AnimationPlaybackControls } from 'motion';
 import { animate as animateElement } from 'motion/mini';
 import { motionTokens } from '@/config/motion';
+import { isRefreshVisit } from '@/scripts/page-visit';
+import {
+  createPixelAvatar,
+  type PixelAvatarController,
+} from '@/scripts/pixel-avatar';
 
 interface PlaybackSnapshot {
   completed: number;
@@ -8,6 +13,7 @@ interface PlaybackSnapshot {
   outputStarted: boolean;
   revealedLines: number;
   login: string;
+  avatarProgress: number;
 }
 
 /** SSR 提供完整内容；浏览器仅负责播放呈现，不执行任何终端命令。 */
@@ -29,6 +35,7 @@ export function registerTerminal(): void {
     private typingAnimation?: AnimationPlaybackControls;
     private lineAnimation?: AnimationPlaybackControls;
     private cursorAnimation?: AnimationPlaybackControls;
+    private avatar?: PixelAvatarController;
     private reducedMotion = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
     );
@@ -70,18 +77,26 @@ export function registerTerminal(): void {
       this.typing.textContent = this.outputStarted
         ? ''
         : command.slice(0, this.typed);
+      this.avatar = createPixelAvatar(
+        this.querySelector('[data-terminal-avatar]'),
+        this.reducedMotion,
+      );
+      this.avatar?.restore(
+        this.completed > 0 ? 1 : (saved?.avatarProgress ?? 0),
+      );
       this.reducedMotion.addEventListener('change', this.onMotionPreference);
+      window.addEventListener('pagehide', this.onPageHide);
 
-      if (this.reducedMotion.matches) {
+      if (this.reducedMotion.matches || (!saved && !isRefreshVisit())) {
         this.finish();
         return;
       }
 
-      if (!this.outputStarted) this.startCursor();
       if (this.completed >= this.steps.length) {
         this.dataset.state = 'complete';
         return;
       }
+      if (!this.outputStarted) this.startCursor();
 
       this.dataset.state = 'playing';
       this.controller = new AbortController();
@@ -93,7 +108,9 @@ export function registerTerminal(): void {
       this.typingAnimation?.stop();
       this.lineAnimation?.cancel();
       this.cursorAnimation?.cancel();
+      this.avatar?.destroy();
       this.reducedMotion.removeEventListener('change', this.onMotionPreference);
+      window.removeEventListener('pagehide', this.onPageHide);
     }
 
     snapshot(): PlaybackSnapshot {
@@ -103,6 +120,7 @@ export function registerTerminal(): void {
         outputStarted: this.outputStarted,
         revealedLines: this.revealedLines,
         login: this.login,
+        avatarProgress: this.avatar?.progress ?? 0,
       };
     }
 
@@ -119,6 +137,9 @@ export function registerTerminal(): void {
     private onMotionPreference = () => {
       if (this.reducedMotion.matches) this.finish();
     };
+
+    // 历史缓存恢复时直接保留完整内容，避免后台页面继续播放。
+    private onPageHide = () => this.finish();
 
     private holdCursor() {
       this.cursorAnimation?.cancel();
@@ -146,6 +167,7 @@ export function registerTerminal(): void {
       this.typingAnimation?.stop();
       this.lineAnimation?.cancel();
       this.cursorAnimation?.cancel();
+      this.avatar?.finish();
       this.steps.forEach((step) => {
         step.setAttribute('data-visible', '');
         this.outputLines(step).forEach((line) => {
@@ -241,7 +263,10 @@ export function registerTerminal(): void {
     }
 
     private async play(signal: AbortSignal, initial: boolean) {
-      if (initial) await this.pause(motionTokens.terminal.initialDelay, signal);
+      if (initial) {
+        await document.fonts.ready;
+        await this.pause(motionTokens.terminal.initialDelay, signal);
+      }
       while (!signal.aborted && this.completed < this.steps.length) {
         const step = this.steps[this.completed];
         if (!step) break;
@@ -262,6 +287,14 @@ export function registerTerminal(): void {
         }
 
         const lines = this.outputLines(step);
+        // 从第一行信息开始聚合，时长覆盖整个 whoami 输出；语言切换接着当前进度播放。
+        const avatarPlayback = step.querySelector('[data-terminal-avatar]')
+          ? this.avatar?.play(
+              lines.length * motionTokens.terminal.lineReveal.duration +
+                Math.max(0, lines.length - 1) *
+                  motionTokens.terminal.lineReveal.interval,
+            )
+          : undefined;
         for (let index = this.revealedLines; index < lines.length; index++) {
           if (signal.aborted) return;
           const line = lines[index];
@@ -273,6 +306,7 @@ export function registerTerminal(): void {
           if (index < lines.length - 1)
             await this.pause(motionTokens.terminal.lineReveal.interval, signal);
         }
+        await avatarPlayback;
         if (signal.aborted) return;
 
         step
@@ -282,7 +316,7 @@ export function registerTerminal(): void {
         this.outputStarted = false;
         this.revealedLines = 0;
         if (this.prompt) this.prompt.hidden = false;
-        if (this.completed === this.steps.length) this.startCursor();
+        if (this.completed === this.steps.length) this.holdCursor();
 
         await this.pause(motionTokens.terminal.outputDelay, signal);
       }

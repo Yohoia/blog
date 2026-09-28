@@ -25,6 +25,14 @@ export const motionTokens = {
     lineReveal: { duration: 0.22, interval: 0.12, distance: 4 },
     cursorDuration: 1,
   },
+  /** whoami 头像：与信息输出同步聚合；悬浮重播保留 HTML 预览的节奏。 */
+  avatar: {
+    duration: 1.05,
+    pointDuration: 0.75,
+    rowDelay: 0.18,
+    randomDelay: 0.1,
+    scatter: { min: 16, max: 48 },
+  },
   /** 品牌书写时序保留 yohoia-logo-v3 的连续笔迹，区别于通用 UI 过渡。 */
   logo: {
     strokes: [

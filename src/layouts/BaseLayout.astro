@@ -27,6 +27,7 @@ const locale = getLocale(Astro.url.pathname);
   <body class={bodyClass}>
     <slot />
     <script>
+      import '@/scripts/page-visit';
       import { initializeTheme } from '@/scripts/theme';
       initializeTheme();
     </script>

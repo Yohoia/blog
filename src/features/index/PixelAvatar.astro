@@ -1,0 +1,46 @@
+---
+import PixelPortrait from '@/assets/images/yohoia-pixel-avatar.svg';
+
+interface Props {
+  label: string;
+}
+
+const { label } = Astro.props;
+---
+
+<button
+  type="button"
+  class="pixel-avatar"
+  aria-label={label}
+  data-terminal-avatar
+>
+  <PixelPortrait aria-hidden="true" focusable="false" />
+  <canvas hidden aria-hidden="true"></canvas>
+</button>
+
+<style>
+  .pixel-avatar {
+    position: relative;
+    display: block;
+    inline-size: var(--avatar-size, 9rem);
+    aspect-ratio: 1;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    touch-action: manipulation;
+  }
+  .pixel-avatar :global(svg),
+  canvas {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+  canvas {
+    position: absolute;
+    inset: 0;
+  }
+  .pixel-avatar[data-avatar-rendering] :global(svg) {
+    visibility: hidden;
+  }
+</style>
