@@ -104,6 +104,6 @@ News 与个人内容集合分开，数据结构和 Provider 契约位于 `featur
 
 已实现中英文 Index、About 与导航，目前没有建立测试框架。内容、布局和集成的临时验证样例应在验证后移除。针对查询、排序、草稿过滤及交互开展相关验证，不为静态版式建立额外测试框架。
 
-项目使用 Git 管理，主分支为 `main`。提交 `package-lock.json`、`.env.example` 和 `.gitkeep`；依赖、构建输出、本地环境变量和工具缓存由 `.gitignore` 排除。
+项目使用 Git 管理，主分支为 `main`。提交源码、配置、`package-lock.json` 和 `.env.example`；依赖、构建输出、本地环境变量、工具缓存、`references/` 和所有 `.gitkeep` 由 `.gitignore` 排除。参考素材与占位文件保留在本地，空目录不会出现在新的检出中，后续实现对应板块时按需创建。
 
 静态托管平台使用 `npm ci` 安装、`npm run build` 构建、`dist/` 发布。Cloudflare / Vercel 的适配器在确实需要动态路由时再引入。

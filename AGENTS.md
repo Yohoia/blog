@@ -13,6 +13,7 @@
 开始修改前阅读 `README.md`、`docs/architecture.md` 和相关源码。涉及内容格式时阅读 `docs/content-authoring.md`。涉及产品范围时阅读原始两份规划文档。制作或修改 UI 时阅读 `docs/design-system.md` 和 `design.md` 中对应板块规范。
 
 保留现有 `design.md`、`references/` 和需求文档；普通代码修改不顺带覆盖或重排这些文件。
+`references/` 与所有 `.gitkeep` 仅保留在本地，由 `.gitignore` 排除，不加入提交。Git 不跟踪空目录，新检出项目按实际开发需要创建相关目录。
 `yohoia-logo-v3/` 是用户提供的 Logo 原始素材，保留原文件；项目实现使用 `common/Logo.astro`、品牌 SVG 和 `scripts/logo.ts`。
 
 ## 命名与职责

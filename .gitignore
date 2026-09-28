@@ -10,6 +10,10 @@ dist/
 .env.*
 !.env.example
 
+# Local reference material and empty-directory placeholders
+/references/
+.gitkeep
+
 # Logs, test output and temporary files
 logs/
 *.log
