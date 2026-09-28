@@ -1,0 +1,28 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'section'> {
+  title?: string;
+  description?: string;
+}
+
+const { title, description, id, class: className, ...attributes } = Astro.props;
+const headingId = title && id ? `${id}-title` : undefined;
+---
+
+<section
+  {...attributes}
+  id={id}
+  class={className}
+  aria-labelledby={headingId ?? attributes['aria-labelledby']}
+>
+  {(title || description) && (
+    <header class="section-heading">
+      {title && <h2 id={headingId}>{title}</h2>}
+      {description && <p>{description}</p>}
+    </header>
+  )}
+  <div class="section-content">
+    <slot />
+  </div>
+</section>

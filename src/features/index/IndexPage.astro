@@ -1,0 +1,108 @@
+---
+import SiteLayout from '@/layouts/SiteLayout.astro';
+import Container from '@/components/layout/Container.astro';
+import StatusClock from '@/features/index/StatusClock.astro';
+import RecentActivity from '@/features/index/RecentActivity.astro';
+import { indexContent } from '@/features/index/config';
+import { secondaryNavigation } from '@/config/navigation';
+import { getLocale, localizePath } from '@/lib/i18n';
+import { ui } from '@/i18n/ui';
+const locale = getLocale(Astro.url.pathname);
+const text = ui[locale];
+const content = indexContent.translations[locale];
+---
+
+<SiteLayout title={text.navigation.index}>
+  <Container as="main" id="main-content" width="reading" class="index-page">
+    <StatusClock />
+    <div class="index-identity" data-language-block="identity">
+      <h1 class="text-page font-medium">{content.heading}</h1>
+      <p>{content.introduction}</p>
+    </div>
+    <RecentActivity />
+    <footer class="index-footer" data-language-block="footer">
+      <span class="metadata">{text.footer}</span>
+      <nav aria-label={text.secondary}>
+        {secondaryNavigation.map(({ section, href }) => (
+          <a href={localizePath(href, locale)} data-astro-reload>
+            {text.navigation[section]}
+          </a>
+        ))}
+      </nav>
+    </footer>
+  </Container>
+</SiteLayout>
+
+<style>
+  /* 对齐 index.html 的窄栏版式与 64 / 80px 节奏。 */
+  .index-page {
+    padding-block: 5rem;
+  }
+  .index-identity {
+    margin-block-start: 4rem;
+    margin-block-end: 5rem;
+    --identity-title-lines: 1;
+    --identity-copy-lines: 2;
+  }
+  h1 {
+    font-size: 2rem;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    min-block-size: calc(var(--identity-title-lines) * 1lh);
+  }
+  .index-identity p {
+    margin-block-start: 1rem;
+    font-size: 1rem;
+    line-height: 1.7;
+    min-block-size: calc(var(--identity-copy-lines) * 1lh);
+  }
+  .index-footer {
+    margin-block-start: var(--section-gap);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--item-gap);
+  }
+  .index-footer nav {
+    display: flex;
+    gap: var(--inline-gap);
+  }
+  .index-footer a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--touch-target);
+    min-inline-size: 5.5rem;
+    justify-content: center;
+    padding-inline: 0.5rem;
+    color: var(--muted-text);
+    font-size: var(--text-meta);
+    text-decoration: none;
+  }
+  .index-footer a:hover {
+    color: var(--heading);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  @media (max-width: 30rem) {
+    .index-footer {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: var(--inline-gap);
+    }
+    .index-footer nav {
+      margin-inline-start: -0.5rem;
+    }
+  }
+  @media (max-width: 35.999rem) {
+    .index-identity {
+      --identity-title-lines: 2;
+      --identity-copy-lines: 4;
+    }
+  }
+  @media (max-width: 22.499rem) {
+    .index-identity {
+      --identity-title-lines: 3;
+      --identity-copy-lines: 5;
+    }
+  }
+</style>

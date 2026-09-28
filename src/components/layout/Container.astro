@@ -1,0 +1,23 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'div'> {
+  as?: 'div' | 'main' | 'section' | 'article' | 'aside';
+  width?: 'reading' | 'compact' | 'index' | 'feature' | 'wide' | 'full';
+}
+
+const {
+  as: Element = 'div',
+  width = 'index',
+  class: className,
+  ...attributes
+} = Astro.props;
+---
+
+<Element
+  {...attributes}
+  class:list={['site-container', className]}
+  data-width={width}
+>
+  <slot />
+</Element>

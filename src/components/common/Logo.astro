@@ -1,0 +1,68 @@
+---
+import { randomUUID } from 'node:crypto';
+import type { HTMLAttributes } from 'astro/types';
+import logoSource from '@/assets/images/yohoia-logo.svg?raw';
+import { sectionPaths } from '@/config/navigation';
+
+type Props = HTMLAttributes<'a'>;
+
+const {
+  href = sectionPaths.index,
+  'aria-label': label = 'Yohoia · 首页',
+  class: className,
+  ...attributes
+} = Astro.props;
+// 每个实例拥有独立遮罩 ID，多个 Logo 同时出现时不会互相覆盖。
+const idPrefix = `yohoia-${randomUUID()}`;
+const markup = logoSource.replaceAll('yhi-', `${idPrefix}-`);
+---
+
+<a
+  {...attributes}
+  href={href}
+  aria-label={label}
+  class:list={['brand-link', className]}
+  data-astro-reload
+>
+  <yohoia-logo class="brand-logo">
+    <Fragment set:html={markup} />
+  </yohoia-logo>
+</a>
+
+<script>
+  import { registerLogo } from '@/scripts/logo';
+  registerLogo();
+</script>
+
+<style>
+  .brand-link {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--touch-target);
+    color: var(--heading);
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .brand-logo {
+    display: block;
+    inline-size: var(--logo-width, 8.5rem);
+  }
+  .brand-logo :global(svg) {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+  }
+  .brand-logo :global([data-logo-dot]) {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .brand-logo :global([data-logo-stroke]) {
+      stroke-dashoffset: 0 !important;
+    }
+    .brand-logo :global([data-logo-dot]) {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+</style>

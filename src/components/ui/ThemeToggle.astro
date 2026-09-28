@@ -1,0 +1,126 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import { Moon, Sun } from '@lucide/astro';
+import { iconTokens } from '@/config/icons';
+import Button from './Button.astro';
+import { getLocale } from '@/lib/i18n';
+import { ui } from '@/i18n/ui';
+
+type Props = Omit<HTMLAttributes<'button'>, 'aria-label' | 'title'>;
+const { class: className, ...attributes } = Astro.props;
+const text = ui[getLocale(Astro.url.pathname)];
+---
+
+<Button
+  {...attributes}
+  class={className}
+  iconOnly
+  aria-label={text.darkTheme}
+  title={text.darkTheme}
+  data-theme-toggle
+  data-dark-label={text.darkTheme}
+  data-light-label={text.lightTheme}
+>
+  <span class="theme-icon-wrapper" aria-hidden="true">
+    <Moon
+      class="theme-icon-moon"
+      size={iconTokens.size.normal}
+      stroke-width={iconTokens.strokeWidth}
+      aria-hidden="true"
+    />
+    <Sun
+      class="theme-icon-sun"
+      size={iconTokens.size.normal}
+      stroke-width={iconTokens.strokeWidth}
+      aria-hidden="true"
+    />
+  </span>
+</Button>
+
+<script>
+  import { initializeTheme, setThemePreference } from '@/scripts/theme';
+  import { animate, type AnimationPlaybackControls } from 'motion';
+  import { motionTokens } from '@/config/motion';
+
+  const registered = new WeakSet<HTMLButtonElement>();
+  const previousThemes = new WeakMap<HTMLButtonElement, boolean>();
+  const animations = new WeakMap<SVGElement, AnimationPlaybackControls>();
+
+  function updateLabels() {
+    const dark = document.documentElement.dataset.theme === 'dark';
+    document
+      .querySelectorAll<HTMLButtonElement>('[data-theme-toggle]')
+      .forEach((button) => {
+        const label =
+          (dark ? button.dataset.lightLabel : button.dataset.darkLabel) ??
+          button.getAttribute('aria-label') ??
+          '';
+        button.setAttribute('aria-label', label);
+        button.title = label;
+        const previous = previousThemes.get(button);
+        previousThemes.set(button, dark);
+        if (previous === undefined || previous === dark) return;
+        const reduced = window.matchMedia(
+          '(prefers-reduced-motion: reduce)',
+        ).matches;
+        const sun = button.querySelector<SVGElement>('.theme-icon-sun');
+        const moon = button.querySelector<SVGElement>('.theme-icon-moon');
+        if (!sun || !moon) return;
+        for (const icon of [sun, moon]) animations.get(icon)?.stop();
+        animations.set(
+          sun,
+          animate(
+            sun,
+            {
+              opacity: [previous ? 1 : 0, dark ? 1 : 0],
+              rotate: reduced ? 0 : [previous ? 0 : -90, dark ? 0 : -90],
+            },
+            {
+              duration: reduced
+                ? motionTokens.reduced.duration
+                : motionTokens.duration.ui,
+              ease: motionTokens.easing,
+            },
+          ),
+        );
+        animations.set(
+          moon,
+          animate(
+            moon,
+            {
+              opacity: [previous ? 0 : 1, dark ? 0 : 1],
+              rotate: reduced ? 0 : [previous ? 90 : 0, dark ? 90 : 0],
+            },
+            {
+              duration: reduced
+                ? motionTokens.reduced.duration
+                : motionTokens.duration.ui,
+              ease: motionTokens.easing,
+            },
+          ),
+        );
+      });
+  }
+
+  function bindToggles() {
+    initializeTheme();
+    document
+      .querySelectorAll<HTMLButtonElement>('[data-theme-toggle]')
+      .forEach((button) => {
+        if (registered.has(button)) return;
+        registered.add(button);
+        button.addEventListener('click', () => {
+          setThemePreference(
+            document.documentElement.dataset.theme === 'dark'
+              ? 'light'
+              : 'dark',
+          );
+        });
+      });
+    updateLabels();
+  }
+
+  window.addEventListener('theme:change', updateLabels);
+  document.addEventListener('astro:page-load', bindToggles);
+  bindToggles();
+</script>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finder - Digital Space</title>
+  <style>
+    :root { --canvas: #F6F5F1; --surface: #FBFAF7; --heading: #1B1B18; --body: #5F5E58; --muted: #8A8982; --border: rgba(27,27,24,0.12); --font-sans: 'Geist Sans', sans-serif; --font-mono: 'Geist Mono', monospace; }
+    .dark { --canvas: #111210; --surface: #171815; --heading: #F1F0E9; --body: #C4C3BB; --muted: #85847D; --border: rgba(241,240,233,0.12); }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--canvas); color: var(--body); font-family: var(--font-sans); line-height: 1.6; }
+    
+    .nav { position: sticky; top: 0; border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; justify-content: space-between; z-index: 50; backdrop-filter: blur(12px); }
+    
+    /* 统一核心宽度：720px 居中 */
+    .main { max-width: 720px; margin: 0 auto; padding: 80px 24px; }
+    
+    .intro { margin-bottom: 64px; }
+    .intro h1 { font-size: 32px; color: var(--heading); letter-spacing: -0.02em; }
+    .intro p { margin-top: 12px; font-size: 16px; color: var(--muted); }
+
+    .category-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+
+    .finder-list { display: flex; flex-direction: column; margin-bottom: 64px; }
+    
+    .finder-item { 
+      display: grid; grid-template-columns: 60px 1fr; gap: 16px; 
+      padding: 32px 0; border-bottom: 1px solid var(--border); 
+      text-decoration: none; color: inherit; cursor: pointer; transition: opacity 0.2s;
+    }
+    .finder-item:last-child { border-bottom: none; }
+    
+    .finder-item:hover { opacity: 0.8; }
+    .finder-item:hover .finder-title { color: #6B8CFF; }
+    .finder-item:hover .finder-num { transform: translateX(4px); color: var(--heading); }
+
+    .finder-num { font-family: var(--font-mono); font-size: 28px; font-weight: 300; color: var(--muted); transition: transform 0.3s, color 0.3s; margin-top: -4px; }
+    
+    .finder-content { display: flex; flex-direction: column; gap: 8px; }
+    .finder-header { display: flex; justify-content: space-between; align-items: baseline; }
+    .finder-title { font-size: 20px; font-weight: 500; color: var(--heading); transition: color 0.2s; }
+    .finder-domain { font-family: var(--font-mono); font-size: 13px; color: var(--heading); }
+    .finder-note { font-size: 15px; color: var(--body); line-height: 1.6; }
+
+    @media (max-width: 640px) {
+      .finder-item { grid-template-columns: 1fr; gap: 8px; padding: 24px 0; }
+      .finder-header { flex-direction: column; gap: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div style="font-weight: 600; color: var(--heading);">Finder</div>
+    <a href="index.html" style="font-size: 14px; color: var(--muted); text-decoration: none;">Index</a>
+  </header>
+
+  <main class="main">
+    <div class="intro">
+      <h1>Curated Internet</h1>
+      <p>A living directory of websites, tools, and readings I find inspiring.</p>
+    </div>
+
+    <div class="category-label">Design & Typography</div>
+    <div class="finder-list">
+      <a href="#" class="finder-item">
+        <div class="finder-num">01</div>
+        <div class="finder-content">
+          <div class="finder-header">
+            <h2 class="finder-title">Linear Design Principles</h2>
+            <span class="finder-domain">linear.app ↗</span>
+          </div>
+          <p class="finder-note">The benchmark for modern SaaS aesthetics. A masterclass in dark mode, subtle borders, and intentional animation.</p>
+        </div>
+      </a>
+      <a href="#" class="finder-item">
+        <div class="finder-num">02</div>
+        <div class="finder-content">
+          <div class="finder-header">
+            <h2 class="finder-title">Rauno's Craft</h2>
+            <span class="finder-domain">rauno.me ↗</span>
+          </div>
+          <p class="finder-note">Incredible attention to detail. Notice how focus states and keyboard navigation feel like a native desktop app.</p>
+        </div>
+      </a>
+    </div>
+  </main>
+</body>
+</html>

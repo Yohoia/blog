@@ -1,0 +1,41 @@
+# Dependencies and generated output
+node_modules/
+dist/
+.astro/
+.vite/
+*.tsbuildinfo
+
+# Local environment; keep the configuration template
+.env
+.env.*
+!.env.example
+
+# Logs, test output and temporary files
+logs/
+*.log
+coverage/
+playwright-report/
+test-results/
+*.tmp
+*.swp
+*.swo
+*~
+
+# Local deployment state
+.vercel/
+.netlify/
+.wrangler/
+
+# OS metadata
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+
+# Personal editor and agent settings; keep shared VS Code configuration
+.idea/
+.claude/settings.local.json
+.codex/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json

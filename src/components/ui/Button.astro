@@ -1,0 +1,25 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = HTMLAttributes<'button'> & {
+  variant?: 'quiet' | 'outline' | 'solid';
+} & ({ iconOnly: true; 'aria-label': string } | { iconOnly?: false });
+
+const {
+  variant = 'quiet',
+  iconOnly = false,
+  type = 'button',
+  class: className,
+  ...attributes
+} = Astro.props;
+---
+
+<button
+  {...attributes}
+  type={type}
+  class:list={['ui-button', className]}
+  data-variant={variant}
+  data-icon-only={iconOnly || undefined}
+>
+  <slot />
+</button>

@@ -1,0 +1,18 @@
+---
+import type { ComponentProps } from 'astro/types';
+import BaseLayout from './BaseLayout.astro';
+import Header from '@/components/layout/Header.astro';
+import SkipLink from '@/components/common/SkipLink.astro';
+import { getLocale } from '@/lib/i18n';
+import { ui } from '@/i18n/ui';
+
+type Props = ComponentProps<typeof BaseLayout>;
+const locale = getLocale(Astro.url.pathname);
+---
+
+<BaseLayout {...Astro.props}>
+  <slot name="head" slot="head" />
+  <SkipLink label={ui[locale].skip} />
+  <Header />
+  <slot />
+</BaseLayout>

@@ -1,0 +1,40 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import { ArrowUpRight } from '@lucide/astro';
+import { iconTokens } from '@/config/icons';
+
+interface Props extends HTMLAttributes<'a'> {
+  href: string;
+  newTab?: boolean;
+}
+
+const {
+  newTab = false,
+  class: className,
+  rel,
+  target,
+  ...attributes
+} = Astro.props;
+const linkTarget = newTab ? '_blank' : target;
+const linkRel =
+  linkTarget === '_blank'
+    ? [
+        ...new Set([...(rel?.split(/\s+/) ?? []), 'noopener', 'noreferrer']),
+      ].join(' ')
+    : rel;
+---
+
+<a
+  {...attributes}
+  class:list={['text-link', 'external-link', className]}
+  target={linkTarget}
+  rel={linkRel}
+>
+  <slot />
+  <ArrowUpRight
+    size={iconTokens.size.small}
+    stroke-width={iconTokens.strokeWidth}
+    aria-hidden="true"
+  />
+  {linkTarget === '_blank' && <span class="sr-only">（在新标签页打开）</span>}
+</a>

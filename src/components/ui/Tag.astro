@@ -1,0 +1,13 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'span'> {
+  tone?: 'neutral' | 'live' | 'warning' | 'critical';
+}
+
+const { tone = 'neutral', class: className, ...attributes } = Astro.props;
+---
+
+<span {...attributes} class:list={['tag', className]} data-tone={tone}>
+  <slot />
+</span>

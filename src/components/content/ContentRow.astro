@@ -1,0 +1,32 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'a'> {
+  href: string;
+  title: string;
+  description?: string;
+  meta?: string;
+}
+
+const {
+  title,
+  description,
+  meta,
+  class: className,
+  ...attributes
+} = Astro.props;
+---
+
+<a {...attributes} class:list={['content-row', className]} data-astro-reload>
+  <span>
+    <span class="content-row-title">{title}</span>
+    {description && (
+      <span class="content-row-description block">{description}</span>
+    )}
+  </span>
+  {(meta || Astro.slots.has('metadata')) && (
+    <span class="content-row-meta">
+      <slot name="metadata">{meta}</slot>
+    </span>
+  )}
+</a>

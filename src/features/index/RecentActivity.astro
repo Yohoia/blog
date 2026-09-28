@@ -1,0 +1,82 @@
+---
+import ContentRow from '@/components/content/ContentRow.astro';
+import { siteConfig } from '@/config/site';
+import { getRecentActivity } from './recent';
+import { localeMetadata } from '@/config/i18n';
+import { getLocale, localizePath } from '@/lib/i18n';
+import { ui } from '@/i18n/ui';
+
+const locale = getLocale(Astro.url.pathname);
+const text = ui[locale];
+const entries = await getRecentActivity();
+const formatter = new Intl.DateTimeFormat(localeMetadata[locale].dateLocale, {
+  timeZone: siteConfig.timeZone,
+  month: 'short',
+  day: '2-digit',
+});
+---
+
+<section
+  aria-labelledby="recent-heading"
+  class="recent-activity"
+  data-language-block="recent"
+>
+  <h2 id="recent-heading" class="recent-heading">
+    {text.recently}
+  </h2>
+  {entries.length > 0 ? (
+    <ul class="recent-list">
+      {entries.map((entry) => (
+        <li>
+          <ContentRow
+            title={entry.title}
+            href={localizePath(entry.href, locale)}
+            class="recent-row"
+          >
+            <Fragment slot="metadata">
+              {text.navigation[entry.section]} <span aria-hidden="true">·</span>{' '}
+              <time datetime={entry.date.toISOString()}>
+                {formatter.format(entry.date)}
+              </time>
+            </Fragment>
+          </ContentRow>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <div class="recent-empty">
+      <p>{text.emptyTitle}</p>
+      <p class="metadata">{text.emptyDescription}</p>
+    </div>
+  )}
+</section>
+
+<style>
+  .recent-heading {
+    color: var(--muted-text);
+    font-size: var(--text-micro);
+    line-height: 1.4;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-block-end: var(--item-gap);
+  }
+  .recent-empty {
+    padding-block: var(--item-gap);
+  }
+  .recent-empty p:first-child {
+    color: var(--heading);
+    font-size: var(--text-item);
+  }
+  .recent-empty p + p {
+    margin-block-start: var(--inline-gap);
+  }
+  @media (max-width: 35.999rem) {
+    .recent-empty .metadata {
+      min-block-size: 2lh;
+    }
+  }
+  .recent-list :global(.recent-row) {
+    padding-block: 1rem;
+  }
+</style>

@@ -1,0 +1,70 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist/wght-italic.css';
+@import '@fontsource-variable/geist-mono';
+@import './tokens.css';
+@import './components.css';
+@import './prose.css';
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+@layer base {
+  html {
+    background: var(--canvas);
+    scroll-padding-top: 5rem;
+    scrollbar-gutter: stable;
+  }
+  body {
+    @apply bg-canvas font-sans text-body text-copy antialiased;
+    min-inline-size: 0;
+  }
+  :where(h1, h2, h3, h4, h5, h6, strong) {
+    color: var(--heading);
+  }
+  :where(h1, h2, h3, h4, h5, h6) {
+    text-wrap: balance;
+  }
+  :where(button, input, textarea, select) {
+    font: inherit;
+  }
+  :where(button:not(:disabled), [role='button']) {
+    cursor: pointer;
+  }
+  :where(button:disabled, [aria-disabled='true']) {
+    cursor: not-allowed;
+  }
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 4px;
+  }
+  ::selection {
+    color: var(--heading);
+    background: var(--signal-soft);
+  }
+  :where(code, pre, kbd, samp) {
+    font-family: var(--font-mono);
+  }
+  .lucide {
+    stroke-width: var(--icon-stroke);
+    flex-shrink: 0;
+  }
+  .astro-code {
+    background-color: var(--code-surface) !important;
+  }
+  :root[data-theme='dark'] .astro-code,
+  :root[data-theme='dark'] .astro-code span {
+    color: var(--shiki-dark) !important;
+  }
+  .astro-code span {
+    background-color: transparent !important;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) .astro-code,
+    :root:not([data-theme='light']) .astro-code span {
+      color: var(--shiki-dark) !important;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}

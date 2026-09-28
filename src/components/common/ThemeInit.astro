@@ -1,0 +1,20 @@
+---
+import { THEME_STORAGE_KEY } from '@/config/theme';
+---
+
+<!-- 在样式绘制前应用主题；禁用本地存储时仍跟随系统偏好。 -->
+<script is:inline define:vars={{ storageKey: THEME_STORAGE_KEY }}>
+  (() => {
+    let preference = 'system';
+    try {
+      const stored = localStorage.getItem(storageKey);
+      if (stored === 'light' || stored === 'dark') preference = stored;
+    } catch {}
+
+    const dark =
+      preference === 'dark' ||
+      (preference === 'system' &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  })();
+</script>

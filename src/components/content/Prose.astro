@@ -1,0 +1,17 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'div'> {
+  editorial?: 'sans' | 'serif';
+}
+
+const { editorial = 'sans', class: className, ...attributes } = Astro.props;
+---
+
+<div
+  {...attributes}
+  class:list={['prose', className]}
+  data-editorial={editorial}
+>
+  <slot />
+</div>

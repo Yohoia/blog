@@ -1,0 +1,34 @@
+---
+import SEO, { type Props as SEOProps } from '@/components/common/SEO.astro';
+import ThemeInit from '@/components/common/ThemeInit.astro';
+import { localeMetadata } from '@/config/i18n';
+import { getLocale } from '@/lib/i18n';
+import '@/styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+
+interface Props extends SEOProps {
+  bodyClass?: string;
+}
+
+const { bodyClass, ...seo } = Astro.props;
+const locale = getLocale(Astro.url.pathname);
+---
+
+<!doctype html>
+<html lang={localeMetadata[locale].language} transition:animate="none">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <ThemeInit />
+    <ClientRouter fallback="swap" />
+    <SEO {...seo} />
+    <slot name="head" />
+  </head>
+  <body class={bodyClass}>
+    <slot />
+    <script>
+      import { initializeTheme } from '@/scripts/theme';
+      initializeTheme();
+    </script>
+  </body>
+</html>

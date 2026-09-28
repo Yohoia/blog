@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Article - Designing a Warm Tech-Garden</title>
+  <style>
+    :root { --canvas: #F6F5F1; --surface: #FBFAF7; --heading: #1B1B18; --body: #5F5E58; --muted: #8A8982; --border: rgba(27,27,24,0.12); --code-surface: #EEEDE8; --signal: #6B8CFF; --font-sans: 'Geist Sans', sans-serif; --font-serif: ui-serif, Georgia, Cambria, serif; --font-mono: 'Geist Mono', monospace; }
+    .dark { --canvas: #111210; --surface: #171815; --heading: #F1F0E9; --body: #C4C3BB; --muted: #85847D; --border: rgba(241,240,233,0.12); --code-surface: #1B1C19; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--canvas); color: var(--body); font-family: var(--font-sans); line-height: 1.75; font-size: 16.5px; } /* 正文字号略大，行高略宽，极佳的阅读体验 */
+    
+    .nav { position: sticky; top: 0; border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; justify-content: space-between; z-index: 50; backdrop-filter: blur(12px); }
+    .main { max-width: 720px; margin: 0 auto; padding: 64px 24px 120px 24px; }
+    
+    /* 文章头部信息 */
+    .article-header { margin-bottom: 48px; }
+    .article-title { font-size: 36px; font-weight: 700; color: var(--heading); line-height: 1.25; letter-spacing: -0.02em; margin-bottom: 16px; }
+    .article-meta { display: flex; gap: 16px; font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+    
+    /* 正文排版 (Prose) */
+    .prose p { margin-bottom: 24px; }
+    .prose h2 { font-size: 24px; color: var(--heading); margin: 48px 0 16px 0; font-weight: 600; letter-spacing: -0.01em; }
+    .prose h3 { font-size: 18px; color: var(--heading); margin: 32px 0 12px 0; font-weight: 600; }
+    
+    /* 链接样式：带柔和底线 */
+    .prose a { color: var(--heading); text-decoration: none; border-bottom: 1px solid rgba(138, 137, 130, 0.4); transition: all 0.2s; padding-bottom: 1px; }
+    .prose a:hover { color: var(--signal); border-bottom-color: var(--signal); }
+    
+    /* 引用块 (Blockquote) */
+    .prose blockquote { 
+      border-left: 3px solid var(--border); 
+      margin: 32px 0; padding: 4px 0 4px 20px; 
+      font-style: italic; color: var(--muted); font-size: 18px; line-height: 1.6;
+    }
+
+    /* 代码块 (Code Block) */
+    .prose pre { 
+      background: var(--code-surface); border: 1px solid var(--border); 
+      border-radius: 8px; padding: 16px 20px; margin: 32px 0; 
+      overflow-x: auto; font-family: var(--font-mono); font-size: 14px; line-height: 1.5; color: var(--body);
+    }
+    
+    /* 行内代码 */
+    .prose code { 
+      font-family: var(--font-mono); font-size: 14px; 
+      background: var(--code-surface); border: 1px solid var(--border); 
+      padding: 2px 6px; border-radius: 4px; color: var(--heading);
+    }
+    .prose pre code { background: transparent; border: none; padding: 0; color: inherit; }
+
+    /* 列表 */
+    .prose ul, .prose ol { margin-bottom: 24px; padding-left: 24px; }
+    .prose li { margin-bottom: 8px; }
+    .prose li::marker { color: var(--muted); }
+  </style>
+</head>
+<body class="dark">
+  <header class="nav">
+    <a href="writing.html" style="font-size: 14px; color: var(--muted); text-decoration: none;">&larr; Back to Writing</a>
+    <div style="font-weight: 600; color: var(--heading);">Reading</div>
+  </header>
+
+  <main class="main">
+    <header class="article-header">
+      <h1 class="article-title">Designing a Warm Tech-Garden</h1>
+      <div class="article-meta">
+        <span>Oct 12, 2026</span>
+        <span>·</span>
+        <span>8 min read</span>
+        <span>·</span>
+        <span>Design System</span>
+      </div>
+    </header>
+
+    <article class="prose">
+      <p>Building a personal website is often a trap. We start with the intention of writing more, but end up spending weeks tweaking drop shadows, configuring Tailwind configurations, and implementing complex 3D hover effects.</p>
+      
+      <p>This design system takes a different approach. The goal is not to reproduce a SaaS dashboard or a flashy portfolio, but to create something that feels like <em>a quiet editorial notebook with the precision of a technical instrument</em>.</p>
+
+      <h2>The Principle of Quietness</h2>
+      
+      <p>The default state of the interface should be visually calm. We use neutral backgrounds, restrained contrast, transparent surfaces, and subtle borders. Interaction should increase contrast only when necessary.</p>
+
+      <blockquote>
+        "Remove everything that competes with reading. Content before chrome, typography before cards."
+      </blockquote>
+
+      <p>Notice that throughout this article, and the entire site, there isn't a single <code>box-shadow</code> used to separate content. Hierarchy is established entirely through <a href="#">whitespace and typography</a>.</p>
+
+      <h2>Handling Technical Content</h2>
+      
+      <p>When presenting technical content, the system must remain precise without becoming overwhelming. Code blocks are placed on a subtle surface with a hairline border, ensuring they sit beautifully within the text flow rather than jarringly breaking it.</p>
+
+<pre><code>// The config for a quiet UI
+export const designTokens = {
+  colors: {
+    canvas: 'var(--canvas)',
+    surface: 'transparent',
+    border: 'rgba(255, 255, 255, 0.1)'
+  },
+  shadows: false,
+  radius: {
+    base: '8px',
+    panel: '12px'
+  }
+};</code></pre>
+
+      <p>Lists should also feel native to the text block:</p>
+      <ul>
+        <li><strong>Whitespace before separators:</strong> Use margins to group elements.</li>
+        <li><strong>Opacity before color:</strong> Use muted text to deprioritize information.</li>
+        <li><strong>Flat before elevated:</strong> Avoid Z-axis layering unless absolutely necessary.</li>
+      </ul>
+
+      <h2>Conclusion</h2>
+      
+      <p>A personal digital space should evolve with you. By keeping the foundation minimal and purely typographic, you create a timeless container that lets your writing and your work be the true focus.</p>
+    </article>
+  </main>
+</body>
+</html>

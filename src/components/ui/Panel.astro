@@ -1,0 +1,17 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'div'> {
+  surface?: boolean;
+}
+
+const { surface = false, class: className, ...attributes } = Astro.props;
+---
+
+<div
+  {...attributes}
+  class:list={['panel', className]}
+  data-surface={surface || undefined}
+>
+  <slot />
+</div>

@@ -1,0 +1,8 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = HTMLAttributes<'hr'>;
+const { class: className, ...attributes } = Astro.props;
+---
+
+<hr {...attributes} class:list={['divider', className]} />

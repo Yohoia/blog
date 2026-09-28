@@ -1,0 +1,147 @@
+/* 数值来源：design.md §5–8；语义别名供 Astro、React 和 Tailwind 共用。 */
+:root {
+  color-scheme: light;
+  --canvas: #f6f5f1;
+  --surface: #fbfaf7;
+  --heading: #1b1b18;
+  --body: #5f5e58;
+  --muted: #8a8982;
+  --border: rgb(27 27 24 / 0.12);
+  --border-strong: rgb(27 27 24 / 0.2);
+  --hover-surface: rgb(27 27 24 / 0.045);
+  --code-surface: #eeede8;
+  --signal: #6b8cff;
+  --signal-soft: rgb(107 140 255 / 0.12);
+  --live: #56c596;
+  --warning: #e2a84a;
+  --critical: #df6c75;
+  /* 原始 Muted / Signal 用于视觉状态；小字号文字采用对比度增强值。 */
+  --muted-text: #706f67;
+  --signal-text: #405dcb;
+  --background: var(--canvas);
+  --foreground: var(--heading);
+  --accent: var(--signal);
+  --focus: var(--signal-text);
+  --floating-shadow: 0 8px 32px rgb(27 27 24 / 0.08);
+  --gutter: 1.25rem;
+  --section-gap: clamp(4.5rem, 3rem + 4vw, 6rem);
+  --group-gap: clamp(2rem, 1rem + 2.5vw, 3rem);
+  --item-gap: clamp(1rem, 0.5rem + 1.25vw, 1.5rem);
+  --inline-gap: clamp(0.5rem, 0.25rem + 0.625vw, 0.75rem);
+  --touch-target: 2.75rem;
+  --icon-stroke: 1.75;
+}
+@media (min-width: 48rem) {
+  :root {
+    --gutter: 1.5rem;
+  }
+}
+@media (min-width: 64rem) {
+  :root {
+    --gutter: 2rem;
+  }
+}
+/* 未执行 JavaScript 时也能跟随系统偏好。 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --canvas: #111210;
+    --surface: #171815;
+    --heading: #f1f0e9;
+    --body: #c4c3bb;
+    --muted: #85847d;
+    --border: rgb(241 240 233 / 0.12);
+    --border-strong: rgb(241 240 233 / 0.2);
+    --hover-surface: rgb(241 240 233 / 0.055);
+    --code-surface: #1b1c19;
+    --muted-text: #85847d;
+    --signal-text: #6b8cff;
+    --floating-shadow: 0 8px 32px rgb(0 0 0 / 0.18);
+  }
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --canvas: #111210;
+  --surface: #171815;
+  --heading: #f1f0e9;
+  --body: #c4c3bb;
+  --muted: #85847d;
+  --border: rgb(241 240 233 / 0.12);
+  --border-strong: rgb(241 240 233 / 0.2);
+  --hover-surface: rgb(241 240 233 / 0.055);
+  --code-surface: #1b1c19;
+  --muted-text: #85847d;
+  --signal-text: #6b8cff;
+  --floating-shadow: 0 8px 32px rgb(0 0 0 / 0.18);
+}
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-heading: var(--heading);
+  --color-copy: var(--body);
+  --color-muted: var(--muted);
+  --color-muted-text: var(--muted-text);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-hover-surface: var(--hover-surface);
+  --color-code-surface: var(--code-surface);
+  --color-signal: var(--signal);
+  --color-signal-soft: var(--signal-soft);
+  --color-signal-text: var(--signal-text);
+  --color-accent: var(--accent);
+  --color-live: var(--live);
+  --color-warning: var(--warning);
+  --color-critical: var(--critical);
+  --spacing-gutter: var(--gutter);
+  --spacing-section: var(--section-gap);
+  --spacing-group: var(--group-gap);
+  --spacing-item: var(--item-gap);
+  --spacing-inline: var(--inline-gap);
+  --spacing-touch: var(--touch-target);
+  --shadow-floating: var(--floating-shadow);
+  --shadow-soft: var(--floating-shadow);
+}
+@theme static {
+  --font-sans:
+    'Geist Variable', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei',
+    system-ui, sans-serif;
+  --font-mono:
+    'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, monospace;
+  /* 衬线仅作为可选阅读样式，默认 Sans；专用衬线字体文件暂未加载。 */
+  --font-serif:
+    'Newsreader', 'Source Serif 4', 'Noto Serif SC', 'Songti SC', 'STSong',
+    Georgia, serif;
+  --text-display: clamp(2.5rem, 2rem + 1.25vw, 3rem);
+  --text-display--line-height: 1.15;
+  --text-display--letter-spacing: -0.035em;
+  --text-page: clamp(2rem, 1.75rem + 0.625vw, 2.25rem);
+  --text-page--line-height: 1.25;
+  --text-page--letter-spacing: -0.025em;
+  --text-section: clamp(1.375rem, 1.25rem + 0.3125vw, 1.5rem);
+  --text-section--line-height: 1.35;
+  --text-item: clamp(1.0625rem, 0.875rem + 0.46875vw, 1.25rem);
+  --text-item--line-height: 1.4;
+  --text-body: clamp(1rem, 0.875rem + 0.3125vw, 1.125rem);
+  --text-body--line-height: 1.75;
+  --text-meta: 0.875rem;
+  --text-meta--line-height: 1.5;
+  --text-micro: 0.75rem;
+  --text-micro--line-height: 1.4;
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.125rem;
+  --radius-media: 1.5rem;
+  --radius-pill: 999px;
+  --radius-ui: 0.5rem;
+  --radius-card: 0.75rem;
+  --container-reading: 42.5rem;
+  --container-compact: 45rem;
+  --container-index: 47.5rem;
+  --container-feature: 67.5rem;
+  --container-wide: 75rem;
+  --container-content: 42.5rem;
+}
