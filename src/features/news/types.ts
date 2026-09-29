@@ -8,15 +8,45 @@ export interface NewsItem {
   title: string;
   url: string;
   summary?: string;
+  originalTitle?: string;
   category: NewsCategory;
-  publishedAt: string;
+  publishedAt: string | null;
+  discoveredAt: string;
   source: { name: string; url: string };
+  readingUrl: string;
+  score: number | null;
+  selected: boolean;
+  attribution: { name: string; url: string };
 }
 
 export interface NewsQuery {
-  /** 按 Asia/Shanghai 日期查询，格式 YYYY-MM-DD。 */
-  date?: string;
+  category?: NewsCategory | 'all';
+  search?: string;
+  cursor?: string;
   signal?: AbortSignal;
+}
+
+export interface NewsPage {
+  items: NewsItem[];
+  hasMore: boolean;
+  nextCursor: string | null;
+}
+
+export interface NewsDaily {
+  date: string;
+  generatedAt: string;
+  windowStart: string;
+  windowEnd: string;
+  url: string;
+  title: string | null;
+  summary: string | null;
+  attribution: { name: string; url: string };
+}
+
+export interface NewsSnapshot {
+  page: NewsPage;
+  daily: NewsDaily | null;
+  fetchedAt: string | null;
 }
 
 export interface NewsProvider {

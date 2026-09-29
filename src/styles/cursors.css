@@ -1,0 +1,62 @@
+/* 原生光标不增加 DOM、跟随时钟或点击遮挡；触控设备保留浏览器行为。 */
+@media (any-hover: hover) and (any-pointer: fine) {
+  html {
+    cursor: var(--cursor-default);
+  }
+
+  /* 菜单固定为黑色背景，即使页面处于亮色主题也使用浅色箭头。 */
+  [data-menu-dialog] {
+    --cursor-default: var(--cursor-on-dark);
+    cursor: var(--cursor-default);
+  }
+
+  :root
+    :is(
+      a[href],
+      button:not(:disabled),
+      summary,
+      [role='button'],
+      [role='link'],
+      input:is(
+          [type='button'],
+          [type='submit'],
+          [type='reset'],
+          [type='checkbox'],
+          [type='radio'],
+          [type='range'],
+          [type='file'],
+          [type='color']
+        ):not(:disabled),
+      select:not(:disabled)
+    ):not([aria-disabled='true']):hover,
+  /* 文章与标签虽未接入正文 / 筛选链接，悬浮反馈仍使用圆形。 */
+  :root :is([data-writing-post], [data-writing-tag]):hover {
+    cursor: var(--cursor-interactive);
+  }
+
+  :root
+    :is(
+      button:disabled,
+      input:disabled,
+      select:disabled,
+      [aria-disabled='true']
+    ) {
+    cursor: not-allowed;
+  }
+
+  :root
+    :is(
+      input:not([type]),
+      input[type='text'],
+      input[type='email'],
+      input[type='password'],
+      input[type='search'],
+      input[type='tel'],
+      input[type='url'],
+      input[type='number'],
+      textarea,
+      [contenteditable='true']
+    ):not(:disabled) {
+    cursor: text;
+  }
+}

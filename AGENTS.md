@@ -4,9 +4,9 @@
 
 这是一个 Astro 个人博客，采用 TypeScript、Tailwind CSS、Motion、Lucide、Content Collections、Markdown / MDX，以及按需 React Islands。
 
-项目已建立标准架构、公共设计系统、导航栏、中英文 Index 与 Writing 列表。其他栏目页、详情页和内容仍待制作，按用户后续请求逐步实现。
+项目已建立标准架构、公共设计系统、导航栏、中英文 Index、Writing 列表与 News。其他栏目页、详情页和内容仍待制作，按用户后续请求逐步实现。
 
-进度同步日期：2026-09-29。About、Profile 已按用户要求移除导航、路由和相关信息，不属于当前待制作栏目。现有菜单为 Index、Writing、Fragments、Projects、Finder、News、Now；后五项仍是计划入口，访问时进入自定义 404。
+进度同步日期：2026-09-29。About、Profile 已按用户要求移除导航、路由和相关信息，不属于当前待制作栏目。现有菜单为 Index、Writing、Fragments、Projects、Finder、News、Now；Fragments、Projects、Finder、Now 仍是计划入口，访问时进入自定义 404；News 已接入 AIHOT API。
 
 403、404、500、502 中英文错误页面已实现，共用 `features/errors/ErrorPage.astro` 与配置；插图原件保留在 `public/images/`。
 
@@ -48,6 +48,7 @@
 - `text-body` 是字号，正文颜色使用 `text-copy`；小字号元信息使用 `text-muted-text`，链接和焦点使用 `text-signal-text`，避免把原始浅色 Muted / Signal 直接用于小字。
 - 图标参数读取 `config/icons.ts`；Astro 使用 `stroke-width`，React 使用 `strokeWidth`。图标按钮必须提供可访问名称，移动端控件触摸区域至少 44px。
 - Astro 动画使用 `motion`，React 动画使用 `motion/react`；统一读取 `config/motion.ts`，尊重减少动画的系统偏好。
+- 公共鼠标样式由 `styles/cursors.css` 和 `assets/cursors/` 的原生 SVG 提供，读取 `--cursor-default`、`--cursor-interactive`；暗色主题与固定黑色的全屏菜单共用 `--cursor-on-dark`，菜单在局部覆盖默认光标，不改变页面主题。仅对可悬浮的精细指针启用：普通区域是 18px 实心箭头（亮色主题黑色、暗色主题浅色，均无描边），24px 浅黄色圆形（填充不透明度 55%）仅用于链接、按钮、菜单及 Writing 文章 / 标签的悬浮反馈，移开后恢复箭头。通过 CSS :hover 实现，不增加点击或 :active 触发，保留文本输入和禁用状态光标；静态参考文章不增加虚构链接。不引入 DOM 光标、持续跟随时钟或重复事件监听。
 - 全屏导航使用 `components/layout/TypeOverlayMenu.astro` 与 `scripts/type-overlay-menu.ts`，原生 `dialog` 提供顶层显示、焦点约束和背景 inert，Tailwind 与公共 Token 定义布局、固定黑色背景和大字号。Motion 从菜单图标中心圆形展开，链接逐项淡入并上移，悬浮和聚焦时右移；参数统一来自 `motionTokens.menu`。支持 Escape、关闭按钮、动画中途关闭、减少动画和无脚本折叠菜单。打开时只锁定根节点滚动，保留页面的滚动条占位，补偿 dialog 的起点并用实际视口像素设置宽高，避免 `100vw` 被占位缩小，关闭时恢复阅读位置；不要修改 body 的 overflow 或边距，否则会改变 sticky 导航的参照并造成跳动。菜单内部使用公共 `scrollbar-hidden` 隐藏滚动条外观，保留内容滚动。页面替换、离开和断开连接时清理动画及滚动锁。不引入 React hydration 或额外动画库，不迁移参考稿中的旧栏目名。
 - Logo 保留原始 SVG 轮廓与遮罩显现顺序，用 Motion 时间线播放；不添加 CSS keyframes、SMIL 或 React hydration 重复驱动动画。其品牌时序位于 `motionTokens.logo`，多个实例必须拥有独立遮罩 ID。
 - 首页介绍沿用参考稿内容与播放节奏：Astro 输出完整内容，Motion 驱动打字与光标，参数位于 `motionTokens.terminal`。按用户最新要求直接平铺在页面中，使用公共容器、颜色和明暗主题，不添加终端窗口外框、标签栏、状态栏或内部滚动。仅浏览器刷新自动播放，直接访问、站内跳转与历史返回立即展示完整内容；`scripts/page-visit.ts` 结合 Navigation Timing 与 ClientRouter 生命周期判断，不能只检查 Navigation Timing 后在客户端返回时重复播放。语言切换保留当前播放进度、访问时间和页面阅读位置；播放结束后，末尾空提示符的光标继续闪烁；仅在光标可见且页面处于前台时运行，移出视口、进入后台、离开或断开连接时停止，返回后恢复。进入历史缓存前完成内容，减少动画模式立即展示完整内容并保持光标常亮。Logo 的自动播放也仅在刷新时触发，保留悬浮与聚焦重播。
@@ -74,9 +75,9 @@
 - 不编造文章、作品、个人身份、联系方式或 News 新闻来填充目录。
 - 姓名和联系方式统一读取 `config/site.ts`。首页使用 `pr -2 -t links.md` 与 `features/index/TerminalContacts.astro`，左侧 Email、QQ、X、小红书，右侧 Bilibili、GitHub、微信、Telegram，各四个。邮箱为 `imyohoia@gmail.com`，微信号码为 `13870096885`（点击复制），TG 为 `@Yohoia`（`https://t.me/Yohoia`）；渠道、标签、复制值和目标 URL 集中在 `siteConfig.contactLinks`，刷新播放时每行同时展示两列，不恢复 LinkedIn、简历或旧邮箱。首页公司、履历与统计经用户明确要求暂留参考内容，集中在 `features/index/config.ts`，不能自动视为真实个人资料或已接入的数据；待用户提供资料后替换。
 - 首页文章区使用用户确认的 `yohoia@space:~$ ls -ltr writing/ | tail -n 6`，用户名和文件所有者来自 `siteConfig.name`。参考文章集中在 `features/writing/config.ts`，按日期由旧到新排列，同日沿用用户提供顺序；首页取末尾 6 条，Writing 列表显示全部 9 条并按新到旧排列。`Writing — full blog` 跳转到对应语言的本站列表，文件名定位列表条目。保留逐行播放、响应式换行与语言切换进度；参考记录没有正文，不能视为本站已发布文章或已实现的阅读器。
-- Writing 列表采用 `writing-preview.html` 的期刊式归档结构，按用户指定的 2026 年及原记录的月日从新到旧分组，使用 UTC 格式化年月日与星期，避免部署时区改变日期；同日维持现有顺序。内容从 Header 下沿开始，删除介绍段和顶部统计；年份表头、月份侧栏和透明文章行保留。标题与文件名按用户要求单行省略，DOM 与 title 属性保留完整文本；每条最多展示三个按标题分类的 `#` 标签，由 Motion 驱动颜色与下划线。箭头固定在文章行最右侧，默认浅色，悬浮时蓝色圆底缩放显现并轻移箭头。交互使用 `scripts/writing.ts`、`motionTokens.writing` 与公共 Token，尊重减少动画偏好，主题改变时同步颜色；手机端日期与标签允许自然换行，月份移至文章上方。没有正文的参考条目保持静态文章结构，不创建占位详情链接，不编造摘要或阅读时长；离开页面清理动画。底部 `cd ../` 是可访问的普通链接，返回当前语言的首页，保留 44px 触摸区与键盘焦点，不调用浏览器历史回退或栏目字符过渡。
+- Writing 列表采用 `writing-preview.html` 的期刊式归档结构，按当前参考记录 publishedAt 的年 / 月 / 日从新到旧分组，使用 UTC 计算日期与星期，避免部署时区改变日期；同日维持现有顺序。内容从 Header 下沿开始，删除介绍段和顶部统计；年份采用 Space Grotesk 600 字重的浅色描边数字，读取公共 --font-year；Writing 页面单独导入 @fontsource/space-grotesk/latin-600.css，从本站加载字体，月份侧栏与每行日期 / 星期组成时间线，文章行保持透明。标题与文件名按用户要求单行省略，DOM 与 title 属性保留完整文本；黄色标题色带固定 0.72em 高度，Motion 只动画 --writing-highlight-progress 的横向数值，不能插值混合 px / em 的 background-size 高度。日期数字、星期与标签统一读取 text-meta 字号与行高（默认 14px / 21px），继承相同字重；日期圆底尺寸跟随行高，标签不添加改变文字对齐的底部留白。每条最多展示三个按标题分类的 `#` 标签，由 Motion 驱动颜色与下划线。箭头固定在文章行最右侧，默认浅色，悬浮时蓝色圆底缩放显现并轻移箭头。交互使用 `scripts/writing.ts`、`motionTokens.writing` 与公共 Token，尊重减少动画偏好，主题改变时同步颜色；手机端日期与标签允许自然换行，月份移至文章上方。没有正文的参考条目保持静态文章结构，不创建占位详情链接，不编造摘要或阅读时长；离开页面清理动画。底部 `cd ../` 是可访问的普通链接，返回当前语言的首页，保留 44px 触摸区与键盘焦点，不调用浏览器历史回退或栏目字符过渡。
 - 首页文章输出不显示 `total 6 posts`；底部入口仅在 `Writing` 文字下显示虚线，`— full blog` 无下划线，整段入口保持可点击。
-- News 的信息源通过 `features/news/providers/` 适配成统一类型；静态构建不会自动产生实时更新。
+- News 内容从 Header 下沿开始，分类栏与上下版面分隔线各保留公共 inline-gap；分类栏采用透明文字标签，无上下边框，Motion 驱动细下划线滑动，只有选中项右侧显示小号已载入数量，所有标签预留固定数量宽度以避免切换抖动。分类与搜索加载期间保留最近成功的新闻和分页版面，新结果到达后淡出换入；连续切换会取消旧请求和过渡，避免日报闪到上方；API 不提供分类总数，不将分页 count 伪装为总量。删除独立的收录数量行，更新时间和刷新按钮置于顶部 AI 每日观察行的 AIHOT 右侧；搜索默认只显示图标，Motion 从图标平滑展开为柔和圆角输入框，蓝色焦点提示、清空按钮、Escape 收起，参数来自 motionTokens.news，减少动画时即时切换，手机展开为整行且分类可横向滚动。News 已实现中英文报纸式页面 `/news/`、`/en/news/`，去除大报头；复用公共导航、1200px wide 容器与主题，展示头条、次要新闻、短讯、三栏资讯和本期日报。AIHOT 匿名只读 API v1 提供最近七天精选与最新日报；构建保存快照，浏览器打开时更新，前台每十分钟条件请求，也可手动刷新。分类与关键词由 API 筛选，24 条一页，游标分页追加；中英切换保留筛选与已载入内容。ETag / 304 复用成功缓存，失败保留最近成功的版面，429 遵守 Retry-After，游标失效重取首屏。标题、摘要、评分和来源均来自 API，不添加虚构期号、标签或新闻；英文优先采用 originalTitle，摘要保留来源语言，所有时间明确使用北京时间。 Provider 位于 `features/news/providers/aihot.ts`，统一类型位于 `features/news/types.ts`；只使用 `/api/v1/`，不新增 SSR、密钥、全库镜像或第三方正文抓取。无脚本读取构建快照；静态构建本身不会自动更新。日报由顶层 `report` 映射，版面日期、生成时间、统计窗口分别显示。外部文字通过 Astro 转义或 textContent 渲染，链接仅允许 HTTP(S)。
 - `SITE_URL` 在 `.env` 中配置；未确定域名时不填假生产域名。
 - RSS 构建函数已在 `lib/rss.ts` 中准备，实际内容路由完成后再创建公开 RSS 端点。
 - 服务端密钥不放入 `PUBLIC_*` 变量或客户端文件。
@@ -94,7 +95,7 @@ npm run build
 
 修改后先执行相关验证，再执行格式检查和生产构建。`npm run build` 包含 Astro 类型检查。只针对重要行为和实际风险增加测试；不为目录占位、配置字面量或简单可逆修改建立测试框架。
 
-首页 `/`、`/en/`、Writing `/writing/`、`/en/writing/` 应正常显示；其他栏目页目前未实现。空内容集合的提示属于预期。首页当前展示平铺介绍，已移除原 Recently 模块。验证集成需要临时样例时，验证后移除样例，不能把测试页面变成产品页面。
+首页 `/`、`/en/`、Writing `/writing/`、`/en/writing/`、News `/news/`、`/en/news/` 应正常显示；其他栏目页目前未实现。空内容集合的提示属于预期。首页当前展示平铺介绍，已移除原 Recently 模块。验证集成需要临时样例时，验证后移除样例，不能把测试页面变成产品页面。
 
 不修改 `node_modules/`、`.astro/`、`dist/` 等生成文件；提交源文件、配置与锁文件，忽略 `.env`。未经用户要求不自动初始化 Git、提交、推送或部署。
 

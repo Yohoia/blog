@@ -1,61 +1,61 @@
-/** 用户提供的参考条目；2026 年由用户指定，标签按标题分类，正文待补充。
+/** 当前参考条目；日期读取各条 publishedAt，标签按标题分类，正文待补充。
  * 按日期由旧到新排列，同日沿用提供顺序；date 保留首页的终端短日期显示。
  */
 export const referenceWritingEntries = [
   {
-    date: 'Feb 19',
+    date: 'Sep 15',
     filename: 'the-companion-vision.md',
     title: 'Building AI That Truly Understands You',
-    publishedAt: '2026-02-19',
+    publishedAt: '2024-09-15',
     tags: ['AI', 'Companions', 'Vision'],
   },
   {
-    date: 'Feb 19',
+    date: 'Oct 08',
     filename: 'the-agent-economy.md',
     title: 'Agent Marketplaces and Proxy Social Networks',
-    publishedAt: '2026-02-19',
+    publishedAt: '2024-10-08',
     tags: ['AI', 'Agents', 'Marketplaces'],
   },
   {
-    date: 'Feb 19',
+    date: 'Nov 22',
     filename: 'wearables-and-companions.md',
     title: 'Wearables as the Nervous System of AI Companions',
-    publishedAt: '2026-02-19',
+    publishedAt: '2024-11-22',
     tags: ['AI', 'Wearables', 'Companions'],
   },
   {
-    date: 'Feb 21',
+    date: 'Jan 10',
     filename: 'when-software-becomes-disposable.md',
     title: 'When Software Becomes Disposable',
-    publishedAt: '2026-02-21',
+    publishedAt: '2025-01-10',
     tags: ['Software', 'AI', 'Engineering'],
   },
   {
-    date: 'Feb 22',
+    date: 'Mar 05',
     filename: 'the-last-mile-of-ai.md',
     title: 'The Last Mile of AI',
-    publishedAt: '2026-02-22',
+    publishedAt: '2025-03-05',
     tags: ['AI', 'Engineering', 'Product'],
   },
   {
-    date: 'Feb 22',
+    date: 'Mar 18',
     filename: 'you-are-the-manager.md',
     title: 'You Are the Manager',
-    publishedAt: '2026-02-22',
+    publishedAt: '2025-03-18',
     tags: ['AI', 'Agents', 'Workflow'],
   },
   {
-    date: 'Feb 22',
+    date: 'Jul 12',
     filename: 'why-claude-code.md',
     title: 'Why Claude Code',
-    publishedAt: '2026-02-22',
+    publishedAt: '2025-07-12',
     tags: ['ClaudeCode', 'AI', 'Coding'],
   },
   {
-    date: 'Feb 22',
+    date: 'Feb 19',
     filename: 'the-printing-press-moment.md',
     title: 'The Printing Press Moment',
-    publishedAt: '2026-02-22',
+    publishedAt: '2026-02-19',
     tags: ['AI', 'Technology', 'Software'],
   },
   {

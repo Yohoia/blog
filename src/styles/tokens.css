@@ -20,6 +20,11 @@
   --muted-text: #706f67;
   --signal-text: #405dcb;
   --signal-contrast: #fff;
+  --writing-highlight: #f3d76a;
+  /* 原生 SVG 光标沿用参考图的黑色箭头与浅黄色圆点，两种主题均可辨认。 */
+  --cursor-default: url('../assets/cursors/arrow.svg') 3 2, default;
+  --cursor-on-dark: url('../assets/cursors/arrow-dark.svg') 3 2, default;
+  --cursor-interactive: url('../assets/cursors/circle.svg') 12 12, pointer;
   /* 公共导航的磨砂层，颜色自动跟随当前纸色主题。 */
   --header-surface: color-mix(in srgb, var(--canvas) 70%, transparent);
   --header-blur: 1.25rem;
@@ -63,6 +68,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
+    --cursor-default: var(--cursor-on-dark);
     --canvas: #111210;
     --surface: #171815;
     --heading: #f1f0e9;
@@ -74,6 +80,7 @@
     --code-surface: #1b1c19;
     --muted-text: #85847d;
     --signal-text: #6b8cff;
+    --writing-highlight: #9a7524;
     --floating-shadow: 0 8px 32px rgb(0 0 0 / 0.18);
     --terminal-user: #3fb950;
     --terminal-host: #58a6ff;
@@ -83,6 +90,7 @@
 }
 :root[data-theme='dark'] {
   color-scheme: dark;
+  --cursor-default: var(--cursor-on-dark);
   --canvas: #111210;
   --surface: #171815;
   --heading: #f1f0e9;
@@ -94,6 +102,7 @@
   --code-surface: #1b1c19;
   --muted-text: #85847d;
   --signal-text: #6b8cff;
+  --writing-highlight: #9a7524;
   --floating-shadow: 0 8px 32px rgb(0 0 0 / 0.18);
   --terminal-user: #3fb950;
   --terminal-host: #58a6ff;
@@ -140,6 +149,8 @@
   --font-mono:
     'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco,
     Consolas, monospace;
+  /* 归档年份的装饰数字；字体资源仅由 Writing 页面加载。 */
+  --font-year: 'Space Grotesk', var(--font-sans);
   /* 衬线仅作为可选阅读样式，默认 Sans；专用衬线字体文件暂未加载。 */
   --font-serif:
     'Newsreader', 'Source Serif 4', 'Noto Serif SC', 'Songti SC', 'STSong',

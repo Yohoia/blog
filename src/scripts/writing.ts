@@ -32,16 +32,18 @@ export function registerWritingArchive(): void {
           y?: number;
           x?: number;
           backgroundColor?: string;
+          '--writing-highlight-progress'?: number;
           color?: string;
           scale?: number;
           scaleX?: number;
         },
+        duration: number = motionTokens.duration.ui,
       ) => {
         controls.get(element)?.stop();
         controls.set(
           element,
           animate(element, values, {
-            duration: reduced.matches ? 0 : motionTokens.duration.ui,
+            duration: reduced.matches ? 0 : duration,
             ease: motionTokens.easing,
           }),
         );
@@ -55,6 +57,10 @@ export function registerWritingArchive(): void {
           const selected = post === active;
           update(post, { backgroundColor: selected ? hover : 'transparent' });
           const title = post.querySelector<HTMLElement>('[data-writing-title]');
+          const highlight = post.querySelector<HTMLElement>(
+            '[data-writing-highlight]',
+          );
+          const arrow = post.querySelector<HTMLElement>('[data-writing-arrow]');
           const disc = post.querySelector<HTMLElement>(
             '[data-writing-arrow-disc]',
           );
@@ -68,22 +74,28 @@ export function registerWritingArchive(): void {
                   ? motionTokens.writing.inactiveTitleOpacity
                   : 1,
             });
+          if (highlight)
+            update(
+              highlight,
+              // 高度固定在 CSS 中，只插值横向进度，避免 px 与 em 混用。
+              { '--writing-highlight-progress': selected ? 1 : 0 },
+              motionTokens.writing.highlightDuration,
+            );
           if (disc)
             update(disc, {
               opacity: selected ? 1 : 0,
               scale: selected ? 1 : motionTokens.writing.arrowRestingScale,
             });
-          if (icon)
-            update(icon, {
-              color: selected ? contrast : muted,
+          if (arrow)
+            update(arrow, {
               x:
                 !reduced.matches && selected
                   ? motionTokens.writing.arrowHoverDistance
                   : 0,
-              y:
-                !reduced.matches && selected
-                  ? -motionTokens.writing.arrowHoverDistance
-                  : 0,
+            });
+          if (icon)
+            update(icon, {
+              color: selected ? contrast : muted,
             });
         });
         if (backIcon)
@@ -194,6 +206,7 @@ export function registerWritingArchive(): void {
           element.style.removeProperty('opacity');
           element.style.removeProperty('transform');
           element.style.removeProperty('background-color');
+          element.style.removeProperty('--writing-highlight-progress');
           element.style.removeProperty('color');
         });
         controls.clear();

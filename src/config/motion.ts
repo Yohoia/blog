@@ -21,6 +21,14 @@ export const motionTokens = {
     inactiveTitleOpacity: 0.72,
     arrowRestingScale: 0.6,
     arrowHoverDistance: 2,
+    highlightDuration: 0.38,
+  },
+  /** News 搜索、分类指示线与内容切换；减少动画时即时切换。 */
+  news: {
+    searchDuration: 0.28,
+    tabDuration: 0.22,
+    contentExitDuration: 0.1,
+    contentEnterDuration: 0.22,
   },
   /** navigation-lab Type Overlay：圆形展开与 Typography 逐项进入。 */
   menu: {

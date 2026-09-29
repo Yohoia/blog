@@ -1,0 +1,352 @@
+---
+import {
+  RefreshCw,
+  Search,
+  ArrowUpRight,
+  CornerUpLeft,
+  X,
+} from '@lucide/astro';
+import Container from '@/components/layout/Container.astro';
+import SiteLayout from '@/layouts/SiteLayout.astro';
+import { iconTokens } from '@/config/icons';
+import { getLocale, localizePath } from '@/lib/i18n';
+import {
+  newsContent,
+  newsFilters,
+  formatEditionDate,
+  formatNewsTime,
+  newsTextLanguage,
+} from './config';
+import { getNewsSnapshot } from './snapshot';
+import NewsStory from './NewsStory.astro';
+import './news.css';
+
+const locale = getLocale(Astro.url.pathname);
+const text = newsContent[locale];
+const snapshot = await getNewsSnapshot();
+const items = snapshot.page.items;
+const daily = snapshot.daily;
+const serialized = JSON.stringify(snapshot).replace(/</g, '\\u003c');
+---
+
+<SiteLayout title="News" description={text.description}>
+  <Container as="main" id="main-content" width="wide" class="news-paper">
+    <h1 class="sr-only">News</h1>
+    <news-paper data-locale={locale}>
+      <header class="news-edition" data-language-block="news-edition">
+        <div class="news-edition-top micro-label">
+          <span class="news-edition-label">
+            {text.edition}
+            <span aria-hidden="true"> / {text.editionEnglish}</span>
+          </span>
+          <div class="news-refresh-meta">
+            <a
+              href="https://aihot.news/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              AIHOT{' '}
+              <ArrowUpRight
+                size={iconTokens.size.small}
+                stroke-width={iconTokens.strokeWidth}
+                aria-hidden="true"
+              />
+            </a>
+            <time
+              datetime={snapshot.fetchedAt ?? undefined}
+              title={text.timezone}
+              data-news-fetched
+              hidden={!snapshot.fetchedAt}
+            >
+              <span data-news-fetched-value>
+                {snapshot.fetchedAt &&
+                  `${text.updated} ${formatNewsTime(snapshot.fetchedAt, locale)}`}
+              </span>
+              <span class="news-timezone"> · {text.timezone}</span>
+            </time>
+            <button
+              class="news-refresh"
+              type="button"
+              aria-label={text.refresh}
+              title={text.refresh}
+              data-news-refresh
+              data-news-controls
+              hidden
+            >
+              <RefreshCw
+                size={iconTokens.size.small}
+                stroke-width={iconTokens.strokeWidth}
+                aria-hidden="true"
+              />
+            </button>
+          </div>
+        </div>
+        <div class="news-edition-line micro-label">
+          <time datetime={snapshot.fetchedAt ?? undefined} data-edition-date>
+            {snapshot.fetchedAt &&
+              formatEditionDate(snapshot.fetchedAt, locale)}
+          </time>
+          <span>{text.window}</span>
+        </div>
+      </header>
+
+      <div class="news-filters" data-news-controls hidden>
+        <div
+          class="news-category-tabs scrollbar-hidden"
+          role="group"
+          aria-label={text.filters}
+        >
+          {newsFilters.map((category) => (
+            <button
+              type="button"
+              aria-pressed={category === 'all' ? 'true' : 'false'}
+              data-news-category={category}
+            >
+              <span>{text.categories[category]}</span>
+              <span
+                class="news-tab-count"
+                data-news-category-count
+                aria-hidden={category !== 'all' || !snapshot.fetchedAt}
+                title={text.showing}
+              >
+                {category === 'all' ? items.length : ''}
+              </span>
+            </button>
+          ))}
+          <span
+            class="news-tab-indicator"
+            data-news-tab-indicator
+            aria-hidden="true"
+          ></span>
+        </div>
+        <div class="news-search" data-news-search-shell data-open="false">
+          <button
+            type="button"
+            class="news-search-toggle"
+            aria-label={text.search}
+            aria-expanded="false"
+            aria-controls="news-search-field"
+            data-news-search-toggle
+          >
+            <Search
+              size={iconTokens.size.large}
+              stroke-width={iconTokens.strokeWidth}
+              aria-hidden="true"
+            />
+          </button>
+          <div class="news-search-field" data-news-search-field hidden inert>
+            <input
+              id="news-search-field"
+              type="search"
+              aria-label={text.search}
+              placeholder={text.searchPlaceholder}
+              aria-describedby="news-search-hint"
+              maxlength="200"
+              data-news-search
+            />
+            <button
+              type="button"
+              class="news-search-clear"
+              aria-label={text.clearSearch}
+              data-news-search-clear
+              hidden
+            >
+              <X
+                size={iconTokens.size.small}
+                stroke-width={iconTokens.strokeWidth}
+                aria-hidden="true"
+              />
+            </button>
+          </div>
+        </div>
+      </div>
+      <p class="news-search-hint micro-label" id="news-search-hint" hidden>
+        {text.searchHint}
+      </p>
+      <p
+        class="news-status text-meta"
+        role="status"
+        aria-live="polite"
+        data-news-status
+        hidden
+      ></p>
+      <div class="news-content" data-news-content aria-busy="false">
+        <p
+          class="news-empty text-meta"
+          data-news-empty
+          hidden={items.length > 0}
+        >
+          {text.unavailable}
+        </p>
+        <div class="news-front-layout" data-news-front hidden={!items.length}>
+          <div class="news-front-main">
+            <div data-news-lead>
+              {items.slice(0, 1).map((item) => (
+                <NewsStory item={item} locale={locale} mode="lead" />
+              ))}
+            </div>
+            <div
+              class="news-secondary-grid"
+              data-news-secondary
+              hidden={items.length < 2}
+            >
+              {items.slice(1, 3).map((item) => (
+                <NewsStory item={item} locale={locale} mode="secondary" />
+              ))}
+            </div>
+          </div>
+          <aside
+            class="news-rail"
+            hidden={items.length < 4}
+            data-news-rail
+            aria-labelledby="news-brief-title"
+          >
+            <div class="news-column-heading">
+              <h2 id="news-brief-title">{text.briefs}</h2>
+              <span class="micro-label" aria-hidden="true">
+                THE BRIEF
+              </span>
+            </div>
+            <div data-news-briefs>
+              {items.slice(3, 5).map((item) => (
+                <NewsStory item={item} locale={locale} mode="brief" />
+              ))}
+            </div>
+          </aside>
+        </div>
+        <section
+          class="news-below-fold"
+          hidden={items.length < 6}
+          data-news-below
+          aria-labelledby="news-other-title"
+        >
+          <div class="news-column-heading">
+            <h2 id="news-other-title">{text.other}</h2>
+            <span class="micro-label" aria-hidden="true">
+              IN OTHER NEWS
+            </span>
+          </div>
+          <div class="news-below-grid" data-news-stories>
+            {items.slice(5).map((item) => (
+              <NewsStory item={item} locale={locale} mode="short" />
+            ))}
+          </div>
+        </section>
+      </div>
+      <div class="news-pagination" data-news-controls hidden>
+        <button
+          class="news-more"
+          type="button"
+          data-news-more
+          hidden={!snapshot.page.hasMore}
+        >
+          {text.more}
+          <span aria-hidden="true"> ↓</span>
+        </button>
+      </div>
+
+      <section
+        class="news-daily"
+        aria-labelledby="news-daily-title"
+        data-language-block="news-daily"
+      >
+        <div class="news-daily-intro">
+          <span class="micro-label" aria-hidden="true">
+            THE DAILY EDITION
+          </span>
+          <h2 id="news-daily-title">{text.daily}</h2>
+          <p class="text-meta">{text.dailyNote}</p>
+        </div>
+        <div
+          class="news-daily-edition"
+          data-daily-edition
+          data-attribution={daily?.attribution.name}
+          data-canonical={daily?.attribution.url}
+        >
+          <p class="text-meta" hidden={!!daily} data-daily-empty>
+            {text.dailyEmpty}
+          </p>
+          <div hidden={!daily} data-daily-content>
+            <time class="micro-label" datetime={daily?.date} data-daily-date>
+              {daily &&
+                formatEditionDate(`${daily.date}T00:00:00+08:00`, locale)}
+            </time>
+            <h3
+              hidden={!daily?.title}
+              lang={newsTextLanguage(daily?.title ?? '')}
+              data-daily-title
+            >
+              {daily?.title}
+            </h3>
+            <p
+              class="news-daily-summary text-meta"
+              hidden={!daily?.summary}
+              lang={newsTextLanguage(daily?.summary ?? '')}
+              data-daily-summary
+            >
+              {daily?.summary}
+            </p>
+            <div class="news-daily-times micro-label">
+              <p data-daily-generated>
+                {daily &&
+                  `${text.generated} ${formatNewsTime(daily.generatedAt, locale)}`}
+              </p>
+              <p data-daily-period>
+                {daily &&
+                  `${text.period} ${formatNewsTime(daily.windowStart, locale)} — ${formatNewsTime(daily.windowEnd, locale)} · ${text.timezone}`}
+              </p>
+            </div>
+            <a
+              class="news-read-link"
+              href={daily?.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-daily-link
+            >
+              {text.dailyRead}
+              <ArrowUpRight
+                size={iconTokens.size.small}
+                stroke-width={iconTokens.strokeWidth}
+                aria-hidden="true"
+              />
+            </a>
+          </div>
+        </div>
+      </section>
+      <footer class="news-footer" data-language-block="news-footer">
+        <div class="text-meta">
+          <p>{text.footer}</p>
+          <p>{text.languageNote}</p>
+        </div>
+        <a
+          class="news-home font-mono text-meta"
+          href={localizePath('/', locale)}
+          data-astro-reload
+          aria-label={text.home}
+        >
+          <CornerUpLeft
+            size={iconTokens.size.small}
+            stroke-width={iconTokens.strokeWidth}
+            aria-hidden="true"
+          />
+          cd ../
+        </a>
+      </footer>
+      <script
+        type="application/json"
+        data-news-snapshot
+        set:html={serialized}
+      />
+      {(['lead', 'secondary', 'brief', 'short'] as const).map((mode) => (
+        <template data-news-template={mode}>
+          <NewsStory locale={locale} mode={mode} />
+        </template>
+      ))}
+    </news-paper>
+  </Container>
+</SiteLayout>
+
+<script>
+  import { registerNewsPaper } from '@/scripts/news';
+  registerNewsPaper();
+</script>
