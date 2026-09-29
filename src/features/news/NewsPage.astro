@@ -1,11 +1,5 @@
 ---
-import {
-  RefreshCw,
-  Search,
-  ArrowUpRight,
-  CornerUpLeft,
-  X,
-} from '@lucide/astro';
+import { RefreshCw } from '@lucide/astro';
 import Container from '@/components/layout/Container.astro';
 import SiteLayout from '@/layouts/SiteLayout.astro';
 import { iconTokens } from '@/config/icons';
@@ -13,10 +7,12 @@ import { getLocale, localizePath } from '@/lib/i18n';
 import {
   newsContent,
   newsFilters,
-  formatEditionDate,
+  formatCalendarDate,
+  formatCalendarWeekday,
   formatNewsTime,
-  newsTextLanguage,
 } from './config';
+import { newsCategories } from '@/config/categories';
+import { buildHeatmap, getHeatmapActivity } from './calendar';
 import { getNewsSnapshot } from './snapshot';
 import NewsStory from './NewsStory.astro';
 import './news.css';
@@ -27,142 +23,83 @@ const snapshot = await getNewsSnapshot();
 const items = snapshot.page.items;
 const daily = snapshot.daily;
 const serialized = JSON.stringify(snapshot).replace(/</g, '\\u003c');
+const selectedDate = daily?.date;
+const heatmap = buildHeatmap(
+  selectedDate ?? new Date().toISOString().slice(0, 10),
+  snapshot.archive.map((entry) => entry.date),
+  'daily',
+  locale,
+  selectedDate ?? null,
+  getHeatmapActivity(snapshot),
+);
+const selectedArchiveIndex = selectedDate
+  ? snapshot.archive.findIndex((entry) => entry.date === selectedDate)
+  : -1;
+const issueNumber =
+  selectedDate && selectedArchiveIndex >= 0
+    ? snapshot.archiveTotal - selectedArchiveIndex
+    : null;
+const dailyLead = items[0];
 ---
 
 <SiteLayout title="News" description={text.description}>
   <Container as="main" id="main-content" width="wide" class="news-paper">
-    <h1 class="sr-only">News</h1>
     <news-paper data-locale={locale}>
-      <header class="news-edition" data-language-block="news-edition">
-        <div class="news-edition-top micro-label">
-          <span class="news-edition-label">
-            {text.edition}
-            <span aria-hidden="true"> / {text.editionEnglish}</span>
-          </span>
-          <div class="news-refresh-meta">
-            <a
-              href="https://aihot.news/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              AIHOT{' '}
-              <ArrowUpRight
-                size={iconTokens.size.small}
-                stroke-width={iconTokens.strokeWidth}
-                aria-hidden="true"
-              />
-            </a>
+      <header
+        class="news-edition-top micro-label"
+        data-language-block="news-edition"
+      >
+        <div class="news-edition-selected">
+          <p class="news-edition-issue">
+            <span>{text.issue}</span>
+            <span data-news-issue>{issueNumber}</span>
+            {locale === 'zh' && <span>{text.issueUnit}</span>}
+          </p>
+          <p class="news-edition-date">
             <time
-              datetime={snapshot.fetchedAt ?? undefined}
-              title={text.timezone}
-              data-news-fetched
-              hidden={!snapshot.fetchedAt}
+              datetime={selectedDate}
+              data-news-selected-date
+              data-news-month-target
             >
-              <span data-news-fetched-value>
-                {snapshot.fetchedAt &&
-                  `${text.updated} ${formatNewsTime(snapshot.fetchedAt, locale)}`}
-              </span>
-              <span class="news-timezone"> · {text.timezone}</span>
+              {selectedDate && formatCalendarDate(selectedDate, locale)}
             </time>
-            <button
-              class="news-refresh"
-              type="button"
-              aria-label={text.refresh}
-              title={text.refresh}
-              data-news-refresh
-              data-news-controls
-              hidden
-            >
-              <RefreshCw
-                size={iconTokens.size.small}
-                stroke-width={iconTokens.strokeWidth}
-                aria-hidden="true"
-              />
-            </button>
-          </div>
+            <span class="news-meta-separator" aria-hidden="true"></span>
+            <span data-news-selected-weekday>
+              {selectedDate && formatCalendarWeekday(selectedDate, locale)}
+            </span>
+          </p>
         </div>
-        <div class="news-edition-line micro-label">
-          <time datetime={snapshot.fetchedAt ?? undefined} data-edition-date>
-            {snapshot.fetchedAt &&
-              formatEditionDate(snapshot.fetchedAt, locale)}
-          </time>
-          <span>{text.window}</span>
-        </div>
-      </header>
-
-      <div class="news-filters" data-news-controls hidden>
-        <div
-          class="news-category-tabs scrollbar-hidden"
-          role="group"
-          aria-label={text.filters}
-        >
-          {newsFilters.map((category) => (
-            <button
-              type="button"
-              aria-pressed={category === 'all' ? 'true' : 'false'}
-              data-news-category={category}
-            >
-              <span>{text.categories[category]}</span>
-              <span
-                class="news-tab-count"
-                data-news-category-count
-                aria-hidden={category !== 'all' || !snapshot.fetchedAt}
-                title={text.showing}
-              >
-                {category === 'all' ? items.length : ''}
-              </span>
-            </button>
-          ))}
-          <span
-            class="news-tab-indicator"
-            data-news-tab-indicator
-            aria-hidden="true"
-          ></span>
-        </div>
-        <div class="news-search" data-news-search-shell data-open="false">
-          <button
-            type="button"
-            class="news-search-toggle"
-            aria-label={text.search}
-            aria-expanded="false"
-            aria-controls="news-search-field"
-            data-news-search-toggle
+        <div class="news-refresh-meta">
+          <time
+            datetime={snapshot.fetchedAt ?? undefined}
+            title={text.timezone}
+            data-news-fetched
+            hidden={!snapshot.fetchedAt}
           >
-            <Search
-              size={iconTokens.size.large}
+            <span data-news-fetched-value>
+              {snapshot.fetchedAt &&
+                `${text.updated} ${formatNewsTime(snapshot.fetchedAt, locale)}`}
+            </span>
+            <span class="news-timezone"> · {text.timezone}</span>
+          </time>
+          <button
+            class="news-refresh"
+            type="button"
+            aria-label={text.refresh}
+            title={text.refresh}
+            data-news-refresh
+            data-news-controls
+            hidden
+          >
+            <RefreshCw
+              size={iconTokens.size.small}
               stroke-width={iconTokens.strokeWidth}
               aria-hidden="true"
             />
           </button>
-          <div class="news-search-field" data-news-search-field hidden inert>
-            <input
-              id="news-search-field"
-              type="search"
-              aria-label={text.search}
-              placeholder={text.searchPlaceholder}
-              aria-describedby="news-search-hint"
-              maxlength="200"
-              data-news-search
-            />
-            <button
-              type="button"
-              class="news-search-clear"
-              aria-label={text.clearSearch}
-              data-news-search-clear
-              hidden
-            >
-              <X
-                size={iconTokens.size.small}
-                stroke-width={iconTokens.strokeWidth}
-                aria-hidden="true"
-              />
-            </button>
-          </div>
         </div>
-      </div>
-      <p class="news-search-hint micro-label" id="news-search-hint" hidden>
-        {text.searchHint}
-      </p>
+      </header>
+
       <p
         class="news-status text-meta"
         role="status"
@@ -170,7 +107,8 @@ const serialized = JSON.stringify(snapshot).replace(/</g, '\\u003c');
         data-news-status
         hidden
       ></p>
-      <div class="news-content" data-news-content aria-busy="false">
+      <h1 class="sr-only">News</h1>
+      <div class="news-content" aria-busy="false" data-news-paper-content>
         <p
           class="news-empty text-meta"
           data-news-empty
@@ -178,12 +116,12 @@ const serialized = JSON.stringify(snapshot).replace(/</g, '\\u003c');
         >
           {text.unavailable}
         </p>
-        <div class="news-front-layout" data-news-front hidden={!items.length}>
+        <div class="news-front-layout" data-news-front>
           <div class="news-front-main">
             <div data-news-lead>
-              {items.slice(0, 1).map((item) => (
-                <NewsStory item={item} locale={locale} mode="lead" />
-              ))}
+              {dailyLead && (
+                <NewsStory item={dailyLead} locale={locale} mode="lead" />
+              )}
             </div>
             <div
               class="news-secondary-grid"
@@ -195,43 +133,171 @@ const serialized = JSON.stringify(snapshot).replace(/</g, '\\u003c');
               ))}
             </div>
           </div>
-          <aside
-            class="news-rail"
-            hidden={items.length < 4}
-            data-news-rail
-            aria-labelledby="news-brief-title"
-          >
-            <div class="news-column-heading">
-              <h2 id="news-brief-title">{text.briefs}</h2>
-              <span class="micro-label" aria-hidden="true">
-                THE BRIEF
-              </span>
-            </div>
-            <div data-news-briefs>
-              {items.slice(3, 5).map((item) => (
-                <NewsStory item={item} locale={locale} mode="brief" />
+          <aside class="news-rail">
+            <section
+              class="news-heatmap"
+              aria-label={text.calendar}
+              hidden={!selectedDate}
+            >
+              <header class="news-heatmap-header">
+                <p class="news-heatmap-title">
+                  <span aria-hidden="true"></span>SIGNAL ACTIVITY
+                </p>
+                <div
+                  class="news-heatmap-controls"
+                  role="group"
+                  aria-label={text.calendarRange}
+                >
+                  {(['daily', 'weekly', 'monthly'] as const).map((mode) => (
+                    <button
+                      type="button"
+                      class="news-heatmap-tab"
+                      disabled
+                      aria-pressed={mode === 'daily' ? 'true' : 'false'}
+                      data-news-heatmap-mode={mode}
+                    >
+                      {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </header>
+              <div
+                class="news-heatmap-body"
+                data-news-heatmap-body
+                style={`--heatmap-rows: ${heatmap.rows}; --heatmap-columns: ${heatmap.columns}`}
+              >
+                <div
+                  class="news-heatmap-axis"
+                  data-news-heatmap-axis
+                  aria-hidden="true"
+                >
+                  {heatmap.axis.map((label) => (
+                    <span>{label}</span>
+                  ))}
+                </div>
+                <div class="news-heatmap-scroll">
+                  <div class="news-heatmap-grid" data-news-heatmap-grid>
+                    {heatmap.cells.map((cell) =>
+                      cell.date ? (
+                        <a
+                          class="news-heat-cell"
+                          href={`https://aihot.news/daily/${cell.date}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          data-news-date={cell.date}
+                          data-news-heat-key={cell.key}
+                          data-news-heat-level={cell.level}
+                          aria-current={cell.selected ? 'date' : undefined}
+                          aria-label={cell.label}
+                          title={cell.label}
+                        ></a>
+                      ) : (
+                        <span
+                          class="news-heat-cell"
+                          data-news-heat-level="0"
+                          title={cell.label || undefined}
+                          aria-hidden="true"
+                        ></span>
+                      ),
+                    )}
+                  </div>
+                </div>
+              </div>
+              <footer class="news-heatmap-footer">
+                <span data-news-heatmap-period>{heatmap.period}</span>
+                <span
+                  class="news-heatmap-legend"
+                  aria-label={text.calendarDensity}
+                >
+                  <span>{text.less}</span>
+                  {[0, 1, 2, 3, 4].map((level) => (
+                    <i data-news-heat-level={level}></i>
+                  ))}
+                  <span>{text.moreHeat}</span>
+                </span>
+              </footer>
+              <div
+                class="news-heat-tooltip"
+                role="tooltip"
+                id="news-heat-tooltip"
+                data-news-heat-tooltip
+                hidden
+              ></div>
+              <button
+                type="button"
+                class="news-latest micro-label"
+                data-news-latest
+                hidden
+              >
+                {text.latest}
+              </button>
+            </section>
+            <nav
+              class="news-category-tabs news-editorial-nav"
+              aria-label={text.filters}
+            >
+              {newsFilters.map((category, index) => (
+                <button
+                  type="button"
+                  disabled
+                  aria-pressed={category === 'all' ? 'true' : 'false'}
+                  data-news-category={category}
+                  data-news-target={`news-section-${category}`}
+                >
+                  <span class="news-editorial-num">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <span class="news-editorial-text">
+                    {text.categories[category]}
+                  </span>
+                  <span
+                    class="news-tab-count news-editorial-count"
+                    data-news-category-count
+                    aria-hidden={category !== 'all' || !snapshot.fetchedAt}
+                  >
+                    {category === 'all' ? items.length : ''}
+                  </span>
+                </button>
               ))}
-            </div>
+            </nav>
           </aside>
         </div>
-        <section
-          class="news-below-fold"
-          hidden={items.length < 6}
-          data-news-below
-          aria-labelledby="news-other-title"
+        <div
+          id="news-section-all"
+          class="news-section-list"
+          data-news-sections
+          data-news-content
+          aria-busy="false"
         >
-          <div class="news-column-heading">
-            <h2 id="news-other-title">{text.other}</h2>
-            <span class="micro-label" aria-hidden="true">
-              IN OTHER NEWS
-            </span>
-          </div>
-          <div class="news-below-grid" data-news-stories>
-            {items.slice(5).map((item) => (
-              <NewsStory item={item} locale={locale} mode="short" />
-            ))}
-          </div>
-        </section>
+          {newsCategories.map((category) => {
+            const entries = items
+              .slice(3)
+              .filter((item) => item.category === category);
+            return (
+              <section
+                id={`news-section-${category}`}
+                class="news-section"
+                data-news-section={category}
+                hidden={!entries.length}
+                aria-labelledby={`news-section-${category}-title`}
+              >
+                <div class="news-section-heading">
+                  <h2 id={`news-section-${category}-title`}>
+                    {text.categories[category]}
+                  </h2>
+                  <span class="micro-label" data-news-section-count>
+                    {entries.length} {text.stories}
+                  </span>
+                </div>
+                <div class="news-section-grid" data-news-section-grid>
+                  {entries.map((item) => (
+                    <NewsStory item={item} locale={locale} mode="short" />
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+        </div>
       </div>
       <div class="news-pagination" data-news-controls hidden>
         <button
@@ -245,90 +311,13 @@ const serialized = JSON.stringify(snapshot).replace(/</g, '\\u003c');
         </button>
       </div>
 
-      <section
-        class="news-daily"
-        aria-labelledby="news-daily-title"
-        data-language-block="news-daily"
-      >
-        <div class="news-daily-intro">
-          <span class="micro-label" aria-hidden="true">
-            THE DAILY EDITION
-          </span>
-          <h2 id="news-daily-title">{text.daily}</h2>
-          <p class="text-meta">{text.dailyNote}</p>
-        </div>
-        <div
-          class="news-daily-edition"
-          data-daily-edition
-          data-attribution={daily?.attribution.name}
-          data-canonical={daily?.attribution.url}
-        >
-          <p class="text-meta" hidden={!!daily} data-daily-empty>
-            {text.dailyEmpty}
-          </p>
-          <div hidden={!daily} data-daily-content>
-            <time class="micro-label" datetime={daily?.date} data-daily-date>
-              {daily &&
-                formatEditionDate(`${daily.date}T00:00:00+08:00`, locale)}
-            </time>
-            <h3
-              hidden={!daily?.title}
-              lang={newsTextLanguage(daily?.title ?? '')}
-              data-daily-title
-            >
-              {daily?.title}
-            </h3>
-            <p
-              class="news-daily-summary text-meta"
-              hidden={!daily?.summary}
-              lang={newsTextLanguage(daily?.summary ?? '')}
-              data-daily-summary
-            >
-              {daily?.summary}
-            </p>
-            <div class="news-daily-times micro-label">
-              <p data-daily-generated>
-                {daily &&
-                  `${text.generated} ${formatNewsTime(daily.generatedAt, locale)}`}
-              </p>
-              <p data-daily-period>
-                {daily &&
-                  `${text.period} ${formatNewsTime(daily.windowStart, locale)} — ${formatNewsTime(daily.windowEnd, locale)} · ${text.timezone}`}
-              </p>
-            </div>
-            <a
-              class="news-read-link"
-              href={daily?.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-daily-link
-            >
-              {text.dailyRead}
-              <ArrowUpRight
-                size={iconTokens.size.small}
-                stroke-width={iconTokens.strokeWidth}
-                aria-hidden="true"
-              />
-            </a>
-          </div>
-        </div>
-      </section>
       <footer class="news-footer" data-language-block="news-footer">
-        <div class="text-meta">
-          <p>{text.footer}</p>
-          <p>{text.languageNote}</p>
-        </div>
         <a
           class="news-home font-mono text-meta"
           href={localizePath('/', locale)}
           data-astro-reload
           aria-label={text.home}
         >
-          <CornerUpLeft
-            size={iconTokens.size.small}
-            stroke-width={iconTokens.strokeWidth}
-            aria-hidden="true"
-          />
           cd ../
         </a>
       </footer>
@@ -337,7 +326,7 @@ const serialized = JSON.stringify(snapshot).replace(/</g, '\\u003c');
         data-news-snapshot
         set:html={serialized}
       />
-      {(['lead', 'secondary', 'brief', 'short'] as const).map((mode) => (
+      {(['lead', 'secondary', 'short'] as const).map((mode) => (
         <template data-news-template={mode}>
           <NewsStory locale={locale} mode={mode} />
         </template>

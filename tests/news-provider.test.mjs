@@ -3,8 +3,10 @@ import { mock, test } from 'node:test';
 import {
   fetchNewsPage,
   fetchLatestDaily,
+  fetchDailyArchive,
   parseNewsPage,
   parseNewsDaily,
+  parseNewsDailyArchive,
   NewsApiError,
 } from '../src/features/news/providers/aihot.ts';
 
@@ -39,7 +41,36 @@ const daily = {
     windowEnd: '2026-09-29T00:00:00Z',
     links: { aihot: 'https://aihot.news/daily/2026-09-29' },
     lead: null,
+    sections: [
+      {
+        label: '模型发布/更新',
+        items: [
+          {
+            title: 'Daily model update',
+            summary: 'A validated daily summary.',
+            source: { name: 'Test source' },
+            links: {
+              aihot: 'https://aihot.news/items/daily-model',
+              original: 'https://source.example/model',
+            },
+          },
+        ],
+      },
+    ],
+    flashes: [],
   },
+};
+const archive = {
+  schemaVersion: 1,
+  count: 1,
+  items: [
+    {
+      date: '2026-09-29',
+      generatedAt: '2026-09-29T00:00:00Z',
+      leadTitle: null,
+      links: { aihot: 'https://aihot.news/daily/2026-09-29' },
+    },
+  ],
 };
 
 test('v1 normalization tolerates nullable fields and future categories; retains provenance', () => {
@@ -50,7 +81,29 @@ test('v1 normalization tolerates nullable fields and future categories; retains 
   assert.equal(result.items[0].title, item.title);
   assert.equal(result.items[0].attribution.url, item.attribution.url);
   assert.equal(result.nextCursor, 'opaque-cursor');
-  assert.equal(parseNewsDaily(daily).title, null);
+  const normalizedDaily = parseNewsDaily(daily);
+  assert.equal(normalizedDaily.title, null);
+  assert.equal(normalizedDaily.articles.length, 1);
+  assert.equal(normalizedDaily.articles[0].category, 'models');
+  assert.equal(
+    normalizedDaily.articles[0].readingUrl,
+    'https://aihot.news/items/daily-model',
+  );
+  assert.deepEqual(parseNewsDailyArchive(archive), {
+    total: 1,
+    items: [
+      {
+        date: '2026-09-29',
+        generatedAt: '2026-09-29T00:00:00Z',
+        leadTitle: null,
+        url: 'https://aihot.news/daily/2026-09-29',
+        attribution: {
+          name: 'AIHOT',
+          url: 'https://aihot.news/daily/2026-09-29',
+        },
+      },
+    ],
+  });
 });
 
 test('rejects executable URLs, incompatible schemas and missing pagination cursor', () => {
@@ -95,6 +148,39 @@ test('maps filters, preserves opaque cursor, reuses ETag on 304 and fetches top-
     assert.equal(url.searchParams.get('cursor'), 'opaque&cursor');
     assert.equal(calls[1].options.headers['If-None-Match'], '"test-etag"');
     assert.equal((await fetchLatestDaily()).date, '2026-09-29');
+  } finally {
+    fetchMock.mock.restore();
+  }
+});
+
+test('routes daily archive requests to the date index', async () => {
+  const fetchMock = mock.method(globalThis, 'fetch', async () =>
+    Response.json(archive),
+  );
+  try {
+    const result = await fetchDailyArchive();
+    assert.equal(result.total, 1);
+    assert.equal(
+      new URL(fetchMock.mock.calls[0].arguments[0]).pathname,
+      '/api/v1/dailies',
+    );
+  } finally {
+    fetchMock.mock.restore();
+  }
+});
+
+test('routes industry and open-source tabs through supported API filters', async () => {
+  const fetchMock = mock.method(globalThis, 'fetch', async () =>
+    Response.json(page),
+  );
+  try {
+    await fetchNewsPage({ category: 'news' });
+    await fetchNewsPage({ category: 'open-source' });
+    const industryUrl = new URL(fetchMock.mock.calls[0].arguments[0]);
+    const openSourceUrl = new URL(fetchMock.mock.calls[1].arguments[0]);
+    assert.equal(industryUrl.searchParams.get('category'), 'industry');
+    assert.equal(openSourceUrl.searchParams.get('category'), null);
+    assert.equal(openSourceUrl.searchParams.get('q'), '开源');
   } finally {
     fetchMock.mock.restore();
   }

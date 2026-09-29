@@ -23,9 +23,11 @@ export const motionTokens = {
     arrowHoverDistance: 2,
     highlightDuration: 0.38,
   },
-  /** News 搜索、分类指示线与内容切换；减少动画时即时切换。 */
+  /** News 分类指示线与内容切换；减少动画时即时切换。 */
   news: {
-    searchDuration: 0.28,
+    tabHoverDistance: 4,
+    heatHoverScale: 1.08,
+    heatHoverDuration: 0.15,
     tabDuration: 0.22,
     contentExitDuration: 0.1,
     contentEnterDuration: 0.22,

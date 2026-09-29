@@ -1,4 +1,6 @@
 import type {
+  NewsDailyArchive,
+  NewsDailyArchiveEntry,
   NewsCategory,
   NewsDaily,
   NewsItem,
@@ -11,6 +13,7 @@ import type {
 export const aihotOrigin = 'https://aihot.news';
 export const newsRefreshInterval = 10 * 60 * 1000;
 const categoryToApi: Partial<Record<NewsCategory, string>> = {
+  news: 'industry',
   models: 'ai-models',
   products: 'ai-products',
   companies: 'industry',
@@ -24,6 +27,48 @@ const categoryFromApi: Record<string, NewsCategory> = {
   paper: 'research',
   tip: 'tools',
 };
+
+function dailyCategory(label: string): NewsCategory {
+  if (label.includes('模型')) return 'models';
+  if (label.includes('产品')) return 'products';
+  if (label.includes('论文')) return 'research';
+  if (label.includes('教程') || label.includes('实践')) return 'tools';
+  if (label.includes('开源')) return 'open-source';
+  if (label.includes('商业') || label.includes('公司')) return 'companies';
+  return 'news';
+}
+
+function dailyArticle(value: {
+  title: string;
+  summary?: string;
+  source: Record<string, unknown>;
+  links: Record<string, unknown>;
+  attribution?: unknown;
+  discoveredAt: string;
+  publishedAt?: string;
+  id: string;
+  category: NewsCategory;
+}): NewsItem {
+  const url = httpUrl(value.links.original);
+  const readingUrl =
+    typeof value.links.aihot === 'string' && value.links.aihot.trim()
+      ? httpUrl(value.links.aihot)
+      : url;
+  return {
+    id: value.id,
+    title: value.title,
+    summary: value.summary?.trim() || undefined,
+    category: value.category,
+    publishedAt: value.publishedAt ?? null,
+    discoveredAt: value.discoveredAt,
+    source: { name: string(value.source.name), url },
+    url,
+    readingUrl,
+    score: null,
+    selected: false,
+    attribution: attribution(value.attribution, readingUrl),
+  };
+}
 
 function record(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value))
@@ -115,16 +160,98 @@ export function parseNewsDaily(value: unknown): NewsDaily {
     throw new Error('Invalid AIHOT edition date');
   const url = httpUrl(record(report.links).aihot);
   const lead = report.lead === null ? null : record(report.lead);
+  const generatedAt = timestamp(report.generatedAt);
+  const articles: NewsItem[] = [];
+  if (lead) {
+    articles.push(
+      dailyArticle({
+        title: string(lead.title),
+        summary: string(lead.leadParagraph),
+        source: { name: 'AIHOT' },
+        links: { aihot: url, original: url },
+        attribution: report.attribution,
+        discoveredAt: generatedAt,
+        id: `daily-${date}-lead`,
+        category: 'news',
+      }),
+    );
+  }
+  if (!Array.isArray(report.sections)) throw new Error('Invalid AIHOT daily');
+  report.sections.forEach((sectionValue, sectionIndex) => {
+    const section = record(sectionValue);
+    const category = dailyCategory(string(section.label));
+    if (!Array.isArray(section.items)) throw new Error('Invalid AIHOT daily');
+    section.items.forEach((itemValue, itemIndex) => {
+      const item = record(itemValue);
+      articles.push(
+        dailyArticle({
+          title: string(item.title),
+          summary: string(item.summary),
+          source: record(item.source),
+          links: record(item.links),
+          attribution: item.attribution,
+          discoveredAt: timestamp(report.generatedAt),
+          id: `daily-${date}-${sectionIndex}-${itemIndex}`,
+          category,
+        }),
+      );
+    });
+  });
+  if (!Array.isArray(report.flashes)) throw new Error('Invalid AIHOT daily');
+  report.flashes.forEach((itemValue, itemIndex) => {
+    const item = record(itemValue);
+    articles.push(
+      dailyArticle({
+        title: string(item.title),
+        source: record(item.source),
+        links: record(item.links),
+        attribution: item.attribution,
+        discoveredAt: timestamp(item.publishedAt),
+        publishedAt: timestamp(item.publishedAt),
+        id: `daily-${date}-flash-${itemIndex}`,
+        category: 'news',
+      }),
+    );
+  });
   return {
     date,
     url,
-    generatedAt: timestamp(report.generatedAt),
+    generatedAt,
     windowStart: timestamp(report.windowStart),
     windowEnd: timestamp(report.windowEnd),
     title: lead ? string(lead.title) : null,
     summary: lead ? string(lead.leadParagraph) : null,
     attribution: attribution(report.attribution, url),
+    articles,
   };
+}
+
+export function parseNewsDailyArchive(value: unknown): NewsDailyArchive {
+  const data = record(value);
+  if (
+    data.schemaVersion !== 1 ||
+    typeof data.count !== 'number' ||
+    !Array.isArray(data.items)
+  )
+    throw new Error('Unsupported AIHOT daily archive');
+  const items = data.items.map((itemValue): NewsDailyArchiveEntry => {
+    const item = record(itemValue);
+    const date = string(item.date);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date))
+      throw new Error('Invalid AIHOT archive date');
+    const url = httpUrl(record(item.links).aihot);
+    return {
+      date,
+      generatedAt: timestamp(item.generatedAt),
+      leadTitle:
+        typeof item.leadTitle === 'string' && item.leadTitle.trim()
+          ? item.leadTitle
+          : null,
+      url,
+      attribution: attribution(item.attribution, url),
+    };
+  });
+  return { total: data.count, items };
 }
 
 export class NewsApiError extends Error {
@@ -194,7 +321,9 @@ async function request(url: string, signal?: AbortSignal): Promise<unknown> {
   }
   const value: unknown = await response.json();
   // 只有可识别的结构才替换成功缓存，避免损坏响应覆盖旧数据。
-  if (new URL(url).pathname.endsWith('/items')) parseNewsPage(value);
+  const pathname = new URL(url).pathname;
+  if (pathname.endsWith('/items')) parseNewsPage(value);
+  else if (pathname === '/api/v1/dailies') parseNewsDailyArchive(value);
   else parseNewsDaily(value);
   if (cache.size >= 30) cache.clear();
   cache.set(url, { etag: response.headers.get('ETag'), value });
@@ -210,10 +339,16 @@ export async function fetchNewsPage(query: NewsQuery = {}): Promise<NewsPage> {
   }).toString();
   if (query.category && query.category !== 'all') {
     const category = categoryToApi[query.category];
-    if (!category) throw new Error('Unsupported AIHOT category filter');
-    url.searchParams.set('category', category);
+    if (category) url.searchParams.set('category', category);
+    else if (query.category !== 'open-source')
+      throw new Error('Unsupported AIHOT category filter');
   }
-  if (query.search) url.searchParams.set('q', query.search);
+  // API 没有独立的开源分类，使用其支持的关键词查询，不改写来源分类。
+  const search =
+    query.category === 'open-source'
+      ? ['开源', query.search].filter(Boolean).join(' ')
+      : query.search;
+  if (search) url.searchParams.set('q', search);
   if (query.cursor) url.searchParams.set('cursor', query.cursor);
   return parseNewsPage(await request(url.href, query.signal));
 }
@@ -224,6 +359,24 @@ export async function fetchLatestDaily(
   return parseNewsDaily(
     await request(`${aihotOrigin}/api/v1/dailies/latest`, signal),
   );
+}
+
+export async function fetchDailyByDate(
+  date: string,
+  signal?: AbortSignal,
+): Promise<NewsDaily> {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('Invalid date');
+  return parseNewsDaily(
+    await request(`${aihotOrigin}/api/v1/dailies/${date}`, signal),
+  );
+}
+
+export async function fetchDailyArchive(
+  signal?: AbortSignal,
+): Promise<NewsDailyArchive> {
+  const url = new URL('/api/v1/dailies', aihotOrigin);
+  url.searchParams.set('limit', '180');
+  return parseNewsDailyArchive(await request(url.href, signal));
 }
 
 export const aihotProvider: NewsProvider = {

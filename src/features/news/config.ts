@@ -3,10 +3,12 @@ import type { NewsCategory } from './types';
 
 export const newsFilters = [
   'all',
+  'news',
   'models',
   'products',
   'companies',
   'research',
+  'open-source',
   'tools',
 ] as const;
 export const newsContent = {
@@ -14,17 +16,26 @@ export const newsContent = {
     description: '来自 AIHOT 的 AI 行业精选、模型与产品动态，以及每日观察。',
     edition: 'AI 每日观察',
     editionEnglish: 'DAILY INTELLIGENCE',
+    dailyTitle: '日报',
+    issue: '第',
+    issueUnit: '期',
+    monthIssueUnit: '期',
+    calendar: '日报日期',
+    calendarRange: '热力图时间范围',
+    calendarDensity: '深浅表示已载入的资讯活动，浅色日期仅表示已有日报',
+    less: '少',
+    moreHeat: '多',
+    latest: '返回最新资讯 ↗',
+    dailyUpdated: '日报已更新。',
     window: '近七日 · 精选',
     stories: '篇报道',
+    monthIssues(count: number) {
+      return `本月 ${count} 期`;
+    },
     showing: '已载入',
     updated: '更新于',
     timezone: '北京时间',
     filters: '资讯分类',
-    search: '搜索资讯',
-    closeSearch: '收起搜索',
-    clearSearch: '清空搜索',
-    searchPlaceholder: '搜索关键词…',
-    searchHint: '请输入 2–200 个字符。',
     refresh: '刷新资讯',
     more: '载入更多',
     loading: '正在更新…',
@@ -49,8 +60,6 @@ export const newsContent = {
     dailyRead: '阅读完整日报',
     generated: '生成于',
     period: '统计窗口',
-    languageNote: '标题与摘要保留数据源提供的文字。',
-    footer: '数据来源：AIHOT。摘要由 AI 辅助生成，新闻事实以原文为准。',
     home: '返回首页',
     categories: {
       all: '全部头条',
@@ -68,17 +77,27 @@ export const newsContent = {
       'Selected AI news, model and product updates, and daily intelligence from AIHOT.',
     edition: 'AI daily intelligence',
     editionEnglish: 'DAILY INTELLIGENCE',
+    dailyTitle: 'Daily',
+    issue: 'Issue',
+    issueUnit: '',
+    monthIssueUnit: 'issues',
+    calendar: 'Daily archive dates',
+    calendarRange: 'Heatmap time range',
+    calendarDensity:
+      'Color shows loaded news activity; pale dates have an edition but no loaded story count',
+    less: 'Less',
+    moreHeat: 'More',
+    latest: 'Back to latest news ↗',
+    dailyUpdated: 'Daily report loaded.',
     window: 'Past 7 days · Selected',
     stories: 'stories',
+    monthIssues(count: number) {
+      return `${count} ${count === 1 ? 'issue' : 'issues'} this month`;
+    },
     showing: 'Loaded',
     updated: 'Updated',
     timezone: 'Beijing time',
     filters: 'News categories',
-    search: 'Search news',
-    closeSearch: 'Collapse search',
-    clearSearch: 'Clear search',
-    searchPlaceholder: 'Search keywords…',
-    searchHint: 'Enter 2–200 characters.',
     refresh: 'Refresh news',
     more: 'Load more',
     loading: 'Updating…',
@@ -88,7 +107,7 @@ export const newsContent = {
     rateLimited:
       'Requests are temporarily limited. Please wait before retrying.',
     retry: 'Retry after',
-    empty: 'No stories match your search.',
+    empty: 'No stories in this category.',
     unavailable: 'News is unavailable. Try refreshing, or read on AIHOT.',
     stale: 'Showing the last successfully loaded stories.',
     lead: 'Top story',
@@ -105,10 +124,6 @@ export const newsContent = {
     dailyRead: 'Read full report',
     generated: 'Generated',
     period: 'Reporting window',
-    languageNote:
-      'Original headlines where available; summaries remain in the source language.',
-    footer:
-      'Source: AIHOT. Summaries are AI-assisted; check the original reporting for facts.',
     home: 'Back to Index',
     categories: {
       all: 'Front page',
@@ -153,4 +168,53 @@ export function formatEditionDate(value: string, locale: Locale): string {
     weekday: 'long',
     timeZone: 'Asia/Shanghai',
   }).format(new Date(value));
+}
+
+export function formatCalendarMonth(value: string, locale: Locale): string {
+  return new Intl.DateTimeFormat(locale === 'zh' ? 'zh-CN' : 'en-GB', {
+    month: 'long',
+    timeZone: 'UTC',
+  }).format(new Date(`${value}T00:00:00Z`));
+}
+
+export function formatCalendarYearMonth(value: string, locale: Locale): string {
+  return new Intl.DateTimeFormat(locale === 'zh' ? 'zh-CN' : 'en-GB', {
+    year: 'numeric',
+    month: 'long',
+    timeZone: 'UTC',
+  }).format(new Date(`${value}T00:00:00Z`));
+}
+
+export function formatCalendarDate(value: string, locale: Locale): string {
+  return new Intl.DateTimeFormat(locale === 'zh' ? 'zh-CN' : 'en-GB', {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(`${value}T00:00:00Z`));
+}
+
+export function formatCalendarWeekday(value: string, locale: Locale): string {
+  return new Intl.DateTimeFormat(locale === 'zh' ? 'zh-CN' : 'en-GB', {
+    weekday: 'long',
+    timeZone: 'UTC',
+  }).format(new Date(`${value}T00:00:00Z`));
+}
+
+export function calendarMonthCells(
+  selectedDate: string,
+  availableDates: readonly string[],
+): Array<string | null> {
+  const date = new Date(`${selectedDate}T00:00:00Z`);
+  if (Number.isNaN(date.getTime())) return [];
+  const year = date.getUTCFullYear();
+  const month = date.getUTCMonth();
+  const days = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  const offset = (new Date(Date.UTC(year, month, 1)).getUTCDay() + 6) % 7;
+  const available = new Set(availableDates);
+  return Array.from({ length: offset + days }, (_, index) => {
+    if (index < offset) return null;
+    const value = `${year}-${String(month + 1).padStart(2, '0')}-${String(index - offset + 1).padStart(2, '0')}`;
+    return available.has(value) ? value : null;
+  });
 }

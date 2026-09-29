@@ -41,12 +41,29 @@ export interface NewsDaily {
   title: string | null;
   summary: string | null;
   attribution: { name: string; url: string };
+  /** 日报正文条目是适配后的只读视图；日期版面不使用滚动窗口游标。 */
+  articles: NewsItem[];
+}
+
+export interface NewsDailyArchiveEntry {
+  date: string;
+  generatedAt: string;
+  leadTitle: string | null;
+  url: string;
+  attribution: { name: string; url: string };
+}
+
+export interface NewsDailyArchive {
+  total: number;
+  items: NewsDailyArchiveEntry[];
 }
 
 export interface NewsSnapshot {
   page: NewsPage;
   daily: NewsDaily | null;
   fetchedAt: string | null;
+  archive: NewsDailyArchiveEntry[];
+  archiveTotal: number;
 }
 
 export interface NewsProvider {

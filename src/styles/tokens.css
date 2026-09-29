@@ -20,6 +20,15 @@
   --muted-text: #706f67;
   --signal-text: #405dcb;
   --signal-contrast: #fff;
+  --news-heat-empty: transparent;
+  --news-heat-low: color-mix(in srgb, var(--news-brand) 14%, transparent);
+  --news-heat-medium: color-mix(in srgb, var(--news-brand) 30%, transparent);
+  --news-heat-high: color-mix(in srgb, var(--news-brand) 52%, transparent);
+  --news-brand: #177e83;
+  --news-brand-soft: rgb(23 126 131 / 0.16);
+  --news-card-height: 24rem;
+  --news-card-title-lines: 3;
+  --news-card-summary-lines: 4;
   --writing-highlight: #f3d76a;
   /* 原生 SVG 光标沿用参考图的黑色箭头与浅黄色圆点，两种主题均可辨认。 */
   --cursor-default: url('../assets/cursors/arrow.svg') 3 2, default;
@@ -80,6 +89,8 @@
     --code-surface: #1b1c19;
     --muted-text: #85847d;
     --signal-text: #6b8cff;
+    --news-brand: #58c7bb;
+    --news-brand-soft: rgb(88 199 187 / 0.18);
     --writing-highlight: #9a7524;
     --floating-shadow: 0 8px 32px rgb(0 0 0 / 0.18);
     --terminal-user: #3fb950;
@@ -102,6 +113,8 @@
   --code-surface: #1b1c19;
   --muted-text: #85847d;
   --signal-text: #6b8cff;
+  --news-brand: #58c7bb;
+  --news-brand-soft: rgb(88 199 187 / 0.18);
   --writing-highlight: #9a7524;
   --floating-shadow: 0 8px 32px rgb(0 0 0 / 0.18);
   --terminal-user: #3fb950;

@@ -28,61 +28,15 @@ const Heading = mode === 'lead' ? 'h2' : 'h3';
   data-attribution={item?.attribution.name}
   data-canonical={item?.attribution.url}
 >
-  <p class="news-kicker micro-label" data-story-category>
-    {mode === 'lead' && `${text.lead} // `}
-    {item && text.categories[item.category]}
-  </p>
-  <a
-    class="news-story-title"
-    href={item?.url}
-    target="_blank"
-    rel="noopener noreferrer"
-    data-story-original
-  >
-    <Heading lang={newsTextLanguage(title)} data-story-title>
-      {title}
-    </Heading>
-  </a>
-  <p
-    class="news-story-summary"
-    hidden={!item?.summary}
-    lang={newsTextLanguage(item?.summary ?? '')}
-    data-story-summary
-  >
-    {item?.summary}
-  </p>
-  <div class="news-story-tags" aria-label={text.selected}>
-    <span class="news-chip" hidden={!item?.selected} data-story-selected>
-      {text.selected}
-    </span>
-    <span class="news-chip" hidden={item?.score == null} data-story-score>
-      AI {item?.score}/100
-    </span>
-  </div>
-  <div class="news-story-meta micro-label">
-    <time
-      datetime={item?.publishedAt ?? undefined}
-      hidden={!item?.publishedAt}
-      data-story-time
-    >
-      {item?.publishedAt && formatNewsTime(item.publishedAt, locale)}
-    </time>
-    <span hidden={!!item?.publishedAt} data-story-unknown>
-      {text.unknownDate}
-    </span>
-    <span class="news-meta-separator" aria-hidden="true"></span>
-    <a
-      class="news-source"
-      href={item?.source.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      lang={newsTextLanguage(item?.source.name ?? '')}
-      data-story-source
-    >
-      {item?.source.name}
-    </a>
-  </div>
-  <div class="news-story-actions">
+  <div class="news-story-header">
+    <div class="news-story-tags" aria-label={text.selected}>
+      <span class="news-chip" hidden={!item?.selected} data-story-selected>
+        {text.selected}
+      </span>
+      <span class="news-chip" hidden={item?.score == null} data-story-score>
+        AI {item?.score}/100
+      </span>
+    </div>
     <a
       href={item?.url}
       class="news-read-link"
@@ -97,14 +51,51 @@ const Heading = mode === 'lead' ? 'h2' : 'h3';
         aria-hidden="true"
       />
     </a>
-    <a
-      href={item?.readingUrl}
-      class="news-digest-link"
-      target="_blank"
-      rel="noopener noreferrer"
-      data-story-reading
+  </div>
+  <a
+    class="news-story-title"
+    href={item?.readingUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    data-story-reading
+  >
+    <Heading
+      lang={newsTextLanguage(title)}
+      title={title || undefined}
+      data-story-title
     >
-      {text.reading}
-    </a>
+      {title}
+    </Heading>
+  </a>
+  <p
+    class="news-story-summary"
+    hidden={!item?.summary}
+    lang={newsTextLanguage(item?.summary ?? '')}
+    title={item?.summary}
+    data-story-summary
+  >
+    {item?.summary}
+  </p>
+  <div class="news-story-footer">
+    <div class="news-story-meta micro-label">
+      <time
+        datetime={item?.publishedAt ?? undefined}
+        hidden={!item?.publishedAt}
+        data-story-time
+      >
+        {item?.publishedAt && formatNewsTime(item.publishedAt, locale)}
+      </time>
+      <span hidden={!!item?.publishedAt} data-story-unknown>
+        {text.unknownDate}
+      </span>
+      <span class="news-meta-separator" aria-hidden="true"></span>
+      <span
+        class="news-source"
+        lang={newsTextLanguage(item?.source.name ?? '')}
+        data-story-source
+      >
+        {item?.source.name}
+      </span>
+    </div>
   </div>
 </article>

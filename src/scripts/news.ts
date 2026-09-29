@@ -1,8 +1,13 @@
 import { animate, type AnimationPlaybackControls } from 'motion';
 import { motionTokens } from '@/config/motion';
+import {
+  buildHeatmap,
+  getHeatmapActivity,
+  type HeatmapMode,
+} from '@/features/news/calendar';
+import { newsCategories } from '@/config/categories';
 import type { Locale } from '@/config/i18n';
 import {
-  formatEditionDate,
   formatNewsTime,
   newsContent,
   newsFilters,
@@ -10,6 +15,12 @@ import {
   newsTitle,
 } from '@/features/news/config';
 import {
+  formatCalendarDate,
+  formatCalendarWeekday,
+} from '@/features/news/config';
+import {
+  fetchDailyArchive,
+  fetchDailyByDate,
   fetchLatestDaily,
   fetchNewsPage,
   NewsApiError,
@@ -20,16 +31,18 @@ import type { NewsItem, NewsSnapshot } from '@/features/news/types';
 type Filter = (typeof newsFilters)[number];
 interface SavedPaper {
   category: Filter;
-  search: string;
   appliedKey: string;
+  selectedDate: string | null;
+  dateMode: boolean;
   snapshot: NewsSnapshot;
   checkedAt: number;
   dailyCheckedAt: number;
-  searchOpen: boolean;
+  heatmapMode: HeatmapMode;
+  heatmapActivity: Record<string, number>;
 }
 // 同一标签内跨语言保留筛选与已加载页；不持久化跨日游标。
 let saved: SavedPaper | undefined;
-const queryKey = (category: Filter, search: string) => `${category}:${search}`;
+const queryKey = (category: Filter) => category;
 
 export function registerNewsPaper(): void {
   if (customElements.get('news-paper')) return;
@@ -47,40 +60,41 @@ export function registerNewsPaper(): void {
         if (!element) throw new Error(`Missing news element: ${selector}`);
         return element;
       };
-      const input = find<HTMLInputElement>('[data-news-search]');
-      const searchToggle = find<HTMLButtonElement>('[data-news-search-toggle]');
-      const searchShell = find('[data-news-search-shell]');
-      const searchField = find('[data-news-search-field]');
-      const searchClear = find<HTMLButtonElement>('[data-news-search-clear]');
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-      let searchAnimation: AnimationPlaybackControls | undefined;
-      let tabAnimation: AnimationPlaybackControls | undefined;
+      const tabAnimations = new Map<HTMLElement, AnimationPlaybackControls>();
       let contentAnimation: AnimationPlaybackControls | undefined;
-      const tabs = find('.news-category-tabs');
-      const indicator = find('[data-news-tab-indicator]');
+      const tabs = find('.news-editorial-nav');
+      const heatmapGrid = find('[data-news-heatmap-grid]');
+      const heatTooltip = find('[data-news-heat-tooltip]');
+      const heatAnimations = new Map<HTMLElement, AnimationPlaybackControls>();
+      const heatmapTabs = Array.from(
+        this.querySelectorAll<HTMLButtonElement>('[data-news-heatmap-mode]'),
+      );
+      const editionIssue = find('[data-news-issue]');
+      const calendarSelectedDate = find<HTMLTimeElement>(
+        '[data-news-selected-date]',
+      );
+      const calendarSelectedWeekday = find('[data-news-selected-weekday]');
       const refresh = find<HTMLButtonElement>('[data-news-refresh]');
       const more = find<HTMLButtonElement>('[data-news-more]');
       const content = find('[data-news-content]');
       const status = find('[data-news-status]');
-      const hint = find('#news-search-hint');
       const raw = find<HTMLScriptElement>('[data-news-snapshot]');
       // 初始 JSON 来自本站服务端适配器，外部响应始终经过 Provider 校验。
       const initial: NewsSnapshot = JSON.parse(raw.textContent ?? '{}');
       const state: SavedPaper = saved ?? {
         category: 'all',
-        search: '',
-        appliedKey: queryKey('all', ''),
+        appliedKey: queryKey('all'),
+        selectedDate: initial.daily?.date ?? null,
+        dateMode: false,
         snapshot: initial,
         checkedAt: 0,
         dailyCheckedAt: 0,
-        searchOpen: false,
+        heatmapMode: 'daily',
+        heatmapActivity: getHeatmapActivity(initial),
       };
       saved = undefined;
-      input.value = state.search;
-      searchClear.hidden = !state.search;
-      searchShell.dataset.hasQuery = String(!!state.search);
       let active: AbortController | undefined;
-      let debounce: ReturnType<typeof setTimeout> | undefined;
       let timer: ReturnType<typeof setTimeout> | undefined;
       let dailyActive = false;
       let blockedUntil = 0;
@@ -90,53 +104,12 @@ export function registerNewsPaper(): void {
         status.hidden = !message;
         status.classList.toggle('sr-only', !visible);
       };
-      const setSearchOpen = (open: boolean, immediate = false) => {
-        searchAnimation?.stop();
-        state.searchOpen = open;
-        searchToggle.setAttribute('aria-expanded', String(open));
-        searchToggle.setAttribute(
-          'aria-label',
-          open ? text.closeSearch : text.search,
-        );
-        searchField.inert = !open;
-        if (open) {
-          searchShell.dataset.open = 'true';
-          searchField.hidden = false;
-        }
-        const finish = () => {
-          if (!state.searchOpen) {
-            searchField.hidden = true;
-            searchShell.dataset.open = 'false';
-          }
-        };
-        if (immediate || reduced.matches) {
-          searchShell.style.setProperty(
-            '--news-search-progress',
-            open ? '1' : '0',
-          );
-          finish();
-        } else {
-          searchAnimation = animate(
-            searchShell,
-            { '--news-search-progress': open ? 1 : 0 },
-            {
-              duration: motionTokens.news.searchDuration,
-              ease: motionTokens.easing,
-              onComplete: finish,
-            },
-          );
-        }
-      };
-      setSearchOpen(state.searchOpen, true);
       const setText = (parent: Element, selector: string, value: string) => {
         const element = parent.querySelector<HTMLElement>(selector);
         if (element) element.textContent = value;
         return element;
       };
-      const story = (
-        item: NewsItem,
-        mode: 'lead' | 'secondary' | 'brief' | 'short',
-      ) => {
+      const story = (item: NewsItem, mode: 'lead' | 'secondary' | 'short') => {
         const template = find<HTMLTemplateElement>(
           `[data-news-template="${mode}"]`,
         );
@@ -149,16 +122,10 @@ export function registerNewsPaper(): void {
         article.dataset.languageBlock = `news-${item.id}`;
         article.dataset.attribution = item.attribution.name;
         article.dataset.canonical = item.attribution.url;
-        setText(
-          article,
-          '[data-story-category]',
-          `${mode === 'lead' ? `${text.lead} // ` : ''}${text.categories[item.category]}`,
-        );
         const title = newsTitle(item, locale);
-        setText(article, '[data-story-title]', title)?.setAttribute(
-          'lang',
-          newsTextLanguage(title),
-        );
+        const heading = setText(article, '[data-story-title]', title);
+        heading?.setAttribute('lang', newsTextLanguage(title));
+        heading?.setAttribute('title', title);
         const summary = setText(
           article,
           '[data-story-summary]',
@@ -167,6 +134,8 @@ export function registerNewsPaper(): void {
         if (summary) {
           summary.hidden = !item.summary;
           summary.lang = newsTextLanguage(item.summary ?? '');
+          if (item.summary) summary.title = item.summary;
+          else summary.removeAttribute('title');
         }
         const selected = article.querySelector<HTMLElement>(
           '[data-story-selected]',
@@ -196,7 +165,6 @@ export function registerNewsPaper(): void {
           '[data-story-source]',
           item.source.name,
         );
-        source?.setAttribute('href', item.source.url);
         source?.setAttribute('lang', newsTextLanguage(item.source.name));
         article
           .querySelectorAll<HTMLAnchorElement>('[data-story-original]')
@@ -208,43 +176,166 @@ export function registerNewsPaper(): void {
           ?.setAttribute('href', item.readingUrl);
         return article;
       };
-      const positionIndicator = (immediate = false) => {
-        const selected = tabs.querySelector<HTMLButtonElement>(
-          '[aria-pressed="true"]',
-        );
-        if (!selected) return;
-        tabAnimation?.stop();
-        const x = selected.offsetLeft;
-        const width = selected.offsetWidth;
-        if (immediate || reduced.matches) {
-          indicator.style.transform = `translateX(${x}px)`;
-          indicator.style.width = `${width}px`;
-        } else {
-          const current = indicator.getBoundingClientRect();
-          const currentX =
-            current.left - tabs.getBoundingClientRect().left + tabs.scrollLeft;
-          tabAnimation = animate(
-            indicator,
-            { x: [currentX, x], width: [current.width, width] },
-            {
-              duration: motionTokens.news.tabDuration,
-              ease: motionTokens.easing,
-            },
+      const rememberActivity = () => {
+        for (const [date, count] of Object.entries(
+          getHeatmapActivity(state.snapshot),
+        )) {
+          state.heatmapActivity[date] = Math.max(
+            state.heatmapActivity[date] ?? 0,
+            count,
           );
         }
       };
-      const paintTabs = (immediate = false) => {
+      const hideHeatTooltip = () => {
+        heatTooltip.hidden = true;
+        heatmapGrid
+          .querySelector('[aria-describedby]')
+          ?.removeAttribute('aria-describedby');
+      };
+      const animateHeat = (cell: HTMLElement, active: boolean) => {
+        heatAnimations.get(cell)?.stop();
+        const scale =
+          active && !reduced.matches ? motionTokens.news.heatHoverScale : 1;
+        if (reduced.matches) cell.style.transform = 'none';
+        else
+          heatAnimations.set(
+            cell,
+            animate(
+              cell,
+              { scale },
+              {
+                duration: motionTokens.news.heatHoverDuration,
+                ease: motionTokens.easing,
+              },
+            ),
+          );
+      };
+      const showHeatTooltip = (cell: HTMLElement, pointer?: PointerEvent) => {
+        heatTooltip.textContent = cell.getAttribute('aria-label') ?? '';
+        heatTooltip.hidden = false;
+        cell.setAttribute('aria-describedby', heatTooltip.id);
+        const bounds = cell.getBoundingClientRect();
+        const half = heatTooltip.getBoundingClientRect().width / 2 + 8;
+        heatTooltip.style.left = `${Math.min(window.innerWidth - half, Math.max(half, pointer?.clientX ?? bounds.x + bounds.width / 2))}px`;
+        heatTooltip.style.top = `${Math.max(heatTooltip.getBoundingClientRect().height + 16, pointer?.clientY ?? bounds.top)}px`;
+      };
+      const paintCalendar = () => {
+        hideHeatTooltip();
+        heatAnimations.forEach((animation) => animation.stop());
+        heatAnimations.clear();
+        const selected = state.selectedDate;
+        const archive = state.snapshot.archive;
+        const selectedIndex = selected
+          ? archive.findIndex((entry) => entry.date === selected)
+          : -1;
+        // 期号与选中日期位于版面元信息行，日历本体只保留可选择的月份网格。
+        editionIssue.textContent =
+          selected && selectedIndex >= 0
+            ? String(state.snapshot.archiveTotal - selectedIndex)
+            : '';
+        calendarSelectedDate.dateTime = selected ?? '';
+        calendarSelectedDate.textContent = selected
+          ? formatCalendarDate(selected, locale)
+          : '';
+        calendarSelectedWeekday.textContent = selected
+          ? formatCalendarWeekday(selected, locale)
+          : '';
+        if (editionIssue.parentElement)
+          editionIssue.parentElement.hidden = selectedIndex < 0;
+        const anchor =
+          selected ?? archive[0]?.date ?? new Date().toISOString().slice(0, 10);
+        const map = buildHeatmap(
+          anchor,
+          archive.map((entry) => entry.date),
+          state.heatmapMode,
+          locale,
+          selected,
+          state.heatmapActivity,
+        );
+        find('.news-heatmap').hidden = !archive.length;
+        const focusedKey =
+          document.activeElement instanceof HTMLElement
+            ? document.activeElement.dataset.newsHeatKey
+            : undefined;
+        heatmapTabs.forEach((button) => {
+          button.disabled = false;
+          button.setAttribute(
+            'aria-pressed',
+            String(button.dataset.newsHeatmapMode === state.heatmapMode),
+          );
+        });
+        const body = find('[data-news-heatmap-body]');
+        body.style.setProperty('--heatmap-rows', String(map.rows));
+        body.style.setProperty('--heatmap-columns', String(map.columns));
+        find('[data-news-heatmap-axis]').replaceChildren(
+          ...map.axis.map((label) => {
+            const span = document.createElement('span');
+            span.textContent = label;
+            return span;
+          }),
+        );
+        heatmapGrid.replaceChildren(
+          ...map.cells.map((cell) => {
+            const element = document.createElement(
+              cell.date ? 'button' : 'span',
+            );
+            element.className = 'news-heat-cell';
+            element.dataset.newsHeatLevel = String(cell.level);
+            element.dataset.newsHeatKey = cell.key;
+            element.textContent = cell.text;
+            if (cell.date && element instanceof HTMLButtonElement) {
+              element.type = 'button';
+              element.dataset.newsDate = cell.date;
+              element.setAttribute('aria-label', cell.label);
+              element.setAttribute('aria-pressed', String(cell.selected));
+            } else element.setAttribute('aria-hidden', 'true');
+            return element;
+          }),
+        );
+        if (focusedKey)
+          Array.from(
+            heatmapGrid.querySelectorAll<HTMLElement>('[data-news-heat-key]'),
+          )
+            .find((cell) => cell.dataset.newsHeatKey === focusedKey)
+            ?.focus();
+        find('[data-news-heatmap-period]').textContent = map.period;
+        find('[data-news-latest]').hidden = !state.dateMode;
+      };
+
+      const animateTab = (button: HTMLButtonElement) => {
+        const selected = button.getAttribute('aria-pressed') === 'true';
+        const hovered = button.matches(':hover, :focus-visible');
+        tabAnimations.get(button)?.stop();
+        const values = {
+          '--news-tab-progress': selected ? 1 : 0,
+          '--news-tab-offset':
+            !selected && hovered ? motionTokens.news.tabHoverDistance : 0,
+        };
+        if (reduced.matches) {
+          for (const [name, value] of Object.entries(values))
+            button.style.setProperty(name, String(value));
+        } else
+          tabAnimations.set(
+            button,
+            animate(button, values, {
+              duration: motionTokens.news.tabDuration,
+              ease: motionTokens.easing,
+            }),
+          );
+      };
+      const paintTabs = () => {
         this.querySelectorAll<HTMLButtonElement>(
           '[data-news-category]',
         ).forEach((button) => {
           const selected = button.dataset.newsCategory === state.category;
+          button.disabled = false;
           button.setAttribute('aria-pressed', String(selected));
+          animateTab(button);
           const count = button.querySelector<HTMLElement>(
             '[data-news-category-count]',
           );
           if (count) {
-            const matches =
-              state.appliedKey === queryKey(state.category, state.search);
+            const matches = state.appliedKey === queryKey(state.category);
             count.setAttribute(
               'aria-hidden',
               String(!selected || !matches || !state.snapshot.fetchedAt),
@@ -255,12 +346,12 @@ export function registerNewsPaper(): void {
                 : '';
           }
         });
-        positionIndicator(immediate);
       };
       const paint = () => {
+        rememberActivity();
         paintTabs();
-        const matches =
-          state.appliedKey === queryKey(state.category, state.search);
+        paintCalendar();
+        const matches = state.appliedKey === queryKey(state.category);
         // 新查询等待或失败时保留最后一次成功的版面，避免日报上跳。
         const items = state.snapshot.page.items;
         const fill = (
@@ -274,12 +365,22 @@ export function registerNewsPaper(): void {
         };
         fill('[data-news-lead]', items.slice(0, 1), 'lead');
         fill('[data-news-secondary]', items.slice(1, 3), 'secondary');
-        fill('[data-news-briefs]', items.slice(3, 5), 'brief');
-        fill('[data-news-stories]', items.slice(5), 'short');
-        find('[data-news-front]').hidden = !items.length;
         find('[data-news-secondary]').hidden = items.length < 2;
-        find('[data-news-rail]').hidden = items.length < 4;
-        find('[data-news-below]').hidden = items.length < 6;
+        for (const category of newsCategories) {
+          const section = find(`[data-news-section="${category}"]`);
+          const entries = items
+            .slice(3)
+            .filter((item) => item.category === category);
+          section.hidden = !entries.length;
+          section
+            .querySelector('[data-news-section-grid]')
+            ?.replaceChildren(...entries.map((item) => story(item, 'short')));
+          setText(
+            section,
+            '[data-news-section-count]',
+            `${entries.length} ${text.stories}`,
+          );
+        }
         const empty = find('[data-news-empty]');
         empty.hidden = !!items.length;
         empty.textContent = state.snapshot.fetchedAt
@@ -295,9 +396,6 @@ export function registerNewsPaper(): void {
         const fetchedTime = find<HTMLTimeElement>('[data-news-fetched]');
         fetchedTime.hidden = !fetched;
         fetchedTime.dateTime = fetched ?? '';
-        const edition = find<HTMLTimeElement>('[data-edition-date]');
-        edition.textContent = fetched ? formatEditionDate(fetched, locale) : '';
-        edition.dateTime = fetched ?? '';
       };
       const swapContent = (commit: () => void, requestSignal: AbortSignal) => {
         if (requestSignal.aborted) return Promise.resolve(false);
@@ -344,35 +442,96 @@ export function registerNewsPaper(): void {
           );
         });
       };
-      const paintDaily = () => {
+      const dailyPage = (daily: NonNullable<NewsSnapshot['daily']>) => {
+        return {
+          items: daily.articles.filter((item) => {
+            const matchesCategory =
+              state.category === 'all' || item.category === state.category;
+            return matchesCategory;
+          }),
+          hasMore: false,
+          nextCursor: null,
+        };
+      };
+      const swapDailyPage = (
+        daily: NonNullable<NewsSnapshot['daily']>,
+        requestSignal: AbortSignal,
+      ) => {
+        const page = dailyPage(daily);
+        return swapContent(() => {
+          state.snapshot.daily = daily;
+          state.selectedDate = daily.date;
+          state.dateMode = true;
+          state.snapshot.page = page;
+          state.snapshot.fetchedAt = new Date().toISOString();
+          state.appliedKey = queryKey(state.category);
+          paint();
+        }, requestSignal);
+      };
+      const finishNewsRequest = () => {
+        content.setAttribute('aria-busy', 'false');
+        refresh.disabled = false;
+        more.disabled = false;
+        schedule();
+      };
+      const loadDateFilters = async () => {
         const daily = state.snapshot.daily;
-        find('[data-daily-empty]').hidden = !!daily;
-        find('[data-daily-content]').hidden = !daily;
         if (!daily) return;
-        const edition = find('[data-daily-edition]');
-        edition.dataset.attribution = daily.attribution.name;
-        edition.dataset.canonical = daily.attribution.url;
-        const date = find<HTMLTimeElement>('[data-daily-date]');
-        date.dateTime = daily.date;
-        date.textContent = formatEditionDate(
-          `${daily.date}T00:00:00+08:00`,
-          locale,
-        );
-        const title = find('[data-daily-title]');
-        title.textContent = daily.title;
-        title.hidden = !daily.title;
-        title.lang = newsTextLanguage(daily.title ?? '');
-        const summary = find('[data-daily-summary]');
-        summary.textContent = daily.summary;
-        summary.hidden = !daily.summary;
-        summary.lang = newsTextLanguage(daily.summary ?? '');
-        find('[data-daily-generated]').textContent =
-          `${text.generated} ${formatNewsTime(daily.generatedAt, locale)}`;
-        find('[data-daily-period]').textContent =
-          `${text.period} ${formatNewsTime(daily.windowStart, locale)} — ${formatNewsTime(daily.windowEnd, locale)} · ${text.timezone}`;
-        find<HTMLAnchorElement>('[data-daily-link]').href = daily.url;
+        active?.abort();
+        active = new AbortController();
+        const requestSignal = AbortSignal.any([signal, active.signal]);
+        content.setAttribute('aria-busy', 'true');
+        refresh.disabled = true;
+        more.disabled = true;
+        announce(text.loading);
+        paintTabs();
+        try {
+          await swapDailyPage(daily, requestSignal);
+          if (!requestSignal.aborted) announce(text.dailyUpdated);
+        } catch {
+          if (!requestSignal.aborted) announce(text.failed, true);
+        } finally {
+          if (!requestSignal.aborted) finishNewsRequest();
+        }
+      };
+      const loadSelectedDate = async (date: string) => {
+        active?.abort();
+        active = new AbortController();
+        const request = active;
+        const requestSignal = AbortSignal.any([signal, request.signal]);
+        const previousDate = state.snapshot.daily?.date ?? null;
+        const previousDateMode = state.dateMode;
+        content.setAttribute('aria-busy', 'true');
+        refresh.disabled = true;
+        more.disabled = true;
+        announce(text.loading);
+        try {
+          const daily = await fetchDailyByDate(date, requestSignal);
+          if (requestSignal.aborted) return;
+          await swapDailyPage(daily, requestSignal);
+          if (!requestSignal.aborted) announce(text.dailyUpdated);
+          state.checkedAt = Date.now();
+        } catch (error) {
+          if (requestSignal.aborted) return;
+          state.selectedDate = previousDate;
+          state.dateMode = previousDateMode;
+          paintCalendar();
+          if (
+            error instanceof NewsApiError &&
+            (error.status === 429 || error.status >= 500)
+          ) {
+            blockedUntil = error.retryAt;
+            announce(
+              `${error.status === 429 ? text.rateLimited : text.failed} ${text.retry} ${formatNewsTime(new Date(error.retryAt).toISOString(), locale)}`,
+              true,
+            );
+          } else announce(text.failed, true);
+        } finally {
+          if (!requestSignal.aborted) finishNewsRequest();
+        }
       };
       const loadDaily = async () => {
+        if (state.dateMode) return;
         if (
           dailyActive ||
           Date.now() - state.dailyCheckedAt < newsRefreshInterval
@@ -382,9 +541,11 @@ export function registerNewsPaper(): void {
         state.dailyCheckedAt = Date.now();
         try {
           const daily = await fetchLatestDaily(signal);
-          if (!signal.aborted) {
+          if (!signal.aborted && !state.dateMode) {
             state.snapshot.daily = daily;
-            paintDaily();
+            state.selectedDate = daily.date;
+            rememberActivity();
+            paintCalendar();
           }
         } catch {
           // 日报失败保留上一期，资讯筛选与日报互不阻塞。
@@ -401,7 +562,7 @@ export function registerNewsPaper(): void {
           blockedUntil - Date.now(),
         );
         timer = setTimeout(() => {
-          if (Array.from(state.search).length === 1) {
+          if (state.dateMode) {
             state.checkedAt = Date.now();
             schedule();
             return;
@@ -411,15 +572,16 @@ export function registerNewsPaper(): void {
         }, delay);
       };
       const load = async (append = false) => {
-        const searchLength = Array.from(state.search).length;
-        if (searchLength === 1 || searchLength > 200) return;
+        if (state.dateMode) {
+          if (!append) await loadDateFilters();
+          return;
+        }
         active?.abort();
         active = new AbortController();
         const request = active;
         const requestSignal = AbortSignal.any([signal, request.signal]);
-        const key = queryKey(state.category, state.search);
+        const key = queryKey(state.category);
         const category = state.category;
-        const search = state.search;
         const cursor = append
           ? (state.snapshot.page.nextCursor ?? undefined)
           : undefined;
@@ -433,7 +595,6 @@ export function registerNewsPaper(): void {
           try {
             page = await fetchNewsPage({
               category,
-              search,
               cursor,
               signal: requestSignal,
             });
@@ -445,17 +606,12 @@ export function registerNewsPaper(): void {
             ) {
               page = await fetchNewsPage({
                 category,
-                search,
                 signal: requestSignal,
               });
               append = false;
             } else throw error;
           }
-          if (
-            requestSignal.aborted ||
-            key !== queryKey(state.category, state.search)
-          )
-            return;
+          if (requestSignal.aborted || key !== queryKey(state.category)) return;
           if (append) {
             const seen = new Set(
               state.snapshot.page.items.map((item) => item.id),
@@ -471,7 +627,7 @@ export function registerNewsPaper(): void {
             state.appliedKey = key;
             paint();
           };
-          // 分页只追加；分类与搜索成功后再交换内容，取消时立即恢复可见性。
+          // 分页只追加；分类成功后再交换内容，取消时立即恢复可见性。
           if (append || state.appliedKey === key) commit();
           else if (!(await swapContent(commit, requestSignal))) return;
           announce(text.fresh);
@@ -505,22 +661,6 @@ export function registerNewsPaper(): void {
         },
       );
       paint();
-      positionIndicator(true);
-      const tabResize = new ResizeObserver(() => positionIndicator(true));
-      tabResize.observe(tabs);
-      tabs
-        .querySelectorAll('button')
-        .forEach((button) => tabResize.observe(button));
-      paintDaily();
-      hint.hidden = Array.from(state.search).length !== 1;
-      searchToggle.addEventListener(
-        'click',
-        () => {
-          setSearchOpen(!state.searchOpen);
-          if (state.searchOpen) input.focus();
-        },
-        { signal },
-      );
       this.querySelectorAll<HTMLButtonElement>('[data-news-category]').forEach(
         (button) => {
           button.addEventListener(
@@ -532,79 +672,144 @@ export function registerNewsPaper(): void {
               if (!category || state.category === category) return;
               state.category = category;
               paintTabs();
-              clearTimeout(debounce);
-              if (Array.from(state.search).length !== 1) void load();
+              void load();
             },
             { signal },
           );
         },
       );
-      const updateSearch = () => {
-        active?.abort();
-        content.setAttribute('aria-busy', 'false');
-        refresh.disabled = false;
-        clearTimeout(debounce);
-        state.search = input.value.trim();
-        paintTabs();
-        more.disabled =
-          state.appliedKey !== queryKey(state.category, state.search);
-        searchClear.hidden = !input.value;
-        searchShell.dataset.hasQuery = String(!!state.search);
-        const length = Array.from(state.search).length;
-        hint.hidden = length !== 1 && length <= 200;
-        input.setAttribute('aria-invalid', String(!hint.hidden));
-        if (!hint.hidden) {
-          announce();
-          return;
-        }
-        debounce = setTimeout(() => void load(), 350);
-      };
-      input.addEventListener('input', updateSearch, { signal });
-      searchClear.addEventListener(
+      tabs
+        .querySelectorAll<HTMLButtonElement>('[data-news-category]')
+        .forEach((button) => {
+          for (const event of ['pointerenter', 'pointerleave', 'focus', 'blur'])
+            button.addEventListener(event, () => animateTab(button), {
+              signal,
+            });
+        });
+      heatmapTabs.forEach((button) =>
+        button.addEventListener(
+          'click',
+          () => {
+            const mode = button.dataset.newsHeatmapMode;
+            if (mode !== 'daily' && mode !== 'weekly' && mode !== 'monthly')
+              return;
+            state.heatmapMode = mode;
+            paintCalendar();
+          },
+          { signal },
+        ),
+      );
+      const heatTarget = (target: EventTarget | null) =>
+        target instanceof Element
+          ? target.closest<HTMLElement>('button[data-news-date]')
+          : null;
+      heatmapGrid.addEventListener(
+        'pointerover',
+        (event) => {
+          const cell = heatTarget(event.target);
+          if (!cell || event.pointerType === 'touch') return;
+          animateHeat(cell, true);
+          showHeatTooltip(cell, event);
+        },
+        { signal },
+      );
+      heatmapGrid.addEventListener(
+        'pointermove',
+        (event) => {
+          const cell = heatTarget(event.target);
+          if (cell && event.pointerType !== 'touch')
+            showHeatTooltip(cell, event);
+        },
+        { signal },
+      );
+      heatmapGrid.addEventListener(
+        'pointerout',
+        (event) => {
+          const cell = heatTarget(event.target);
+          if (cell) animateHeat(cell, false);
+          hideHeatTooltip();
+        },
+        { signal },
+      );
+      heatmapGrid.addEventListener(
+        'focusin',
+        (event) => {
+          const cell = heatTarget(event.target);
+          if (!cell) return;
+          animateHeat(cell, true);
+          showHeatTooltip(cell);
+        },
+        { signal },
+      );
+      heatmapGrid.addEventListener(
+        'focusout',
+        (event) => {
+          const cell = heatTarget(event.target);
+          if (cell) animateHeat(cell, false);
+          hideHeatTooltip();
+        },
+        { signal },
+      );
+      heatmapGrid.addEventListener(
+        'keydown',
+        (event) => {
+          if (event.key === 'Escape') hideHeatTooltip();
+        },
+        { signal },
+      );
+      window.addEventListener('scroll', hideHeatTooltip, {
+        signal,
+        passive: true,
+      });
+      heatmapGrid.addEventListener(
+        'click',
+        (event) => {
+          const button =
+            event.target instanceof Element
+              ? event.target.closest<HTMLButtonElement>(
+                  'button[data-news-date]',
+                )
+              : null;
+          const date = button?.dataset.newsDate;
+          if (date && (!state.dateMode || date !== state.selectedDate))
+            void loadSelectedDate(date);
+        },
+        { signal },
+      );
+      find('[data-news-latest]').addEventListener(
         'click',
         () => {
-          input.value = '';
-          updateSearch();
-          clearTimeout(debounce);
+          state.dateMode = false;
           void load();
-          input.focus();
+          state.dailyCheckedAt = 0;
+          void loadDaily();
         },
         { signal },
       );
       reduced.addEventListener(
         'change',
         () => {
-          setSearchOpen(state.searchOpen, true);
-          positionIndicator(true);
-          if (reduced.matches) contentAnimation?.complete();
-        },
-        { signal },
-      );
-      input.addEventListener(
-        'keydown',
-        (event) => {
-          if (event.key === 'Escape') {
-            event.preventDefault();
-            setSearchOpen(false);
-            searchToggle.focus();
-            return;
+          tabs
+            .querySelectorAll<HTMLButtonElement>('button')
+            .forEach(animateTab);
+          if (reduced.matches) {
+            heatAnimations.forEach((animation) => animation.stop());
+            heatmapGrid
+              .querySelectorAll<HTMLElement>('button')
+              .forEach((cell) => {
+                cell.style.transform = 'none';
+              });
+            contentAnimation?.complete();
           }
-          if (event.key !== 'Enter') return;
-          event.preventDefault();
-          if (!hint.hidden) return;
-          clearTimeout(debounce);
-          void load();
         },
         { signal },
       );
       refresh.addEventListener(
         'click',
         () => {
-          if (!hint.hidden) {
-            input.focus();
-            return;
-          }
-          void load();
+          void (state.dateMode && state.selectedDate
+            ? loadSelectedDate(state.selectedDate)
+            : load());
           void loadDaily();
         },
         { signal },
@@ -621,8 +826,7 @@ export function registerNewsPaper(): void {
       window.addEventListener(
         'pagehide',
         () => {
-          setSearchOpen(state.searchOpen, true);
-          tabAnimation?.stop();
+          tabAnimations.forEach((animation) => animation.stop());
           active?.abort();
           clearTimeout(timer);
         },
@@ -634,30 +838,38 @@ export function registerNewsPaper(): void {
           if (event.persisted) {
             content.setAttribute('aria-busy', 'false');
             refresh.disabled = false;
-            more.disabled =
-              state.appliedKey !== queryKey(state.category, state.search);
+            more.disabled = state.appliedKey !== queryKey(state.category);
             schedule();
           }
         },
         { signal },
       );
       this.cleanup = () => {
-        searchAnimation?.stop();
-        tabAnimation?.stop();
-        tabResize.disconnect();
+        tabAnimations.forEach((animation) => animation.stop());
+        heatAnimations.forEach((animation) => animation.stop());
+        hideHeatTooltip();
         lifetime.abort();
         active?.abort();
-        clearTimeout(debounce);
         clearTimeout(timer);
         saved = state;
       };
       if (
-        state.appliedKey !== queryKey(state.category, state.search) ||
+        state.appliedKey !== queryKey(state.category) ||
         !state.snapshot.fetchedAt ||
         Date.now() - state.checkedAt >= newsRefreshInterval
       )
         void load();
       else schedule();
+      void fetchDailyArchive(signal)
+        .then((archive) => {
+          if (signal.aborted) return;
+          state.snapshot.archive = archive.items;
+          state.snapshot.archiveTotal = archive.total;
+          paintCalendar();
+        })
+        .catch(() => {
+          /* 保留构建时的日期索引。 */
+        });
       void loadDaily();
     }
 
