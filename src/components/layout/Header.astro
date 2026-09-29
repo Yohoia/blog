@@ -22,6 +22,7 @@ const pathname = unlocalizedPath(Astro.url.pathname);
           href={localizePath(sectionPaths.index, locale)}
           aria-label={`${siteConfig.name} · ${text.home}`}
           aria-current={pathname === '/' ? 'page' : undefined}
+          data-navigation-transition
         />
 
         <div class="header-actions">

@@ -4,6 +4,7 @@ import {
   type AnimationSequence,
 } from 'motion';
 import { motionTokens } from '@/config/motion';
+import { startNavigationTransition } from '@/scripts/navigation-transition';
 
 /** 原生 dialog 管理模态焦点与背景 inert，Motion 管理可中断的圆形展开。 */
 export function registerTypeOverlayMenu(): void {
@@ -61,8 +62,10 @@ export function registerTypeOverlayMenu(): void {
         animation = undefined;
       };
       const alignDialog = () => {
-        // 原生顶层 dialog 的起点包含根节点滚动条占位，仅补偿菜单位置。
+        // 根节点预留滚动条时，100vw 可能缩小；显式覆盖实际视口并补偿起点。
         // 页面宽度、body 边距与 sticky 导航的滚动参照保持不变。
+        dialog.style.inlineSize = `${window.innerWidth}px`;
+        dialog.style.blockSize = `${window.innerHeight}px`;
         dialog.style.left = `${-document.documentElement.getBoundingClientRect().left}px`;
       };
       const lockScroll = () => {
@@ -241,15 +244,18 @@ export function registerTypeOverlayMenu(): void {
         link.addEventListener(
           'click',
           (event) => {
-            // 修饰键打开新标签时保留当前菜单；普通导航先释放滚动锁。
+            // 修饰键保留原生链接行为；普通栏目切换在字符完全覆盖后关闭菜单。
             if (
               event.button === 0 &&
               !event.metaKey &&
               !event.ctrlKey &&
               !event.shiftKey &&
               !event.altKey
-            )
-              closeImmediately();
+            ) {
+              if (startNavigationTransition(link, closeImmediately))
+                event.preventDefault();
+              else closeImmediately();
+            }
           },
           { signal },
         );

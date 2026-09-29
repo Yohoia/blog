@@ -6,6 +6,7 @@ import Container from '@/components/layout/Container.astro';
 import { iconTokens } from '@/config/icons';
 import { getLocale, localizePath } from '@/lib/i18n';
 import { errorActions, errorPages, type ErrorCode } from './config';
+import { errorIllustrations } from './images';
 
 interface Props {
   code: ErrorCode;
@@ -35,9 +36,10 @@ Astro.response.status = code;
   >
     <div class="error-content" data-language-block="error">
       <Image
-        src={page.image}
-        width={1448}
-        height={1086}
+        src={errorIllustrations[code]}
+        format="webp"
+        widths={[480, 768, 1152, 1448]}
+        sizes="(max-width: 40rem) min(calc(100vw - 2.5rem), 66.67svh), min(66.67svh, 40rem)"
         alt={`${code} · ${content.heading}`}
         class="error-illustration"
         loading="eager"

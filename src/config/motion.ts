@@ -29,6 +29,20 @@ export const motionTokens = {
     hoverDuration: 0.18,
     hoverDistance: 16,
   },
+  /** 导航栏目专用：噪声网格铺满 → 页面交换 → 同一网格退场。 */
+  navigationTransition: {
+    fillDuration: 0.5,
+    clearDuration: 0.5,
+    cellSize: 14,
+    maxCells: 8000,
+    maxPixelRatio: 2,
+    framesPerSecond: 30,
+    shuffleInterval: 50,
+    dimOpacity: 0.35,
+    edgeWidth: 0.06,
+    noiseScale: 0.18,
+    timeout: 15000,
+  },
   /** 首页匀速打字与逐行输出；打字、输出和光标均由 Motion 驱动。 */
   terminal: {
     initialDelay: 1,

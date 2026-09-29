@@ -3,7 +3,6 @@ interface ReadingPosition {
   offset?: number;
   x: number;
   y: number;
-  restoreFocus: boolean;
 }
 
 let initialized = false;
@@ -28,6 +27,8 @@ export function initializeLanguageNavigation(): void {
   document.addEventListener('astro:before-swap', (event) => {
     position = undefined;
     if (
+      // 历史前进 / 后退由 ClientRouter 恢复目标记录的滚动位置。
+      event.navigationType === 'traverse' ||
       event.from.pathname === event.to.pathname ||
       route(event.from.pathname) !== route(event.to.pathname)
     )
@@ -42,7 +43,6 @@ export function initializeLanguageNavigation(): void {
       offset: block?.getBoundingClientRect().top,
       x: window.scrollX,
       y: window.scrollY,
-      restoreFocus: event.navigationType !== 'traverse',
     };
     event.newDocument
       .querySelectorAll<HTMLElement>('yohoia-logo')
@@ -64,10 +64,9 @@ export function initializeLanguageNavigation(): void {
         ? window.scrollY + block.getBoundingClientRect().top - saved.offset
         : saved.y;
     window.scrollTo({ left: saved.x, top, behavior: 'instant' });
-    if (saved.restoreFocus)
-      document
-        .querySelector<HTMLAnchorElement>('[data-language-toggle]')
-        ?.focus({ preventScroll: true });
+    document
+      .querySelector<HTMLAnchorElement>('[data-language-toggle]')
+      ?.focus({ preventScroll: true });
   };
 
   document.addEventListener('astro:after-swap', restoreReadingPosition);

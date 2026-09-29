@@ -1,6 +1,7 @@
 ---
 import SEO, { type Props as SEOProps } from '@/components/common/SEO.astro';
 import ThemeInit from '@/components/common/ThemeInit.astro';
+import NavigationTransition from '@/components/common/NavigationTransition.astro';
 import { localeMetadata } from '@/config/i18n';
 import { getLocale } from '@/lib/i18n';
 import '@/styles/global.css';
@@ -31,6 +32,7 @@ const locale = getLocale(Astro.url.pathname);
   </head>
   <body class={bodyClass}>
     <slot />
+    <NavigationTransition />
     <script>
       import '@/scripts/page-visit';
       import { initializeTheme } from '@/scripts/theme';

@@ -101,6 +101,7 @@ const isCurrent = (href: string) =>
               href={localizePath(href, locale)}
               aria-current={isCurrent(href) ? 'page' : undefined}
               data-overlay-link
+              data-navigation-transition
               data-astro-reload
             >
               <span class="inline-block" data-overlay-label>

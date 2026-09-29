@@ -7,7 +7,6 @@ interface ErrorContent {
 
 export const errorPages = {
   403: {
-    image: '/images/403.png',
     content: {
       zh: {
         heading: '暂时无法访问',
@@ -21,7 +20,6 @@ export const errorPages = {
     },
   },
   404: {
-    image: '/images/404.png',
     content: {
       zh: {
         heading: '这一页暂时找不到了',
@@ -35,7 +33,6 @@ export const errorPages = {
     },
   },
   500: {
-    image: '/images/500.png',
     content: {
       zh: {
         heading: '服务暂时出了点问题',
@@ -49,7 +46,6 @@ export const errorPages = {
     },
   },
   502: {
-    image: '/images/502.png',
     content: {
       zh: {
         heading: '连接暂时中断了',
@@ -62,10 +58,7 @@ export const errorPages = {
       },
     },
   },
-} as const satisfies Record<
-  number,
-  { image: string; content: Record<Locale, ErrorContent> }
->;
+} as const satisfies Record<number, { content: Record<Locale, ErrorContent> }>;
 
 export type ErrorCode = keyof typeof errorPages;
 
