@@ -1,18 +1,55 @@
 ---
-import { ArrowLeft } from '@lucide/astro';
+import { ArrowUpRight, CornerUpLeft } from '@lucide/astro';
 import SiteLayout from '@/layouts/SiteLayout.astro';
 import Container from '@/components/layout/Container.astro';
-import TextLink from '@/components/ui/TextLink.astro';
 import { iconTokens } from '@/config/icons';
 import { siteConfig } from '@/config/site';
 import { sectionPaths } from '@/config/navigation';
 import { getLocale, localizePath } from '@/lib/i18n';
+import { sortByDate } from '@/lib/content/queries';
 import { ui } from '@/i18n/ui';
 import { referenceWritingEntries, writingContent } from './config';
 
 const locale = getLocale(Astro.url.pathname);
 const content = writingContent[locale];
-const entries = [...referenceWritingEntries].reverse();
+const entries = sortByDate(
+  [...referenceWritingEntries].reverse(),
+  (entry) => new Date(entry.publishedAt),
+);
+const years = new Map<number, Map<number, typeof entries>>();
+for (const entry of entries) {
+  const date = new Date(entry.publishedAt);
+  const year = date.getUTCFullYear();
+  const month = date.getUTCMonth();
+  const months = years.get(year) ?? new Map<number, typeof entries>();
+  const posts = months.get(month) ?? [];
+  posts.push(entry);
+  months.set(month, posts);
+  years.set(year, months);
+}
+const monthFormatter = new Intl.DateTimeFormat(locale, {
+  month: 'long',
+  timeZone: 'UTC',
+});
+const dateFormatter = new Intl.DateTimeFormat(locale, {
+  year: 'numeric',
+  month: locale === 'zh' ? 'long' : 'short',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+const weekdayFormatter = new Intl.DateTimeFormat(locale, {
+  weekday: 'long',
+  timeZone: 'UTC',
+});
+const yearGroups = [...years].map(([year, months]) => ({
+  year,
+  count: [...months.values()].reduce((total, posts) => total + posts.length, 0),
+  months: [...months].map(([month, posts]) => ({
+    name: monthFormatter.format(new Date(Date.UTC(year, month, 1))),
+    number: String(month + 1).padStart(2, '0'),
+    posts,
+  })),
+}));
 ---
 
 <SiteLayout
@@ -22,102 +59,384 @@ const entries = [...referenceWritingEntries].reverse();
 >
   <Container as="main" id="main-content" width="reading" class="writing-page">
     <header class="writing-introduction" data-language-block="introduction">
-      <p class="micro-label">Writing · {siteConfig.name}</p>
-      <h1 class="text-page font-medium">{ui[locale].navigation.writing}</h1>
-      <p class="text-body">{content.introduction}</p>
-      <p class="metadata">
-        {entries.length} {content.count}
+      <p class="writing-eyebrow micro-label">
+        <span>Writing · {siteConfig.name}</span>
+        <span class="writing-rule" aria-hidden="true"></span>
       </p>
+      <h1 class="text-display font-medium">{ui[locale].navigation.writing}</h1>
     </header>
 
-    <ul class="writing-list">
-      {entries.map((entry) => (
-        <li
-          id={entry.filename}
-          class="writing-entry"
-          data-language-block={`writing-${entry.filename}`}
-        >
-          <span class="metadata font-mono" lang="en">
-            {entry.date}
-          </span>
-          <div class="writing-entry-content" lang="en">
-            <h2 class="text-item font-medium text-heading">{entry.title}</h2>
-            <p class="writing-filename micro-label">{entry.filename}</p>
-          </div>
-        </li>
-      ))}
-    </ul>
+    <writing-archive>
+      <div class="writing-years">
+        {yearGroups.map((group) => (
+          <section
+            class="writing-entries"
+            aria-labelledby={`writing-year-${group.year}`}
+          >
+            <header class="writing-archive-heading">
+              <h2
+                id={`writing-year-${group.year}`}
+                class="writing-archive-label text-meta font-mono"
+              >
+                {group.year}
+              </h2>
+              <span class="micro-label">
+                {group.count} {content.count}
+              </span>
+            </header>
+            <div class="writing-months">
+              {group.months.map((month) => (
+                <section
+                  class="writing-month"
+                  aria-label={`${group.year} ${month.name}`}
+                >
+                  <div class="writing-month-label">
+                    <div class="writing-month-sticky micro-label">
+                      <span class="writing-month-number">{month.number}</span>
+                      <span>{month.name}</span>
+                    </div>
+                  </div>
+                  <ol class="writing-posts">
+                    {month.posts.map((entry) => (
+                      <li
+                        id={entry.filename}
+                        data-language-block={`writing-${entry.filename}`}
+                      >
+                        <article
+                          class="writing-post"
+                          aria-labelledby={`${entry.filename}-title`}
+                          data-writing-post
+                        >
+                          <div class="writing-post-main">
+                            <h3
+                              id={`${entry.filename}-title`}
+                              class="writing-post-title text-section font-medium"
+                              lang="en"
+                              title={entry.title}
+                              data-writing-title
+                            >
+                              {entry.title}
+                            </h3>
+                            <p
+                              class="writing-post-filename text-meta font-mono"
+                              lang="en"
+                              title={entry.filename}
+                            >
+                              {entry.filename}
+                            </p>
+                          </div>
+                          <span class="writing-post-arrow" aria-hidden="true">
+                            <span
+                              class="writing-arrow-disc"
+                              data-writing-arrow-disc
+                            ></span>
+                            <span
+                              class="writing-arrow-icon"
+                              data-writing-arrow-icon
+                            >
+                              <ArrowUpRight
+                                size={iconTokens.size.normal}
+                                stroke-width={iconTokens.strokeWidth}
+                              />
+                            </span>
+                          </span>
+                          <div class="writing-post-meta micro-label">
+                            <time datetime={entry.publishedAt}>
+                              {dateFormatter.format(
+                                new Date(entry.publishedAt),
+                              )}{' '}
+                              {weekdayFormatter.format(
+                                new Date(entry.publishedAt),
+                              )}
+                            </time>
+                            <div class="writing-post-tags" lang="en">
+                              {entry.tags.slice(0, 3).map((tag) => (
+                                <span class="writing-tag" data-writing-tag>
+                                  #{tag}
+                                  <span
+                                    class="writing-tag-underline"
+                                    data-writing-tag-underline
+                                    aria-hidden="true"
+                                  ></span>
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </article>
+                      </li>
+                    ))}
+                  </ol>
+                </section>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
 
-    <footer class="writing-footer" data-language-block="footer">
-      <p class="metadata">{content.note}</p>
-      <TextLink
-        href={localizePath(sectionPaths.index, locale)}
-        class="writing-back"
-        data-astro-reload
-      >
-        <ArrowLeft
-          size={iconTokens.size.small}
-          stroke-width={iconTokens.strokeWidth}
-          aria-hidden="true"
-        />
-        {content.back}
-      </TextLink>
-    </footer>
+      <footer class="writing-footer" data-language-block="footer">
+        <p class="metadata">{content.note}</p>
+        <a
+          href={localizePath(sectionPaths.index, locale)}
+          class="writing-back font-mono text-meta"
+          aria-label={content.back}
+          title={content.back}
+          data-writing-back
+          data-astro-reload
+        >
+          <span
+            class="writing-back-icon"
+            data-writing-back-icon
+            aria-hidden="true"
+          >
+            <CornerUpLeft
+              size={iconTokens.size.small}
+              stroke-width={iconTokens.strokeWidth}
+            />
+          </span>
+          <span class="writing-directory" aria-hidden="true">
+            ~/writing $
+          </span>
+          <code lang="en">cd ../</code>
+        </a>
+      </footer>
+    </writing-archive>
   </Container>
 </SiteLayout>
 
+<script>
+  import { registerWritingArchive } from '@/scripts/writing';
+  registerWritingArchive();
+</script>
+
 <style>
   .writing-page {
-    padding-block: var(--section-gap);
+    padding-block: 0 var(--section-gap);
   }
   .writing-introduction {
-    margin-block-end: var(--group-gap);
+    padding-block-end: var(--item-gap);
   }
-  .writing-introduction h1 {
-    margin-block: var(--item-gap);
+  .writing-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: var(--inline-gap);
+    margin-block-end: var(--inline-gap);
   }
-  .writing-introduction .metadata {
-    margin-block-start: var(--inline-gap);
+  .writing-rule {
+    flex: 1;
+    block-size: 1px;
+    background: var(--border);
   }
-  .writing-introduction > .text-body {
-    min-block-size: 2lh;
+  writing-archive {
+    display: block;
   }
-  .writing-list {
+  .writing-years {
+    display: grid;
+    gap: var(--group-gap);
+  }
+  .writing-archive-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--item-gap);
+    padding-block-end: var(--inline-gap);
+    margin-block-end: var(--inline-gap);
+    border-block-end: 1px solid var(--border);
+  }
+  .writing-archive-label {
+    position: relative;
+    font-weight: 500;
+  }
+  .writing-archive-label::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: calc(-1 * var(--inline-gap));
+    inset-block-start: 50%;
+    inline-size: 5px;
+    block-size: 5px;
+    translate: 0 -50%;
+    border-radius: var(--radius-pill);
+    background: var(--signal);
+  }
+  .writing-month {
+    display: grid;
+    grid-template-columns: 3.75rem minmax(0, 1fr);
+    column-gap: var(--item-gap);
+  }
+  .writing-month-label {
+    padding-block-start: var(--item-gap);
+  }
+  .writing-month-sticky {
+    position: sticky;
+    inset-block-start: calc(var(--touch-target) * 2 + var(--item-gap));
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--inline-gap) / 2);
+  }
+  .writing-month-number {
+    font-variant-numeric: tabular-nums;
+  }
+  .writing-month + .writing-month {
+    margin-block-start: var(--group-gap);
+  }
+  .writing-posts {
     list-style: none;
     margin: 0;
     padding: 0;
-  }
-  .writing-entry {
-    display: grid;
-    grid-template-columns: 4rem minmax(0, 1fr);
-    align-items: baseline;
-    gap: var(--item-gap);
-    border-block-start: 1px solid var(--border);
-    padding-block: var(--item-gap);
-  }
-  .writing-entry-content {
     min-inline-size: 0;
-    overflow-wrap: anywhere;
   }
-  .writing-filename {
+  .writing-post {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 2rem;
+    align-items: center;
+    column-gap: var(--inline-gap);
+    margin-inline: calc(-1 * var(--inline-gap));
+    padding: var(--item-gap) var(--inline-gap);
+    border-radius: var(--radius-ui);
+    background: transparent;
+  }
+  .writing-post-main {
+    min-inline-size: 0;
+  }
+  .writing-post-title,
+  .writing-post-filename {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .writing-post:hover .writing-post-title {
+    color: var(--signal-text);
+  }
+  .writing-post-filename {
     margin-block-start: var(--inline-gap);
+    color: var(--body);
+  }
+  .writing-post-arrow {
+    position: relative;
+    display: grid;
+    place-items: center;
+    inline-size: 2rem;
+    block-size: 2rem;
+    justify-self: end;
+    pointer-events: none;
+  }
+  .writing-arrow-disc {
+    position: absolute;
+    inset: 0;
+    background: var(--signal-text);
+    border-radius: var(--radius-pill);
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  .writing-arrow-icon {
+    position: relative;
+    display: inline-flex;
+    color: var(--muted-text);
+  }
+  writing-archive:not([data-writing-ready]) .writing-post:hover {
+    background: var(--hover-surface);
+  }
+  writing-archive:not([data-writing-ready])
+    .writing-post:hover
+    .writing-arrow-disc {
+    opacity: 1;
+    transform: none;
+  }
+  writing-archive:not([data-writing-ready])
+    .writing-post:hover
+    .writing-arrow-icon {
+    color: var(--signal-contrast);
+  }
+  .writing-post-meta {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--inline-gap);
+    margin-block-start: var(--inline-gap);
+    font-variant-numeric: tabular-nums;
+  }
+  .writing-post-meta time {
+    white-space: nowrap;
+  }
+  .writing-post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--inline-gap);
+  }
+  .writing-tag {
+    position: relative;
+    display: inline-block;
+    padding-block-end: 0.2em;
+    color: var(--muted-text);
+  }
+  .writing-tag-underline {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    block-size: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+  writing-archive:not([data-writing-ready]) .writing-tag:hover {
+    color: var(--heading);
+  }
+  writing-archive:not([data-writing-ready])
+    .writing-tag:hover
+    .writing-tag-underline {
+    transform: scaleX(1);
   }
   .writing-footer {
-    border-block-start: 1px solid var(--border);
+    margin-block-start: var(--section-gap);
     padding-block-start: var(--item-gap);
+    border-block-start: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--item-gap);
+    flex-wrap: wrap;
   }
-  .writing-footer :global(.writing-back) {
+  .writing-footer > p {
+    flex: 1 1 16rem;
+  }
+  .writing-back {
     display: inline-flex;
     align-items: center;
     gap: var(--inline-gap);
     min-block-size: var(--touch-target);
-    margin-block-start: var(--item-gap);
-    font-size: var(--text-meta);
+    color: var(--heading);
+    text-decoration: none;
   }
-  @media (max-width: 35rem) {
-    .writing-entry {
+  .writing-directory,
+  .writing-back-icon {
+    color: var(--muted-text);
+  }
+  .writing-back-icon {
+    display: inline-flex;
+  }
+  .writing-back:hover code,
+  .writing-back:focus-visible code {
+    color: var(--signal-text);
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+  }
+  @media (max-width: 40rem) {
+    .writing-month {
       grid-template-columns: minmax(0, 1fr);
+    }
+    .writing-month-label {
+      padding-block-start: 0;
+      padding-block-end: var(--inline-gap);
+    }
+    .writing-month-sticky {
+      position: static;
+      flex-direction: row;
+      align-items: baseline;
       gap: var(--inline-gap);
+    }
+    .writing-month + .writing-month {
+      border-block-start: 1px solid var(--border);
+      padding-block-start: var(--item-gap);
     }
   }
 </style>

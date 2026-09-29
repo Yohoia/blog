@@ -6,6 +6,24 @@
 
 ---
 
+# 当前落地规范（2026-09-29）
+
+本节记录当前项目的实际设计与进度；与后文早期建议不同的地方，以本节和对应章节的已落地说明为准。未制作板块的建议仍是后续规划，不代表已实现。
+
+- 已完成中英文 Index、Writing 列表及 403 / 404 / 500 / 502 插画页。菜单为 Index、Writing、Fragments、Projects、Finder、News、Now；About、Profile 已移除，其余五个栏目页与文章正文尚未实现。
+- 公共主题仍为暖纸色与柔和暗色，Sans / Mono 从本站托管。小字使用对比度增强的 `--muted-text`、`--signal-text`；颜色、尺寸与动画参数分别由 `src/styles/tokens.css` 和 `src/config/motion.ts` 管理。
+- Header 在页首与滚动后均使用磨砂层：纸色 70% 与透明色混合、模糊 `1.25rem`、饱和度 `1.35`。Logo 与操作按钮分置视口两侧，右侧依次为菜单、语言、主题；滚动后收紧并显示细分隔线，保留文档高度。
+- 桌面、移动端统一使用黑色全屏 Type Overlay。原生 dialog 管理焦点，Motion 从菜单按钮中心圆形展开并逐项显示大字号导航；保留关闭、Escape、减少动画与无脚本回退。开关菜单保持阅读位置和页面宽度，菜单可滚动但不显示滚动条。
+- 不同栏目切换以及从其他页面点击 Header Logo 返回首页时播放 ASCII 字符网格过渡；语言、正文链接、当前栏目和历史返回不播放。覆盖与退场各约 0.5 秒，结束后清理绘制。
+- Index 使用 760px 内容宽度，Writing 列表使用 680px，均从 Header 下沿开始。两页隐藏根滚动条并取消占位，保留滚轮、触控与键盘滚动。
+- 首页为透明平铺的命令与信息，不使用终端窗口外框。绿色 `yohoia`、蓝色 `space`、柔和绿色光标；各部分用 1px 横线分隔，线上下各 12px。仅刷新播放匀速打字与逐行信息，直接访问及站内返回展示完整内容。`whoami` 右侧圆点头像与左侧输出同步结束，保留 Canvas 最后一帧以避免抖动；末尾光标仅在前台且可见时闪烁。
+- Writing 按 2026 年和月份归档，9 条参考记录从新到旧排列，移除介绍与顶部统计。标题与次级文件名单行省略，完整文字保留；日期包含年月日与星期，最多三个 `#` 标签。标签悬浮变深并用 Motion 展开下划线；行尾浅色箭头在悬浮文章时显示蓝色圆底并轻移。底部 `cd ../` 返回当前语言的首页，未添加参考记录的虚构正文入口。
+- 错误页使用无 Header 的独立全屏布局；响应式插画居中显示，保持比例与暗色可辨认，提供返回首页入口，标记 noindex。真正的服务器错误绑定待部署时配置。
+
+当前公司、履历和统计仍含用户要求暂留的参考内容。真实文章、其余栏目、RSS、News 信息源与部署均待后续实现，详见 [README.md](README.md)。本地 HTML 原型与参考素材继续保留，不随代码发布。
+
+---
+
 # 1. Design Thesis
 
 The site should feel like:
@@ -484,16 +502,7 @@ Index
 
 ## Desktop
 
-Navigation should begin lightweight and transparent.
-
-After scrolling, it may become:
-
-- sticky
-- slightly blurred
-- separated by a subtle hairline
-- more compact
-
-Primary navigation should use text.
+当前桌面与移动端共用 Type Overlay 入口，Header 使用半透明磨砂纸色背景，Logo 与操作按钮分置两侧。滚动后收紧并增加细分隔线；一级导航文字放在全屏菜单内，不显示旧版居中的横向导航。
 
 Lucide icons should mainly be used for utility actions:
 
@@ -508,14 +517,7 @@ Lucide icons should mainly be used for utility actions:
 
 ## Mobile
 
-Do not simply shrink the desktop navigation.
-
-Use a compact navigation layout:
-
-- fewer visible destinations
-- optional menu / command surface
-- 44px minimum touch target
-- horizontal scrolling only if intentional
+移动端保留同一套菜单、语言与主题操作，缩小 Logo 和控件间距，每个操作至少 44px。全屏菜单内容在短视口中自然滚动，隐藏滚动条外观，避免挤压导航文字。
 
 ---
 
@@ -574,17 +576,15 @@ Avoid:
 
 ### Index
 
-Very small staged entrance for:
-
-- identity
-- navigation
-- recent activity
+当前仅刷新时播放命令匀速打字、信息逐行淡入与同步圆点头像聚合。普通访问、站内返回与历史返回直接展示完整内容；语言切换保留播放进度。悬浮 / 聚焦可重播 Logo 与头像，末尾光标仅在可见且页面处于前台时闪烁。
 
 ### Writing
 
-Almost no decorative motion.
+列表保持稳定，使用 Motion 提供标签变色 / 下划线、行尾箭头圆底与轻移，以及底部返回入口的反馈。其他条目只弱化标题，日期与标签保持可读；减少动画时立即更新状态，不播放位移。
 
-Reading should remain stable.
+### Navigation
+
+全屏菜单使用圆形展开与导航逐项进入。跨栏目和 Header Logo 返回首页使用全屏 ASCII 字符过渡；参数独立于通用 page 时长，语言、正文链接及历史返回不播放。
 
 ### Fragments
 
@@ -640,7 +640,7 @@ and preserve:
 
 # 11. Icon System
 
-Use **Lucide** exclusively.
+通用界面使用 **Lucide**。首页八个社交渠道按用户要求使用本地 Simple Icons 品牌 SVG，来源与 CC0 许可保存在 `src/assets/icons/social/`；不加载远程徽章或图标运行时。
 
 Rules:
 
@@ -762,36 +762,21 @@ Where can I go?
 
 ## Structure
 
-Recommended:
+当前首页结构：
 
 ```text
-Identity
-Navigation
-Currently
-Recent
-Selected Work
+Last login（浏览器本地日期时间）
+whoami + 圆点头像
+cat philosophy.md
+claude-code --stats
+ls -ltr writing/ | tail -n 6
+ls compute-labs/agents/
+git log --oneline --reverse career/
+pr -2 -t links.md（八个渠道，两列各四个）
+末尾空提示符
 ```
 
-Do not use a traditional portfolio hero.
-
-No giant:
-
-```text
-Hello, I'm ...
-Frontend Developer
-[Hire Me]
-```
-
-Instead use a quiet personal introduction.
-
-Recent content can mix:
-
-- Essay
-- Fragment
-- Work
-- News highlight
-
-with clear type labels.
+各部分透明平铺，使用公共颜色与等宽字体，用紧凑横线组织信息。姓名与联系方式已替换为 Yohoia；公司、履历、统计仍是暂留参考内容，文章区取参考列表最新六条，不是已发布文章数据。原先 UTC 时钟和 Recently 模块已移除。
 
 ---
 
@@ -807,17 +792,11 @@ Design goal:
 
 ## List View
 
-Prefer chronological text rows.
+当前为期刊式年份 / 月份归档，使用 680px 公共 reading 容器和 Sans 字体，透明文字行按日期从新到旧排列。页头仅保留 Writing · Yohoia、细线与标题，不显示介绍和顶部统计。
 
-Each item may contain:
+每行标题及次级内容单行显示，超出部分省略；当前次级内容是文件名，未编造摘要或阅读时长。日期通过 UTC 格式化包含年月日与星期，最多三个 `#` 标签；参考记录的年份为用户指定的 2026，月日沿用原记录，标签按标题分类。手机端月份移至文章上方，日期与标签自然换行。
 
-- title
-- date
-- description
-- reading time
-- topic
-
-Avoid large image cards by default.
+箭头固定在行尾，默认浅色；悬浮文章时出现蓝色小圆并轻移箭头。标签悬浮变深，下划线由 Motion 展开。底部普通链接 `cd ../` 返回当前语言的 Index。九条参考记录没有正文，不创建占位详情链接；Article View 仍是后续规划。
 
 ---
 
@@ -1178,7 +1157,7 @@ Motion
 → all animation
 
 Lucide
-→ all icons
+→ 通用界面图标；社交品牌使用本地 Simple Icons SVG
 
 Markdown / MDX
 → Writing, Fragments, Projects content

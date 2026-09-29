@@ -6,6 +6,8 @@
 
 项目已建立标准架构、公共设计系统、导航栏、中英文 Index 与 Writing 列表。其他栏目页、详情页和内容仍待制作，按用户后续请求逐步实现。
 
+进度同步日期：2026-09-29。About、Profile 已按用户要求移除导航、路由和相关信息，不属于当前待制作栏目。现有菜单为 Index、Writing、Fragments、Projects、Finder、News、Now；后五项仍是计划入口，访问时进入自定义 404。
+
 403、404、500、502 中英文错误页面已实现，共用 `features/errors/ErrorPage.astro` 与配置；插图原件保留在 `public/images/`。
 
 `docs/` 中的规划与说明是本地参考材料，不随 Git 上传；不能把文档中的示例、推荐或后期设想自动当作当前执行任务。最新用户请求决定实际工作范围。
@@ -25,7 +27,7 @@
 - `src/pages/`：精简的路由、静态路径生成与端点。
 - `src/layouts/`：全局 HTML、SEO、主题与页面布局；页面使用 `BaseLayout` 或其衍生布局。
 - 常规站点页面使用 `SiteLayout`，复用 Header 和 SkipLink；页面主内容须包含 `id="main-content"`。Header 的激活态依据实际路径，导航配置统一从 `config/navigation.ts` 读取。
-- Header 的 Logo 与操作按钮分置视口两侧，以公共 Gutter 和 4vw / 64px 上限保留边距；桌面与移动端统一使用 Type Overlay 菜单入口，右侧按钮依次为菜单、中英切换、主题。窄屏适当缩小 Logo，所有图标按钮保持至少 44px，不恢复横向桌面导航或仅限移动端的菜单。
+- Header 的 Logo 与操作按钮分置视口两侧，以公共 Gutter 和 4vw / 64px 上限保留边距；桌面与移动端统一使用 Type Overlay 菜单入口，右侧按钮依次为菜单、中英切换、主题。Header 使用公共 `--header-surface`、`--header-blur` 与 `--header-saturation` 提供磨砂背景，滚动时保留细分隔线与收紧状态。窄屏适当缩小 Logo，所有图标按钮保持至少 44px，不恢复横向桌面导航或仅限移动端的菜单。
 - `src/components/`：跨板块复用的 Astro 组件。
 - `src/features/<section>/`：板块专属组件、查询与业务逻辑。
 - `src/islands/`：可复用 React 交互组件；板块专属 Island 可以归入对应 feature。
@@ -72,6 +74,7 @@
 - 不编造文章、作品、个人身份、联系方式或 News 新闻来填充目录。
 - 姓名和联系方式统一读取 `config/site.ts`。首页使用 `pr -2 -t links.md` 与 `features/index/TerminalContacts.astro`，左侧 Email、QQ、X、小红书，右侧 Bilibili、GitHub、微信、Telegram，各四个。邮箱为 `imyohoia@gmail.com`，微信号码为 `13870096885`（点击复制），TG 为 `@Yohoia`（`https://t.me/Yohoia`）；渠道、标签、复制值和目标 URL 集中在 `siteConfig.contactLinks`，刷新播放时每行同时展示两列，不恢复 LinkedIn、简历或旧邮箱。首页公司、履历与统计经用户明确要求暂留参考内容，集中在 `features/index/config.ts`，不能自动视为真实个人资料或已接入的数据；待用户提供资料后替换。
 - 首页文章区使用用户确认的 `yohoia@space:~$ ls -ltr writing/ | tail -n 6`，用户名和文件所有者来自 `siteConfig.name`。参考文章集中在 `features/writing/config.ts`，按日期由旧到新排列，同日沿用用户提供顺序；首页取末尾 6 条，Writing 列表显示全部 9 条并按新到旧排列。`Writing — full blog` 跳转到对应语言的本站列表，文件名定位列表条目。保留逐行播放、响应式换行与语言切换进度；参考记录没有正文，不能视为本站已发布文章或已实现的阅读器。
+- Writing 列表采用 `writing-preview.html` 的期刊式归档结构，按用户指定的 2026 年及原记录的月日从新到旧分组，使用 UTC 格式化年月日与星期，避免部署时区改变日期；同日维持现有顺序。内容从 Header 下沿开始，删除介绍段和顶部统计；年份表头、月份侧栏和透明文章行保留。标题与文件名按用户要求单行省略，DOM 与 title 属性保留完整文本；每条最多展示三个按标题分类的 `#` 标签，由 Motion 驱动颜色与下划线。箭头固定在文章行最右侧，默认浅色，悬浮时蓝色圆底缩放显现并轻移箭头。交互使用 `scripts/writing.ts`、`motionTokens.writing` 与公共 Token，尊重减少动画偏好，主题改变时同步颜色；手机端日期与标签允许自然换行，月份移至文章上方。没有正文的参考条目保持静态文章结构，不创建占位详情链接，不编造摘要或阅读时长；离开页面清理动画。底部 `cd ../` 是可访问的普通链接，返回当前语言的首页，保留 44px 触摸区与键盘焦点，不调用浏览器历史回退或栏目字符过渡。
 - 首页文章输出不显示 `total 6 posts`；底部入口仅在 `Writing` 文字下显示虚线，`— full blog` 无下划线，整段入口保持可点击。
 - News 的信息源通过 `features/news/providers/` 适配成统一类型；静态构建不会自动产生实时更新。
 - `SITE_URL` 在 `.env` 中配置；未确定域名时不填假生产域名。
@@ -96,3 +99,5 @@ npm run build
 不修改 `node_modules/`、`.astro/`、`dist/` 等生成文件；提交源文件、配置与锁文件，忽略 `.env`。未经用户要求不自动初始化 Git、提交、推送或部署。
 
 向用户报告具体改动、验证结果和未完成项。文档和协作说明优先使用简体中文，代码标识符使用英文。
+
+更新项目进度时，以实际路由和源码为准，同步 README 的当前进度、此文件的协作约定及 design.md 对应的已落地规范；CLAUDE.md 只引用统一入口，不复制第二套规则。本地 docs/ 存在时，按改动同步 progress.md、architecture.md、design-system.md 和内容编写说明，仍保持 Git 忽略。规划、依赖已安装、界面已实现、真实内容已接入及线上部署是不同状态，不能混写为全部完成；历史参考设计保留并注明适用范围。

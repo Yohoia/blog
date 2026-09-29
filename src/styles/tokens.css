@@ -19,6 +19,11 @@
   /* 原始 Muted / Signal 用于视觉状态；小字号文字采用对比度增强值。 */
   --muted-text: #706f67;
   --signal-text: #405dcb;
+  --signal-contrast: #fff;
+  /* 公共导航的磨砂层，颜色自动跟随当前纸色主题。 */
+  --header-surface: color-mix(in srgb, var(--canvas) 70%, transparent);
+  --header-blur: 1.25rem;
+  --header-saturation: 1.35;
   --background: var(--canvas);
   --foreground: var(--heading);
   --accent: var(--signal);

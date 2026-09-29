@@ -16,6 +16,12 @@ export const motionTokens = {
   distance: { small: 4, medium: 8, large: 12 },
   scale: { pressed: 0.98, resting: 1 },
   reduced: { duration: 0.12 },
+  /** Writing 期刊式归档：只弱化其余标题，元信息始终保持可读。 */
+  writing: {
+    inactiveTitleOpacity: 0.72,
+    arrowRestingScale: 0.6,
+    arrowHoverDistance: 2,
+  },
   /** navigation-lab Type Overlay：圆形展开与 Typography 逐项进入。 */
   menu: {
     revealDuration: 0.65,

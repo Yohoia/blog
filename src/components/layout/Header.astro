@@ -66,14 +66,14 @@ const pathname = unlocalizedPath(Astro.url.pathname);
         var(--header-expansion)
     );
     padding-inline: clamp(var(--gutter), 4vw, 4rem);
-    background: transparent;
+    background: var(--header-surface);
+    -webkit-backdrop-filter: blur(var(--header-blur))
+      saturate(var(--header-saturation));
+    /* 标准属性置于前缀之后，防止构建压缩只保留旧前缀。 */
+    backdrop-filter: blur(var(--header-blur)) saturate(var(--header-saturation));
     border-block-end: 1px solid transparent;
   }
   .site-navigation[data-scrolled] .header-shell {
-    background: color-mix(in srgb, var(--canvas) 85%, transparent);
-    -webkit-backdrop-filter: blur(12px);
-    /* 标准属性置于前缀之后，防止构建压缩只保留旧前缀。 */
-    backdrop-filter: blur(12px);
     border-color: var(--border);
   }
   .header-inner {
