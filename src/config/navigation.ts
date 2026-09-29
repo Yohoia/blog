@@ -5,9 +5,7 @@ export const sectionPaths = {
   projects: '/projects/',
   finder: '/finder/',
   news: '/news/',
-  about: '/about/',
   now: '/now/',
-  profile: '/profile/',
 } as const;
 
 export type Section = keyof typeof sectionPaths;
@@ -24,10 +22,8 @@ export const mainNavigation = [
   { section: 'projects', label: 'Projects', href: sectionPaths.projects },
   { section: 'finder', label: 'Finder', href: sectionPaths.finder },
   { section: 'news', label: 'News', href: sectionPaths.news },
-  { section: 'about', label: 'About', href: sectionPaths.about },
 ] as const satisfies readonly NavigationItem[];
 
 export const secondaryNavigation = [
   { section: 'now', label: 'Now', href: sectionPaths.now },
-  { section: 'profile', label: 'Profile', href: sectionPaths.profile },
 ] as const satisfies readonly NavigationItem[];

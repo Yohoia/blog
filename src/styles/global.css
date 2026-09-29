@@ -6,6 +6,16 @@
 @import './components.css';
 @import './prose.css';
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+@layer utilities {
+  /* 只隐藏滚动条外观，保留滚轮、触控与键盘滚动。 */
+  .scrollbar-hidden {
+    scrollbar-width: none;
+    scrollbar-gutter: auto;
+  }
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
+}
 @layer base {
   html {
     background: var(--canvas);

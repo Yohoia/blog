@@ -35,6 +35,9 @@ export function registerTerminal(): void {
     private typingAnimation?: AnimationPlaybackControls;
     private lineAnimation?: AnimationPlaybackControls;
     private cursorAnimation?: AnimationPlaybackControls;
+    private cursorObserver?: IntersectionObserver;
+    private cursorInView = false;
+    private pageActive = true;
     private avatar?: PixelAvatarController;
     private reducedMotion = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
@@ -86,6 +89,13 @@ export function registerTerminal(): void {
       );
       this.reducedMotion.addEventListener('change', this.onMotionPreference);
       window.addEventListener('pagehide', this.onPageHide);
+      window.addEventListener('pageshow', this.onPageShow);
+      document.addEventListener('visibilitychange', this.syncCursor);
+      this.cursorObserver = new IntersectionObserver(([entry]) => {
+        this.cursorInView = entry?.isIntersecting ?? false;
+        this.syncCursor();
+      });
+      this.cursorObserver.observe(this.cursor);
 
       if (this.reducedMotion.matches || (!saved && !isRefreshVisit())) {
         this.finish();
@@ -94,6 +104,7 @@ export function registerTerminal(): void {
 
       if (this.completed >= this.steps.length) {
         this.dataset.state = 'complete';
+        this.syncCursor();
         return;
       }
       if (!this.outputStarted) this.startCursor();
@@ -104,13 +115,17 @@ export function registerTerminal(): void {
     }
 
     disconnectedCallback() {
+      this.pageActive = false;
       this.controller?.abort();
       this.typingAnimation?.stop();
       this.lineAnimation?.cancel();
-      this.cursorAnimation?.cancel();
+      this.holdCursor();
+      this.cursorObserver?.disconnect();
       this.avatar?.destroy();
       this.reducedMotion.removeEventListener('change', this.onMotionPreference);
       window.removeEventListener('pagehide', this.onPageHide);
+      window.removeEventListener('pageshow', this.onPageShow);
+      document.removeEventListener('visibilitychange', this.syncCursor);
     }
 
     snapshot(): PlaybackSnapshot {
@@ -136,10 +151,35 @@ export function registerTerminal(): void {
 
     private onMotionPreference = () => {
       if (this.reducedMotion.matches) this.finish();
+      else this.syncCursor();
     };
 
     // 历史缓存恢复时直接保留完整内容，避免后台页面继续播放。
-    private onPageHide = () => this.finish();
+    private onPageHide = () => {
+      this.pageActive = false;
+      this.finish();
+    };
+
+    private onPageShow = () => {
+      this.pageActive = true;
+      this.syncCursor();
+    };
+
+    private canBlink() {
+      return (
+        this.isConnected &&
+        this.pageActive &&
+        document.visibilityState === 'visible' &&
+        this.cursorInView &&
+        !this.prompt?.hidden &&
+        !this.reducedMotion.matches
+      );
+    }
+
+    private syncCursor = () => {
+      if (!this.canBlink()) this.holdCursor();
+      else if (!this.cursorAnimation) this.startCursor();
+    };
 
     private holdCursor() {
       this.cursorAnimation?.cancel();
@@ -149,7 +189,7 @@ export function registerTerminal(): void {
 
     private startCursor() {
       this.holdCursor();
-      if (!this.cursor || this.reducedMotion.matches) return;
+      if (!this.cursor || !this.canBlink()) return;
       this.cursorAnimation = animateElement(
         this.cursor,
         { opacity: [1, 1, 0, 0, 1] },
@@ -166,7 +206,7 @@ export function registerTerminal(): void {
       this.controller?.abort();
       this.typingAnimation?.stop();
       this.lineAnimation?.cancel();
-      this.cursorAnimation?.cancel();
+      this.holdCursor();
       this.avatar?.finish();
       this.steps.forEach((step) => {
         step.setAttribute('data-visible', '');
@@ -187,6 +227,7 @@ export function registerTerminal(): void {
       if (this.typing) this.typing.textContent = '';
       if (this.cursor) this.cursor.style.opacity = '1';
       this.dataset.state = 'complete';
+      this.syncCursor();
     }
 
     private pause(seconds: number, signal: AbortSignal): Promise<void> {
@@ -316,7 +357,7 @@ export function registerTerminal(): void {
         this.outputStarted = false;
         this.revealedLines = 0;
         if (this.prompt) this.prompt.hidden = false;
-        if (this.completed === this.steps.length) this.holdCursor();
+        if (this.completed === this.steps.length) this.startCursor();
 
         await this.pause(motionTokens.terminal.outputDelay, signal);
       }

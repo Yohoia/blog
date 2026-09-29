@@ -9,7 +9,7 @@ import { terminalLabels } from './config';
 const locale = getLocale(Astro.url.pathname);
 ---
 
-<SiteLayout title={ui[locale].navigation.index}>
+<SiteLayout title={ui[locale].navigation.index} hideScrollbar>
   <script slot="head" is:inline>
     if (performance.getEntriesByType('navigation')[0]?.type === 'reload') {
       document.documentElement.dataset.terminalJs = 'true';
@@ -23,6 +23,6 @@ const locale = getLocale(Astro.url.pathname);
 
 <style>
   .index-page {
-    padding-block: var(--group-gap) var(--section-gap);
+    padding-block: 0 var(--section-gap);
   }
 </style>

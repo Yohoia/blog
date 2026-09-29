@@ -38,6 +38,11 @@
   --terminal-cursor-glow: rgb(86 200 120 / 0.22);
   --avatar-blue: #1653f4;
   --avatar-yellow: #f2cb17;
+  /* Type Overlay 固定深色舞台，保留参考原型的 Typography 对比。 */
+  --menu-canvas: #151611;
+  --menu-heading: #f5f4ee;
+  --menu-muted: rgb(245 244 238 / 0.56);
+  --menu-border: rgb(245 244 238 / 0.2);
 }
 @media (min-width: 48rem) {
   :root {
@@ -110,6 +115,10 @@
   --color-live: var(--live);
   --color-warning: var(--warning);
   --color-critical: var(--critical);
+  --color-menu-canvas: var(--menu-canvas);
+  --color-menu-heading: var(--menu-heading);
+  --color-menu-muted: var(--menu-muted);
+  --color-menu-border: var(--menu-border);
   --spacing-gutter: var(--gutter);
   --spacing-section: var(--section-gap);
   --spacing-group: var(--group-gap);
@@ -146,6 +155,9 @@
   --text-meta--line-height: 1.5;
   --text-micro: 0.75rem;
   --text-micro--line-height: 1.4;
+  --text-navigation: clamp(1.9375rem, 5.4vw, 3.875rem);
+  --text-navigation--line-height: 1;
+  --text-navigation--letter-spacing: -0.05em;
   --radius-xs: 0.25rem;
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;

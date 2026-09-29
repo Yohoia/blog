@@ -1,6 +1,6 @@
 # Personal Blog Design System
 
-> Design direction for a personal digital space built around **Index / Writing / Fragments / Projects / Finder / News / Now / Profile**.
+> Design direction for a personal digital space built around **Index / Writing / Fragments / Projects / Finder / News / Now**.
 >
 > The goal is not to reproduce any reference website. The three reference systems are treated as design research: take their strongest ideas, remove what does not fit, and recombine them into a quieter, more personal system.
 
@@ -95,7 +95,7 @@ The strongest ideas to retain are:
 
 The default light theme should feel slightly warm instead of pure white.
 
-Writing and Profile can have a more editorial rhythm.
+Writing can have a more editorial rhythm.
 
 Projects may allow large imagery and wider layouts, while the rest of the site remains narrow and quiet.
 
@@ -371,7 +371,7 @@ Writing and long-form content:
 max-width: 680px
 ```
 
-Fragments and Profile:
+Fragments:
 
 ```text
 max-width: 720px
@@ -474,7 +474,6 @@ Secondary destinations:
 
 ```text
 Now
-Profile
 ```
 
 Logo / name returns to:
@@ -615,10 +614,6 @@ Never make the whole feed constantly move.
 ### Now
 
 Soft content replacement / date update.
-
-### Profile
-
-Minimal reveal only.
 
 ---
 
@@ -1059,27 +1054,6 @@ No dashboard.
 No progress rings unless they provide real value.
 
 A visible "Updated" timestamp is useful.
-
----
-
-# 20. Profile
-
-Profile is more editorial than resume-like.
-
-Suggested structure:
-
-```text
-Short introduction
-Current focus
-Background
-Interests
-Elsewhere
-Contact
-```
-
-A portrait may be used, but it should not dominate unless the photography itself is meaningful.
-
-Avoid skill progress bars and logo clouds.
 
 ---
 

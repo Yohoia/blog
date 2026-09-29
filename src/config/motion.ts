@@ -16,6 +16,19 @@ export const motionTokens = {
   distance: { small: 4, medium: 8, large: 12 },
   scale: { pressed: 0.98, resting: 1 },
   reduced: { duration: 0.12 },
+  /** navigation-lab Type Overlay：圆形展开与 Typography 逐项进入。 */
+  menu: {
+    revealDuration: 0.65,
+    closeDuration: 0.5,
+    revealEase: [0.75, 0, 0.2, 1] as [number, number, number, number],
+    itemDuration: 0.4,
+    itemDelay: 0.2,
+    stagger: 0.04,
+    itemDistance: 22,
+    exitDuration: 0.18,
+    hoverDuration: 0.18,
+    hoverDistance: 16,
+  },
   /** 首页匀速打字与逐行输出；打字、输出和光标均由 Motion 驱动。 */
   terminal: {
     initialDelay: 1,

@@ -22,19 +22,19 @@ _当前首页的真实截图。介绍逐字播放，内容直接在页面中向�
 
 ## 当前进度
 
-已完成中英文 **Index**、**Writing 列表**与 **About**，对应 `/`、`/en/`、`/writing/`、`/en/writing/`、`/about/`、`/en/about/` 六个静态页面。
+已完成中英文 **Index** 与 **Writing 列表**，对应 `/`、`/en/`、`/writing/`、`/en/writing/` 四个静态页面。
 
-- **公共导航**：Logo 与操作按钮分置视口两侧，保留响应式边距；滚动收紧、胶囊高亮、移动端菜单和明暗主题切换。
+- **公共导航**：Logo 与操作按钮分置视口两侧，保留响应式边距与滚动收紧。桌面和移动端统一使用语言按钮前的菜单图标，打开黑色全屏 Type Overlay：从按钮位置圆形展开，七个栏目以大字号依次进入，悬浮或聚焦时向右移动。支持关闭按钮、Escape、焦点约束与阅读位置恢复，减少动画时直接显示；禁用 JavaScript 时仍可使用折叠菜单。首页与菜单隐藏滚动条外观，保留滚轮、触控和键盘滚动；开关菜单时保持页面宽度与吸顶导航位置稳定。
 - **中英切换**：保留查询参数、锚点、主题和阅读位置，减少翻译长度导致的布局变化。
 - **手写 Logo**：刷新时播放一次，悬浮或键盘聚焦时重播；遵循系统减少动画偏好。
-- **平铺首页**：介绍在页面中居中排布，正文左对齐，各部分以细横线和紧凑间距分隔；绿色用户名、蓝色主机名和柔和绿色光标，Motion 驱动匀速逐字输入与逐行淡入。仅刷新自动播放，直接访问、站内返回与历史返回显示完整内容，播放结束停止光标动画。访问时间读取浏览器本地时间，语言切换保留当前播放进度和阅读位置，减少动画模式直接展示完整内容。
+- **平铺首页**：介绍在页面中居中排布，正文左对齐，各部分以细横线和紧凑间距分隔；绿色用户名、蓝色主机名和柔和绿色光标，Motion 驱动匀速逐字输入与逐行淡入。内容区从顶部导航栏下沿开始排布。仅刷新自动播放，直接访问、站内返回与历史返回显示完整内容；播放结束后，末尾空提示符的绿色光标继续闪烁，移出视口或页面进入后台时暂停。访问时间读取浏览器本地时间，语言切换保留当前播放进度和阅读位置，减少动画模式直接展示完整内容。
 - **像素头像**：`whoami` 右侧展示由个人头像生成的圆点图像，与左侧信息同步聚合；桌面端根据完整文字高度调整大小，手机端使用更小尺寸。悬浮、聚焦或点击可重播，语言切换保留进度，减少动画或禁用 JavaScript 时显示完整静态 SVG。
 - **内容基础**：Markdown / MDX、Content Collections、字段校验、草稿过滤和统一内容路径。
 - **错误页面**：403、404、500、502 使用独立的全屏布局，不显示 Header；插图和说明在整个视口中居中，继承站点明暗主题，按 URL 显示中英文并提供返回首页入口。
 
 首页姓名与联系方式已使用 Yohoia 的信息。`pr -2 -t links.md` 按两列显示八个渠道：左侧 Email（`imyohoia@gmail.com`）、QQ、X、小红书，右侧 Bilibili、GitHub、微信（`13870096885`）与 Telegram（`@Yohoia`）。微信入口复制号码，TG 跳转至 `https://t.me/Yohoia`；渠道、标签及目标集中在 `src/config/site.ts`，品牌 SVG 在本地托管，沿用单色图标与文本链接样式，刷新播放时按行展示两列。其余公司、履历与统计按用户要求暂留参考稿内容，集中在 `src/features/index/config.ts` 等待替换。文章区使用 `yohoia@space:~$ ls -ltr writing/ | tail -n 6`，从 Writing 共用的参考列表取最新 6 条，保留从旧到新的输出顺序；`Writing — full blog` 进入本站对应语言的完整列表，文件名定位到列表条目。9 条参考文章集中在 `src/features/writing/config.ts`，目前尚无正文或文章详情页。
 
-Fragments、Projects、Finder、News、Now、Profile 已预留结构，栏目页与详情页仍待制作。主导航保留计划路径，尚未实现的地址显示自定义 404 页面。内容集合为空，Writing 目前展示用户提供的参考记录；News 数据源与公开 RSS 端点尚未接入。
+Fragments、Projects、Finder、News、Now 已预留结构，栏目页与详情页仍待制作。主导航保留计划路径，尚未实现的地址显示自定义 404 页面。内容集合为空，Writing 目前展示用户提供的参考记录；News 数据源与公开 RSS 端点尚未接入。
 
 ## 快速开始
 
@@ -85,6 +85,8 @@ Astro 开发服务器会将未知地址交给 `src/pages/404.astro`，静态构�
 
 视觉规范来自 [design.md](design.md)：公共颜色、字号、间距和容器集中在 Design Tokens，组件与正文复用同一套样式。首页采用透明的平铺内容，沿用公共明暗主题与阅读宽度。Geist Sans / Mono 在本站托管，中文采用系统字体回退。动画参数集中配置，明暗主题与语言沿用公共脚本。
 
+全屏菜单使用 `src/components/layout/TypeOverlayMenu.astro` 与 `src/scripts/type-overlay-menu.ts`，由原生 `dialog` 管理模态焦点和背景交互，Motion 驱动圆形展开、逐项进入与悬浮动画。菜单布局使用 Tailwind，颜色和字号位于公共 Token，时序位于 `motionTokens.menu`，不增加依赖。关闭、离开页面或语言切换时释放滚动锁并清理动画，避免影响原有阅读位置。
+
 像素头像原图与静态 SVG 位于 `src/assets/images/`，组件为 `src/features/index/PixelAvatar.astro`。`src/scripts/pixel-avatar.ts` 使用一个 Motion 时钟驱动 Canvas，完成后停留在最后一帧，不再循环或切换绘制方式；SVG 用于静态访问、减少动画与无脚本显示。完整文字提前保留高度，头像在开始聚合前确定尺寸，避免最后一行出现时缩放抖动。配色读取公共 Token，聚合参数集中在 `motionTokens.avatar`，不增加运行时依赖。
 
 ## 项目结构
@@ -105,18 +107,18 @@ src/
 └── islands/          # React 交互模块预留
 ```
 
-路由组合 `features`、布局和公共组件；板块模块调用 `lib` 与 `config`，基础层不反向依赖页面。默认中文不加前缀，英文使用 `/en/`；首页、Writing 与 About 各维护一份版式。内容标题与正文保留原文，内容级翻译仍需真实译文。
+路由组合 `features`、布局和公共组件；板块模块调用 `lib` 与 `config`，基础层不反向依赖页面。默认中文不加前缀，英文使用 `/en/`；首页与 Writing 各维护一份版式。内容标题与正文保留原文，内容级翻译仍需真实译文。
 
 <details>
 <summary>常用配置入口</summary>
 
-| 配置                 | 文件                                                                                                                                                          |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 站点信息与联系方式   | [`src/config/site.ts`](src/config/site.ts)                                                                                                                    |
-| 语言、导航与公共翻译 | [`i18n.ts`](src/config/i18n.ts) · [`navigation.ts`](src/config/navigation.ts) · [`ui.ts`](src/i18n/ui.ts)                                                     |
-| 板块文案与参考文章   | [`index/config.ts`](src/features/index/config.ts) · [`writing/config.ts`](src/features/writing/config.ts) · [`about/config.ts`](src/features/about/config.ts) |
-| 设计与动画参数       | [`tokens.css`](src/styles/tokens.css) · [`motion.ts`](src/config/motion.ts)                                                                                   |
-| 内容模型与分类       | [`schemas.ts`](src/lib/content/schemas.ts) · [`categories.ts`](src/config/categories.ts)                                                                      |
+| 配置                 | 文件                                                                                                      |
+| -------------------- | --------------------------------------------------------------------------------------------------------- |
+| 站点信息与联系方式   | [`src/config/site.ts`](src/config/site.ts)                                                                |
+| 语言、导航与公共翻译 | [`i18n.ts`](src/config/i18n.ts) · [`navigation.ts`](src/config/navigation.ts) · [`ui.ts`](src/i18n/ui.ts) |
+| 板块文案与参考文章   | [`index/config.ts`](src/features/index/config.ts) · [`writing/config.ts`](src/features/writing/config.ts) |
+| 设计与动画参数       | [`tokens.css`](src/styles/tokens.css) · [`motion.ts`](src/config/motion.ts)                               |
+| 内容模型与分类       | [`schemas.ts`](src/lib/content/schemas.ts) · [`categories.ts`](src/config/categories.ts)                  |
 
 </details>
 

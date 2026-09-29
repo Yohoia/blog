@@ -8,14 +8,19 @@ import { ClientRouter } from 'astro:transitions';
 
 interface Props extends SEOProps {
   bodyClass?: string;
+  hideScrollbar?: boolean;
 }
 
-const { bodyClass, ...seo } = Astro.props;
+const { bodyClass, hideScrollbar = false, ...seo } = Astro.props;
 const locale = getLocale(Astro.url.pathname);
 ---
 
 <!doctype html>
-<html lang={localeMetadata[locale].language} transition:animate="none">
+<html
+  lang={localeMetadata[locale].language}
+  class:list={{ 'scrollbar-hidden': hideScrollbar }}
+  transition:animate="none"
+>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

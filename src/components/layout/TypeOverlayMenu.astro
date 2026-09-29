@@ -1,0 +1,120 @@
+---
+import { randomUUID } from 'node:crypto';
+import { Menu, X } from '@lucide/astro';
+import {
+  mainNavigation,
+  secondaryNavigation,
+  sectionPaths,
+} from '@/config/navigation';
+import { iconTokens } from '@/config/icons';
+import { siteConfig } from '@/config/site';
+import { getLocale, localizePath, unlocalizedPath } from '@/lib/i18n';
+import { ui } from '@/i18n/ui';
+
+const locale = getLocale(Astro.url.pathname);
+const text = ui[locale];
+const pathname = unlocalizedPath(Astro.url.pathname);
+const id = `site-menu-${randomUUID()}`;
+const entries = [
+  { section: 'index', href: sectionPaths.index },
+  ...mainNavigation,
+  ...secondaryNavigation,
+] as const;
+const isCurrent = (href: string) =>
+  href === '/' ? pathname === '/' : pathname.startsWith(href);
+---
+
+<type-overlay-menu
+  class="group/type-menu relative block"
+  data-menu-state="closed"
+>
+  <details data-menu-disclosure>
+    <summary
+      class="grid size-touch cursor-pointer list-none place-items-center rounded-pill text-heading hover:bg-hover-surface [&::-webkit-details-marker]:hidden"
+      aria-label={text.menu}
+      title={text.menu}
+      aria-controls={`${id}-fallback`}
+      data-menu-trigger
+    >
+      <Menu
+        size={iconTokens.size.large}
+        stroke-width={iconTokens.strokeWidth}
+        aria-hidden="true"
+      />
+    </summary>
+    <nav
+      id={`${id}-fallback`}
+      aria-label={text.primary}
+      class="scrollbar-hidden absolute end-0 top-full z-10 mt-inline grid max-h-[70dvh] w-[min(20rem,calc(100vw-2*var(--gutter)))] overflow-y-auto rounded-md border border-border bg-surface p-inline shadow-floating group-data-[menu-ready]/type-menu:hidden"
+      data-menu-fallback
+    >
+      {entries.map(({ section, href }) => (
+        <a
+          class="flex min-h-touch items-center rounded-sm px-3.5 text-meta text-copy no-underline hover:bg-hover-surface hover:text-heading"
+          href={localizePath(href, locale)}
+          aria-current={isCurrent(href) ? 'page' : undefined}
+          data-astro-reload
+        >
+          {text.navigation[section]}
+        </a>
+      ))}
+    </nav>
+  </details>
+
+  <dialog
+    id={id}
+    aria-labelledby={`${id}-title`}
+    class="fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none flex-col overflow-hidden border-0 bg-menu-canvas p-0 text-menu-heading [--focus:var(--menu-heading)] backdrop:bg-transparent open:flex [&:not([open])]:hidden"
+    data-menu-dialog
+  >
+    <h2 id={`${id}-title`} class="sr-only">
+      {text.menu}
+    </h2>
+    <div class="flex h-full min-h-0 flex-col px-[clamp(var(--gutter),4vw,4rem)] pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+      <div class="flex shrink-0 items-center justify-between gap-item pb-4">
+        <span class="font-mono text-meta text-menu-muted">
+          {siteConfig.name}
+        </span>
+        <button
+          type="button"
+          class="grid size-touch shrink-0 place-items-center rounded-pill border border-menu-border bg-transparent text-menu-heading hover:bg-menu-border"
+          aria-label={text.closeMenu}
+          title={text.closeMenu}
+          autofocus
+          data-menu-close
+        >
+          <X
+            size={iconTokens.size.large}
+            stroke-width={iconTokens.strokeWidth}
+            aria-hidden="true"
+          />
+        </button>
+      </div>
+      <nav
+        aria-label={text.primary}
+        class="scrollbar-hidden min-h-0 flex-1 overflow-y-auto overscroll-contain py-2 pr-5"
+      >
+        <div class="grid justify-items-start gap-0.5">
+          {entries.map(({ section, href }) => (
+            <a
+              class="block min-h-touch max-w-full py-1 text-navigation font-normal text-menu-muted no-underline hover:text-menu-heading focus-visible:text-menu-heading aria-[current=page]:text-menu-heading"
+              href={localizePath(href, locale)}
+              aria-current={isCurrent(href) ? 'page' : undefined}
+              data-overlay-link
+              data-astro-reload
+            >
+              <span class="inline-block" data-overlay-label>
+                {text.navigation[section]}
+              </span>
+            </a>
+          ))}
+        </div>
+      </nav>
+    </div>
+  </dialog>
+</type-overlay-menu>
+
+<script>
+  import { registerTypeOverlayMenu } from '@/scripts/type-overlay-menu';
+  registerTypeOverlayMenu();
+</script>

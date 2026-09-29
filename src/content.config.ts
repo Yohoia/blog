@@ -35,8 +35,4 @@ export const collections = {
     loader: markdownLoader('now'),
     schema: staticPageSchema,
   }),
-  profile: defineCollection({
-    loader: markdownLoader('profile'),
-    schema: staticPageSchema,
-  }),
 };

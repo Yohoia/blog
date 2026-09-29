@@ -1,22 +1,16 @@
 ---
-import { Menu, X } from '@lucide/astro';
-import {
-  mainNavigation,
-  secondaryNavigation,
-  sectionPaths,
-} from '@/config/navigation';
+import { sectionPaths } from '@/config/navigation';
 import { siteConfig } from '@/config/site';
-import { iconTokens } from '@/config/icons';
 import ThemeToggle from '@/components/ui/ThemeToggle.astro';
 import Logo from '@/components/common/Logo.astro';
 import LanguageToggle from '@/components/ui/LanguageToggle.astro';
+import TypeOverlayMenu from './TypeOverlayMenu.astro';
 import { getLocale, localizePath, unlocalizedPath } from '@/lib/i18n';
 import { ui } from '@/i18n/ui';
 
 const locale = getLocale(Astro.url.pathname);
 const text = ui[locale];
 const pathname = unlocalizedPath(Astro.url.pathname);
-const isCurrent = (href: string) => pathname.startsWith(href);
 ---
 
 <site-navigation class="site-navigation">
@@ -30,76 +24,10 @@ const isCurrent = (href: string) => pathname.startsWith(href);
           aria-current={pathname === '/' ? 'page' : undefined}
         />
 
-        <nav
-          class="desktop-navigation"
-          aria-label={text.primary}
-          data-desktop-navigation
-        >
-          <span
-            class="navigation-highlight"
-            aria-hidden="true"
-            data-navigation-highlight
-          ></span>
-          {mainNavigation.map(({ section, href }) => (
-            <a
-              class="navigation-link"
-              data-astro-reload
-              href={localizePath(href, locale)}
-              aria-current={isCurrent(href) ? 'page' : undefined}
-            >
-              {text.navigation[section]}
-            </a>
-          ))}
-        </nav>
-
         <div class="header-actions">
+          <TypeOverlayMenu />
           <LanguageToggle />
           <ThemeToggle class="header-theme-toggle" />
-          <details class="mobile-navigation" data-mobile-navigation>
-            <summary class="menu-toggle" aria-label={text.menu}>
-              <Menu
-                class="menu-icon-open"
-                size={iconTokens.size.large}
-                stroke-width={iconTokens.strokeWidth}
-                aria-hidden="true"
-              />
-              <X
-                class="menu-icon-close"
-                size={iconTokens.size.large}
-                stroke-width={iconTokens.strokeWidth}
-                aria-hidden="true"
-              />
-            </summary>
-            <div class="mobile-menu-panel">
-              <nav aria-label={text.mobilePrimary}>
-                {mainNavigation.map(({ section, href }) => (
-                  <a
-                    class="mobile-navigation-link"
-                    data-astro-reload
-                    href={localizePath(href, locale)}
-                    aria-current={isCurrent(href) ? 'page' : undefined}
-                  >
-                    {text.navigation[section]}
-                  </a>
-                ))}
-              </nav>
-              <nav
-                class="mobile-secondary-navigation"
-                aria-label={text.mobileSecondary}
-              >
-                {secondaryNavigation.map(({ section, href }) => (
-                  <a
-                    class="mobile-navigation-link"
-                    data-astro-reload
-                    href={localizePath(href, locale)}
-                    aria-current={isCurrent(href) ? 'page' : undefined}
-                  >
-                    {text.navigation[section]}
-                  </a>
-                ))}
-              </nav>
-            </div>
-          </details>
         </div>
       </div>
     </div>
@@ -140,8 +68,7 @@ const isCurrent = (href: string) => pathname.startsWith(href);
     background: transparent;
     border-block-end: 1px solid transparent;
   }
-  .site-navigation[data-scrolled] .header-shell,
-  .site-navigation:has(.mobile-navigation[open]) .header-shell {
+  .site-navigation[data-scrolled] .header-shell {
     background: color-mix(in srgb, var(--canvas) 85%, transparent);
     -webkit-backdrop-filter: blur(12px);
     /* 标准属性置于前缀之后，防止构建压缩只保留旧前缀。 */
@@ -150,54 +77,13 @@ const isCurrent = (href: string) => pathname.startsWith(href);
   }
   .header-inner {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     gap: var(--item-gap);
   }
   .header-inner :global(.site-name) {
     justify-self: start;
     min-block-size: var(--header-content-height);
-  }
-  .desktop-navigation {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-  }
-  .navigation-link {
-    position: relative;
-    z-index: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 5.5rem;
-    inline-size: 5.5rem;
-    min-block-size: var(--touch-target);
-    padding-inline: 0.5rem;
-    white-space: nowrap;
-    border-radius: var(--radius-pill);
-    font-size: var(--text-meta);
-    line-height: 1.5;
-    font-weight: 500;
-    color: var(--muted-text);
-    text-decoration: none;
-  }
-  .navigation-link:hover,
-  .navigation-link[aria-current='page'] {
-    color: var(--heading);
-  }
-  .desktop-navigation:not([data-highlight-ready])
-    .navigation-link:is(:hover, [aria-current='page']) {
-    background: var(--hover-surface);
-  }
-  .navigation-highlight {
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 0;
-    opacity: 0;
-    border-radius: var(--radius-pill);
-    background: var(--hover-surface);
-    pointer-events: none;
   }
   .header-actions {
     justify-self: end;
@@ -208,82 +94,10 @@ const isCurrent = (href: string) => pathname.startsWith(href);
   .header-actions :global(.header-theme-toggle) {
     border-radius: var(--radius-pill);
   }
-  .mobile-navigation {
-    display: none;
-  }
-  .menu-toggle {
-    display: grid;
-    place-items: center;
-    inline-size: var(--touch-target);
-    block-size: var(--touch-target);
-    border-radius: var(--radius-pill);
-    color: var(--heading);
-    cursor: pointer;
-    list-style: none;
-  }
-  .menu-toggle::-webkit-details-marker {
-    display: none;
-  }
-  .menu-toggle:hover {
-    background: var(--hover-surface);
-  }
-  .menu-icon-close,
-  .mobile-navigation[open] .menu-icon-open {
-    display: none;
-  }
-  .mobile-navigation[open] .menu-icon-close {
-    display: block;
-  }
-  .mobile-menu-panel {
-    position: absolute;
-    inset-block-start: 100%;
-    inset-inline: var(--gutter);
-    max-block-size: calc(
-      100dvh - var(--header-content-height) - var(--header-padding) * 2 - 1rem
-    );
-    overflow-y: auto;
-    padding: var(--inline-gap);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    background: var(--surface);
-  }
-  .mobile-menu-panel nav {
-    display: grid;
-  }
-  .mobile-navigation-link {
-    display: flex;
-    align-items: center;
-    min-block-size: var(--touch-target);
-    padding-inline: 0.875rem;
-    font-size: var(--text-meta);
-    font-weight: 500;
-    color: var(--body);
-    border-radius: var(--radius-sm);
-    text-decoration: none;
-  }
-  .mobile-navigation-link:hover,
-  .mobile-navigation-link[aria-current='page'] {
-    color: var(--heading);
-    background: var(--hover-surface);
-  }
-  .mobile-secondary-navigation {
-    margin-block-start: var(--inline-gap);
-    padding-block-start: var(--inline-gap);
-    border-block-start: 1px solid var(--border);
-  }
   @media (max-width: 59.999rem) {
     .site-navigation {
       --header-padding: 1rem;
       --header-compact-padding: 0.5rem;
-    }
-    .desktop-navigation {
-      display: none;
-    }
-    .header-inner {
-      grid-template-columns: minmax(0, 1fr) auto;
-    }
-    .mobile-navigation {
-      display: block;
     }
   }
   @media (max-width: 24rem) {
@@ -291,7 +105,7 @@ const isCurrent = (href: string) => pathname.startsWith(href);
       gap: var(--inline-gap);
     }
     .header-inner :global(.site-name) {
-      --logo-width: 7rem;
+      --logo-width: 6.25rem;
     }
   }
 </style>
