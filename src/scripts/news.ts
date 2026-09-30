@@ -1,10 +1,6 @@
 import { animate, type AnimationPlaybackControls } from 'motion';
 import { motionTokens } from '@/config/motion';
-import {
-  buildHeatmap,
-  getHeatmapActivity,
-  type HeatmapMode,
-} from '@/features/news/calendar';
+import { buildHeatmap, type HeatmapMode } from '@/features/news/calendar';
 import { newsCategories } from '@/config/categories';
 import type { Locale } from '@/config/i18n';
 import {
@@ -38,7 +34,6 @@ interface SavedPaper {
   checkedAt: number;
   dailyCheckedAt: number;
   heatmapMode: HeatmapMode;
-  heatmapActivity: Record<string, number>;
 }
 // 同一标签内跨语言保留筛选与已加载页；不持久化跨日游标。
 let saved: SavedPaper | undefined;
@@ -75,6 +70,11 @@ export function registerNewsPaper(): void {
         '[data-news-selected-date]',
       );
       const calendarSelectedWeekday = find('[data-news-selected-weekday]');
+      const editionDetails = find<HTMLElement>('[data-news-edition-details]');
+      const reportMeta = find<HTMLElement>('[data-news-report-meta]');
+      const fetchedTime = find<HTMLTimeElement>('[data-news-fetched]');
+      const generatedTime = find<HTMLTimeElement>('[data-news-generated]');
+      const reportPeriod = find<HTMLElement>('[data-news-period]');
       const refresh = find<HTMLButtonElement>('[data-news-refresh]');
       const more = find<HTMLButtonElement>('[data-news-more]');
       const content = find('[data-news-content]');
@@ -86,12 +86,20 @@ export function registerNewsPaper(): void {
         category: 'all',
         appliedKey: queryKey('all'),
         selectedDate: initial.daily?.date ?? null,
-        dateMode: false,
-        snapshot: initial,
-        checkedAt: 0,
+        dateMode: !!initial.daily,
+        snapshot: initial.daily
+          ? {
+              ...initial,
+              page: {
+                items: initial.daily.articles,
+                hasMore: false,
+                nextCursor: null,
+              },
+            }
+          : initial,
+        checkedAt: initial.daily ? Date.now() : 0,
         dailyCheckedAt: 0,
         heatmapMode: 'daily',
-        heatmapActivity: getHeatmapActivity(initial),
       };
       saved = undefined;
       let active: AbortController | undefined;
@@ -176,16 +184,6 @@ export function registerNewsPaper(): void {
           ?.setAttribute('href', item.readingUrl);
         return article;
       };
-      const rememberActivity = () => {
-        for (const [date, count] of Object.entries(
-          getHeatmapActivity(state.snapshot),
-        )) {
-          state.heatmapActivity[date] = Math.max(
-            state.heatmapActivity[date] ?? 0,
-            count,
-          );
-        }
-      };
       const hideHeatTooltip = () => {
         heatTooltip.hidden = true;
         heatmapGrid
@@ -250,7 +248,6 @@ export function registerNewsPaper(): void {
           state.heatmapMode,
           locale,
           selected,
-          state.heatmapActivity,
         );
         find('.news-heatmap').hidden = !archive.length;
         const focusedKey =
@@ -265,6 +262,7 @@ export function registerNewsPaper(): void {
           );
         });
         const body = find('[data-news-heatmap-body]');
+        body.dataset.newsHeatmapMode = state.heatmapMode;
         body.style.setProperty('--heatmap-rows', String(map.rows));
         body.style.setProperty('--heatmap-columns', String(map.columns));
         find('[data-news-heatmap-axis]').replaceChildren(
@@ -282,12 +280,17 @@ export function registerNewsPaper(): void {
             element.className = 'news-heat-cell';
             element.dataset.newsHeatLevel = String(cell.level);
             element.dataset.newsHeatKey = cell.key;
-            element.textContent = cell.text;
+            element.textContent = '';
+            if (cell.displayDate)
+              element.dataset.newsHeatDisplayDate = cell.displayDate;
             if (cell.date && element instanceof HTMLButtonElement) {
               element.type = 'button';
               element.dataset.newsDate = cell.date;
               element.setAttribute('aria-label', cell.label);
               element.setAttribute('aria-pressed', String(cell.selected));
+            } else if (cell.displayDate) {
+              element.setAttribute('aria-label', cell.label);
+              element.setAttribute('title', cell.label);
             } else element.setAttribute('aria-hidden', 'true');
             return element;
           }),
@@ -299,7 +302,14 @@ export function registerNewsPaper(): void {
             .find((cell) => cell.dataset.newsHeatKey === focusedKey)
             ?.focus();
         find('[data-news-heatmap-period]').textContent = map.period;
-        find('[data-news-latest]').hidden = !state.dateMode;
+        editionDetails.hidden = !state.dateMode || !state.snapshot.daily;
+        reportMeta.hidden = !state.dateMode || !state.snapshot.daily;
+        fetchedTime.hidden = state.dateMode || !state.snapshot.fetchedAt;
+        if (state.snapshot.daily) {
+          generatedTime.dateTime = state.snapshot.daily.generatedAt;
+          generatedTime.textContent = `${text.generated} ${formatNewsTime(state.snapshot.daily.generatedAt, locale)}`;
+          reportPeriod.textContent = `${text.period} ${formatNewsTime(state.snapshot.daily.windowStart, locale)} — ${formatNewsTime(state.snapshot.daily.windowEnd, locale)} · ${text.timezone}`;
+        }
       };
 
       const animateTab = (button: HTMLButtonElement) => {
@@ -348,7 +358,6 @@ export function registerNewsPaper(): void {
         });
       };
       const paint = () => {
-        rememberActivity();
         paintTabs();
         paintCalendar();
         const matches = state.appliedKey === queryKey(state.category);
@@ -531,7 +540,8 @@ export function registerNewsPaper(): void {
         }
       };
       const loadDaily = async () => {
-        if (state.dateMode) return;
+        if (state.dateMode && state.selectedDate !== state.snapshot.daily?.date)
+          return;
         if (
           dailyActive ||
           Date.now() - state.dailyCheckedAt < newsRefreshInterval
@@ -544,8 +554,13 @@ export function registerNewsPaper(): void {
           if (!signal.aborted && !state.dateMode) {
             state.snapshot.daily = daily;
             state.selectedDate = daily.date;
-            rememberActivity();
             paintCalendar();
+          } else if (!signal.aborted && state.dateMode) {
+            state.snapshot.daily = daily;
+            state.selectedDate = daily.date;
+            state.snapshot.page = dailyPage(daily);
+            state.appliedKey = queryKey(state.category);
+            paint();
           }
         } catch {
           // 日报失败保留上一期，资讯筛选与日报互不阻塞。
@@ -701,7 +716,7 @@ export function registerNewsPaper(): void {
       );
       const heatTarget = (target: EventTarget | null) =>
         target instanceof Element
-          ? target.closest<HTMLElement>('button[data-news-date]')
+          ? target.closest<HTMLElement>('[data-news-heat-display-date]')
           : null;
       heatmapGrid.addEventListener(
         'pointerover',
@@ -773,16 +788,6 @@ export function registerNewsPaper(): void {
           const date = button?.dataset.newsDate;
           if (date && (!state.dateMode || date !== state.selectedDate))
             void loadSelectedDate(date);
-        },
-        { signal },
-      );
-      find('[data-news-latest]').addEventListener(
-        'click',
-        () => {
-          state.dateMode = false;
-          void load();
-          state.dailyCheckedAt = 0;
-          void loadDaily();
         },
         { signal },
       );

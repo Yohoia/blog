@@ -10,6 +10,8 @@ export interface NewsItem {
   summary?: string;
   originalTitle?: string;
   category: NewsCategory;
+  /** 分类映射用于页面分组；此字段保留 API 提供的原始分类值。 */
+  sourceCategory?: string;
   publishedAt: string | null;
   discoveredAt: string;
   source: { name: string; url: string };

@@ -133,6 +133,8 @@ export function parseNewsPage(value: unknown): NewsPage {
         typeof item.category === 'string'
           ? (categoryFromApi[item.category] ?? 'news')
           : 'news',
+      sourceCategory:
+        typeof item.category === 'string' ? item.category : undefined,
       publishedAt:
         item.publishedAt === null ? null : timestamp(item.publishedAt),
       discoveredAt: timestamp(item.discoveredAt),

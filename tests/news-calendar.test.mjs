@@ -10,7 +10,7 @@ test('compact daily view retains leap days, leading offset and available dates',
     'zh',
     '2024-02-29',
   );
-  assert.equal(map.cells.length, 40);
+  assert.equal(map.cells.length, 35);
   assert.equal(map.cells[3].date, '2024-02-01');
   assert.equal(map.cells[31].date, '2024-02-29');
   assert.equal(map.cells[31].selected, true);
@@ -44,28 +44,27 @@ test('monthly density uses unique archive dates and cannot invent activity', () 
   );
   assert.equal(map.cells.length, 12);
   assert.equal(map.cells[7].count, 1);
-  assert.equal(map.cells[7].level, 2);
+  assert.equal(map.cells[7].level, 1);
   assert.equal(map.cells[8].count, 2);
-  assert.equal(map.cells[8].level, 4);
+  assert.equal(map.cells[8].level, 1);
   assert.equal(map.cells[9].date, null);
   assert.equal(map.cells[9].level, 0);
   assert.equal(map.cells.filter((cell) => cell.selected).length, 1);
 });
 
-test('daily colors distinguish known activity from edition availability without fabricated counts', () => {
+test('daily dots distinguish edition availability without story counts', () => {
   const map = buildHeatmap(
     '2026-09-29',
     ['2026-09-01', '2026-09-02', '2026-09-03'],
     'daily',
     'zh',
     '2026-09-03',
-    { '2026-09-02': 1, '2026-09-03': 12 },
   );
   const days = map.cells.filter((cell) => cell.date);
   assert.deepEqual(
     days.map((cell) => cell.level),
-    [1, 2, 4],
+    [1, 1, 1],
   );
   assert.equal(days[0].label.includes('条已载入资讯'), false);
-  assert.equal(days[1].label.includes('1 条已载入资讯'), true);
+  assert.equal(days[1].label.includes('loaded stories'), false);
 });

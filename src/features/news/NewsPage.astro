@@ -12,7 +12,7 @@ import {
   formatNewsTime,
 } from './config';
 import { newsCategories } from '@/config/categories';
-import { buildHeatmap, getHeatmapActivity } from './calendar';
+import { buildHeatmap } from './calendar';
 import { getNewsSnapshot } from './snapshot';
 import NewsStory from './NewsStory.astro';
 import './news.css';
@@ -20,8 +20,8 @@ import './news.css';
 const locale = getLocale(Astro.url.pathname);
 const text = newsContent[locale];
 const snapshot = await getNewsSnapshot();
-const items = snapshot.page.items;
 const daily = snapshot.daily;
+const items = daily?.articles ?? snapshot.page.items;
 const serialized = JSON.stringify(snapshot).replace(/</g, '\\u003c');
 const selectedDate = daily?.date;
 const heatmap = buildHeatmap(
@@ -30,7 +30,6 @@ const heatmap = buildHeatmap(
   'daily',
   locale,
   selectedDate ?? null,
-  getHeatmapActivity(snapshot),
 );
 const selectedArchiveIndex = selectedDate
   ? snapshot.archive.findIndex((entry) => entry.date === selectedDate)
@@ -49,7 +48,11 @@ const dailyLead = items[0];
         class="news-edition-top micro-label"
         data-language-block="news-edition"
       >
-        <div class="news-edition-selected">
+        <div
+          class="news-edition-selected"
+          data-news-edition-details
+          hidden={!daily}
+        >
           <p class="news-edition-issue">
             <span>{text.issue}</span>
             <span data-news-issue>{issueNumber}</span>
@@ -74,7 +77,7 @@ const dailyLead = items[0];
             datetime={snapshot.fetchedAt ?? undefined}
             title={text.timezone}
             data-news-fetched
-            hidden={!snapshot.fetchedAt}
+            hidden={!snapshot.fetchedAt || !!daily}
           >
             <span data-news-fetched-value>
               {snapshot.fetchedAt &&
@@ -82,6 +85,21 @@ const dailyLead = items[0];
             </span>
             <span class="news-timezone"> · {text.timezone}</span>
           </time>
+          <span data-news-report-meta hidden={!daily}>
+            <time
+              datetime={daily?.generatedAt}
+              data-news-generated
+              title={text.timezone}
+            >
+              {daily &&
+                `${text.generated} ${formatNewsTime(daily.generatedAt, locale)}`}
+            </time>
+            <span aria-hidden="true"> · </span>
+            <span data-news-period>
+              {daily &&
+                `${text.period} ${formatNewsTime(daily.windowStart, locale)} — ${formatNewsTime(daily.windowEnd, locale)} · ${text.timezone}`}
+            </span>
+          </span>
           <button
             class="news-refresh"
             type="button"
@@ -156,7 +174,15 @@ const dailyLead = items[0];
                       aria-pressed={mode === 'daily' ? 'true' : 'false'}
                       data-news-heatmap-mode={mode}
                     >
-                      {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                      {locale === 'zh'
+                        ? { daily: '日报', weekly: '周报', monthly: '月报' }[
+                            mode
+                          ]
+                        : {
+                            daily: 'Daily',
+                            weekly: 'Weekly',
+                            monthly: 'Monthly',
+                          }[mode]}
                     </button>
                   ))}
                 </div>
@@ -164,6 +190,7 @@ const dailyLead = items[0];
               <div
                 class="news-heatmap-body"
                 data-news-heatmap-body
+                data-news-heatmap-mode="daily"
                 style={`--heatmap-rows: ${heatmap.rows}; --heatmap-columns: ${heatmap.columns}`}
               >
                 <div
@@ -178,19 +205,19 @@ const dailyLead = items[0];
                 <div class="news-heatmap-scroll">
                   <div class="news-heatmap-grid" data-news-heatmap-grid>
                     {heatmap.cells.map((cell) =>
-                      cell.date ? (
-                        <a
+                      cell.displayDate ? (
+                        <button
                           class="news-heat-cell"
-                          href={`https://aihot.news/daily/${cell.date}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          data-news-date={cell.date}
+                          type="button"
+                          disabled={!cell.date}
+                          data-news-date={cell.date ?? undefined}
+                          data-news-heat-display-date={cell.displayDate}
                           data-news-heat-key={cell.key}
                           data-news-heat-level={cell.level}
-                          aria-current={cell.selected ? 'date' : undefined}
+                          aria-pressed={cell.selected}
                           aria-label={cell.label}
                           title={cell.label}
-                        ></a>
+                        ></button>
                       ) : (
                         <span
                           class="news-heat-cell"
@@ -205,16 +232,6 @@ const dailyLead = items[0];
               </div>
               <footer class="news-heatmap-footer">
                 <span data-news-heatmap-period>{heatmap.period}</span>
-                <span
-                  class="news-heatmap-legend"
-                  aria-label={text.calendarDensity}
-                >
-                  <span>{text.less}</span>
-                  {[0, 1, 2, 3, 4].map((level) => (
-                    <i data-news-heat-level={level}></i>
-                  ))}
-                  <span>{text.moreHeat}</span>
-                </span>
               </footer>
               <div
                 class="news-heat-tooltip"
@@ -223,14 +240,6 @@ const dailyLead = items[0];
                 data-news-heat-tooltip
                 hidden
               ></div>
-              <button
-                type="button"
-                class="news-latest micro-label"
-                data-news-latest
-                hidden
-              >
-                {text.latest}
-              </button>
             </section>
             <nav
               class="news-category-tabs news-editorial-nav"
@@ -304,7 +313,7 @@ const dailyLead = items[0];
           class="news-more"
           type="button"
           data-news-more
-          hidden={!snapshot.page.hasMore}
+          hidden={!!daily || !snapshot.page.hasMore}
         >
           {text.more}
           <span aria-hidden="true"> ↓</span>

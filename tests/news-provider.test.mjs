@@ -76,11 +76,18 @@ const archive = {
 test('v1 normalization tolerates nullable fields and future categories; retains provenance', () => {
   const result = parseNewsPage(page);
   assert.equal(result.items[0].category, 'news');
+  assert.equal(result.items[0].sourceCategory, 'future-category');
   assert.equal(result.items[0].publishedAt, null);
   assert.equal(result.items[0].summary, undefined);
   assert.equal(result.items[0].title, item.title);
   assert.equal(result.items[0].attribution.url, item.attribution.url);
   assert.equal(result.nextCursor, 'opaque-cursor');
+  const industryItem = parseNewsPage({
+    ...page,
+    items: [{ ...item, category: 'industry' }],
+  }).items[0];
+  assert.equal(industryItem.category, 'companies');
+  assert.equal(industryItem.sourceCategory, 'industry');
   const normalizedDaily = parseNewsDaily(daily);
   assert.equal(normalizedDaily.title, null);
   assert.equal(normalizedDaily.articles.length, 1);
