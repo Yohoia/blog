@@ -41,6 +41,7 @@ Desktop.ini
 # Personal editor and agent settings; keep shared VS Code configuration
 .idea/
 .claude/settings.local.json
+.claude/launch.json
 .codex/
 .vscode/*
 !.vscode/extensions.json
