@@ -35,14 +35,14 @@ const pathname = unlocalizedPath(Astro.url.pathname);
 
 <style>
   .site-header {
-    --header-padding: 1.5rem;
+    --header-padding: 1rem;
     --header-content-height: 3rem;
     position: relative;
     z-index: 50;
   }
   .header-shell {
     padding-block: var(--header-padding);
-    padding-inline: clamp(var(--gutter), 4vw, 4rem);
+    padding-inline: clamp(1rem, 3vw, 3rem);
     background: var(--header-surface);
     -webkit-backdrop-filter: blur(var(--header-blur))
       saturate(var(--header-saturation));
@@ -71,7 +71,7 @@ const pathname = unlocalizedPath(Astro.url.pathname);
   }
   @media (max-width: 59.999rem) {
     .site-header {
-      --header-padding: 1rem;
+      --header-padding: 0.75rem;
     }
   }
   @media (max-width: 24rem) {

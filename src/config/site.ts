@@ -10,6 +10,7 @@ export const siteConfig = {
     email,
     github,
   },
+  repositoryUrl: `${github}/blog`,
   contactLinks: [
     {
       icon: 'gmail',

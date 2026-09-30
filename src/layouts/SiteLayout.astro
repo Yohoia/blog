@@ -7,10 +7,11 @@ import { getLocale } from '@/lib/i18n';
 import { ui } from '@/i18n/ui';
 
 type Props = ComponentProps<typeof BaseLayout>;
+const baseProps = Astro.props;
 const locale = getLocale(Astro.url.pathname);
 ---
 
-<BaseLayout {...Astro.props}>
+<BaseLayout {...baseProps}>
   <slot name="head" slot="head" />
   <SkipLink label={ui[locale].skip} />
   <Header />

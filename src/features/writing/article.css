@@ -4,9 +4,8 @@
     minmax(0, 1fr) minmax(0, var(--container-reading))
     minmax(0, 1fr);
   column-gap: 3rem;
-  max-inline-size: calc(90rem + var(--gutter) * 2);
   margin-inline: auto;
-  padding: 2.75rem var(--gutter) var(--section-gap);
+  padding: 0 var(--gutter) var(--section-gap);
 }
 .article-main {
   grid-column: 2;
@@ -119,9 +118,6 @@
   }
 }
 @media (max-width: 40rem) {
-  .article-page {
-    padding-block-start: var(--item-gap);
-  }
   .article-prose.prose {
     margin-block-start: var(--group-gap);
   }

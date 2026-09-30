@@ -25,7 +25,6 @@ export const motionTokens = {
   },
   article: {
     tocRevealDuration: 0.15,
-    tocCloseDelay: 130,
   },
   /** News 分类指示线与内容切换；减少动画时即时切换。 */
   news: {

@@ -13,32 +13,111 @@ export function registerArticleToc(): void {
       );
       const trigger =
         this.querySelector<HTMLButtonElement>('[data-toc-trigger]');
+      const panel = this.querySelector<HTMLElement>('[data-toc-panel]');
       const nav = this.querySelector<HTMLElement>('[data-toc-nav]');
       const scroll = this.querySelector<HTMLElement>('[data-toc-scroll]');
+      const copyButton =
+        this.querySelector<HTMLButtonElement>('[data-toc-copy]');
+      const copyLabel = this.querySelector<HTMLElement>(
+        '[data-toc-copy-label]',
+      );
+      const status = this.querySelector<HTMLElement>('[data-toc-status]');
+      const chatTrigger = this.querySelector<HTMLButtonElement>(
+        '[data-toc-chat-trigger]',
+      );
+      const chatMenu = this.querySelector<HTMLElement>('[data-toc-chat-menu]');
+      const chatCopy = this.querySelector<HTMLButtonElement>(
+        '[data-toc-chat-copy]',
+      );
       const links = [
         ...this.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'),
       ];
-      if (!article || !trigger || !nav || !scroll || !links.length) return;
+      if (
+        !article ||
+        !trigger ||
+        !panel ||
+        !nav ||
+        !scroll ||
+        !copyButton ||
+        !copyLabel ||
+        !status ||
+        !chatTrigger ||
+        !chatMenu ||
+        !chatCopy ||
+        !links.length
+      )
+        return;
 
       const controller = new AbortController();
       const { signal } = controller;
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-      const finePointer = window.matchMedia(
-        '(hover: hover) and (pointer: fine)',
-      );
+      const wide = window.matchMedia('(min-width: 84rem)');
       const headings = links.map((link) =>
         document.getElementById(decodeURIComponent(link.hash.slice(1))),
       );
       let animation: AnimationPlaybackControls | undefined;
-      let closeTimer = 0;
+      let feedbackTimer = 0;
       let frame = 0;
       let activeIndex = -1;
       let isOpen = false;
-      let pinned = false;
-      let suppressFocusOpen = false;
 
       this.dataset.ready = '';
-      nav.inert = true;
+      panel.inert = true;
+
+      const copyPage = async (forChat: boolean) => {
+        const title = article.querySelector('h1')?.textContent?.trim();
+        const content = article
+          .querySelector<HTMLElement>('.article-prose')
+          ?.innerText.trim();
+        const page = [title, content, window.location.href]
+          .filter(Boolean)
+          .join('\n\n');
+        try {
+          await navigator.clipboard.writeText(page);
+          if (!this.isConnected) return;
+          status.textContent =
+            copyButton.dataset[forChat ? 'chatStatus' : 'copiedStatus'] ?? '';
+          if (!forChat)
+            copyLabel.textContent = copyButton.dataset.copiedLabel ?? '';
+        } catch {
+          if (!this.isConnected) return;
+          status.textContent = copyButton.dataset.failedStatus ?? '';
+          if (!forChat)
+            copyLabel.textContent = copyButton.dataset.failedLabel ?? '';
+        }
+        window.clearTimeout(feedbackTimer);
+        feedbackTimer = window.setTimeout(() => {
+          status.textContent = '';
+          copyLabel.textContent = copyButton.dataset.copyLabel ?? '';
+        }, 2500);
+      };
+
+      const positionChatMenu = () => {
+        if (!chatMenu.matches(':popover-open')) return;
+        const triggerRect = chatTrigger.getBoundingClientRect();
+        const menuRect = chatMenu.getBoundingClientRect();
+        const rootRect = document.documentElement.getBoundingClientRect();
+        const gap = 8;
+        const left = Math.max(
+          rootRect.left + gap,
+          Math.min(triggerRect.left, rootRect.right - menuRect.width - gap),
+        );
+        const above = triggerRect.top - gap;
+        const below = window.innerHeight - triggerRect.bottom - gap;
+        const top =
+          above >= menuRect.height || above >= below
+            ? Math.max(gap, triggerRect.top - menuRect.height - gap)
+            : Math.min(
+                window.innerHeight - menuRect.height - gap,
+                triggerRect.bottom + gap,
+              );
+        chatMenu.style.left = `${left - rootRect.left}px`;
+        chatMenu.style.top = `${top}px`;
+      };
+
+      const closeChatMenu = () => {
+        if (chatMenu.matches(':popover-open')) chatMenu.hidePopover();
+      };
 
       const updateScrollEdges = () => {
         const scrollable = scroll.scrollHeight - scroll.clientHeight > 1;
@@ -51,6 +130,27 @@ export function registerArticleToc(): void {
           scrollable &&
             scroll.scrollTop + scroll.clientHeight < scroll.scrollHeight - 1,
         );
+      };
+
+      const updatePanelHeight = () => {
+        if (!wide.matches) {
+          panel.style.removeProperty('--toc-panel-height');
+          const headerBottom =
+            document.querySelector('.site-header')?.getBoundingClientRect()
+              .bottom ?? 0;
+          panel.style.setProperty(
+            '--toc-mobile-top',
+            `${Math.max(12, headerBottom + 8)}px`,
+          );
+          positionChatMenu();
+          return;
+        }
+        const top = panel.getBoundingClientRect().top;
+        const height = `${Math.max(0, Math.round(window.innerHeight - Math.max(0, top) - 20))}px`;
+        if (panel.style.getPropertyValue('--toc-panel-height') !== height)
+          panel.style.setProperty('--toc-panel-height', height);
+        updateScrollEdges();
+        positionChatMenu();
       };
 
       const keepActiveVisible = () => {
@@ -68,23 +168,24 @@ export function registerArticleToc(): void {
       };
 
       const setOpen = (open: boolean) => {
-        window.clearTimeout(closeTimer);
+        if (wide.matches) return;
         if (isOpen === open) return;
         isOpen = open;
+        this.toggleAttribute('data-open', open);
         trigger.setAttribute('aria-expanded', String(open));
         trigger.setAttribute(
           'aria-label',
           trigger.dataset[open ? 'openLabel' : 'closedLabel'] ?? '',
         );
-        nav.inert = !open;
-        nav.style.pointerEvents = open ? 'auto' : 'none';
+        panel.inert = !open;
+        panel.style.pointerEvents = open ? 'auto' : 'none';
         animation?.stop();
 
         if (open) {
-          nav.style.visibility = 'visible';
+          panel.style.visibility = 'visible';
           animation = animate(
-            nav,
-            { opacity: 1, y: 0 },
+            panel,
+            { opacity: 1 },
             {
               duration: reduced.matches
                 ? 0
@@ -95,9 +196,10 @@ export function registerArticleToc(): void {
           keepActiveVisible();
           updateScrollEdges();
         } else {
+          closeChatMenu();
           animation = animate(
-            nav,
-            { opacity: 0, y: -4 },
+            panel,
+            { opacity: 0 },
             {
               duration: reduced.matches
                 ? 0
@@ -107,27 +209,24 @@ export function registerArticleToc(): void {
           );
           void animation.finished
             .then(() => {
-              if (!isOpen) nav.style.visibility = 'hidden';
+              if (!isOpen) panel.style.visibility = 'hidden';
             })
             .catch(() => {});
         }
       };
 
-      const openOnHover = () => {
-        if (finePointer.matches) setOpen(true);
-      };
-      const scheduleClose = () => {
-        window.clearTimeout(closeTimer);
-        closeTimer = window.setTimeout(() => {
-          if (
-            pinned ||
-            this.matches(':hover') ||
-            article.matches(':hover') ||
-            this.matches(':focus-within')
-          )
-            return;
-          setOpen(false);
-        }, motionTokens.article.tocCloseDelay);
+      const syncLayout = () => {
+        closeChatMenu();
+        animation?.stop();
+        isOpen = wide.matches;
+        this.toggleAttribute('data-open', false);
+        trigger.setAttribute('aria-expanded', String(isOpen));
+        panel.inert = !isOpen;
+        panel.style.visibility = '';
+        panel.style.opacity = '';
+        panel.style.pointerEvents = '';
+        updatePanelHeight();
+        updateScrollEdges();
       };
 
       const updateActive = () => {
@@ -151,30 +250,56 @@ export function registerArticleToc(): void {
         if (!frame) frame = requestAnimationFrame(updateActive);
       };
 
-      this.addEventListener('pointerenter', openOnHover, { signal });
-      this.addEventListener('pointerleave', scheduleClose, { signal });
-      article.addEventListener('pointerenter', openOnHover, { signal });
-      article.addEventListener('pointerleave', scheduleClose, { signal });
-      this.addEventListener(
-        'focusin',
-        () => {
-          if (suppressFocusOpen) {
-            suppressFocusOpen = false;
-            return;
-          }
-          setOpen(true);
-        },
-        { signal },
-      );
-      this.addEventListener('focusout', scheduleClose, { signal });
       trigger.addEventListener(
         'click',
         () => {
-          pinned = !pinned;
-          setOpen(pinned);
-          if (!pinned) trigger.blur();
+          setOpen(!isOpen);
         },
         { signal },
+      );
+      copyButton.addEventListener('click', () => void copyPage(false), {
+        signal,
+      });
+      chatTrigger.addEventListener(
+        'click',
+        () => {
+          if (chatMenu.matches(':popover-open')) closeChatMenu();
+          else {
+            chatMenu.showPopover();
+            positionChatMenu();
+          }
+        },
+        { signal },
+      );
+      chatMenu.addEventListener(
+        'toggle',
+        () => {
+          chatTrigger.setAttribute(
+            'aria-expanded',
+            String(chatMenu.matches(':popover-open')),
+          );
+        },
+        { signal },
+      );
+      chatCopy.addEventListener(
+        'click',
+        () => {
+          void copyPage(false);
+          closeChatMenu();
+          chatTrigger.focus();
+        },
+        { signal },
+      );
+      this.querySelectorAll<HTMLAnchorElement>('[data-toc-chat-link]').forEach(
+        (link) =>
+          link.addEventListener(
+            'click',
+            () => {
+              void copyPage(true);
+              closeChatMenu();
+            },
+            { signal },
+          ),
       );
       nav.addEventListener(
         'click',
@@ -184,10 +309,7 @@ export function registerArticleToc(): void {
           );
           if (!link) return;
           if (event.detail > 0) link.blur();
-          if (!finePointer.matches) {
-            pinned = false;
-            setOpen(false);
-          }
+          if (!wide.matches) setOpen(false);
         },
         { signal },
       );
@@ -195,11 +317,11 @@ export function registerArticleToc(): void {
         'pointerdown',
         (event) => {
           if (
+            wide.matches ||
             this.contains(event.target as Node) ||
-            article.contains(event.target as Node)
+            trigger.contains(event.target as Node)
           )
             return;
-          pinned = false;
           setOpen(false);
         },
         { signal },
@@ -208,44 +330,64 @@ export function registerArticleToc(): void {
         'keydown',
         (event) => {
           if (event.key !== 'Escape' || !isOpen) return;
-          pinned = false;
+          if (chatMenu.matches(':popover-open')) {
+            event.preventDefault();
+            closeChatMenu();
+            chatTrigger.focus();
+            return;
+          }
+          if (wide.matches) return;
           setOpen(false);
-          if (nav.contains(document.activeElement)) {
-            suppressFocusOpen = true;
+          if (panel.contains(document.activeElement)) {
             trigger.focus();
           }
         },
         { signal },
       );
-      window.addEventListener('scroll', scheduleUpdate, {
-        passive: true,
-        signal,
-      });
-      window.addEventListener('resize', scheduleUpdate, {
-        passive: true,
-        signal,
-      });
+      window.addEventListener(
+        'scroll',
+        () => {
+          updatePanelHeight();
+          scheduleUpdate();
+        },
+        { passive: true, signal },
+      );
+      wide.addEventListener('change', syncLayout, { signal });
+      window.addEventListener(
+        'resize',
+        () => {
+          updatePanelHeight();
+          scheduleUpdate();
+        },
+        { passive: true, signal },
+      );
       scroll.addEventListener('scroll', updateScrollEdges, {
         passive: true,
         signal,
       });
-      const resizeObserver = new ResizeObserver(updateScrollEdges);
-      resizeObserver.observe(scroll);
+      panel.addEventListener('scroll', positionChatMenu, {
+        passive: true,
+        signal,
+      });
+      const resizeObserver = new ResizeObserver(() => {
+        updateScrollEdges();
+      });
       resizeObserver.observe(scroll.firstElementChild ?? scroll);
       window.addEventListener('hashchange', scheduleUpdate, { signal });
       document.addEventListener('astro:after-swap', scheduleUpdate, { signal });
       document.addEventListener('astro:page-load', scheduleUpdate, { signal });
       reduced.addEventListener('change', scheduleUpdate, { signal });
-      if (article.matches(':hover')) openOnHover();
+      syncLayout();
       scheduleUpdate();
       updateScrollEdges();
 
       this.cleanup = () => {
         controller.abort();
         resizeObserver.disconnect();
-        window.clearTimeout(closeTimer);
+        window.clearTimeout(feedbackTimer);
         cancelAnimationFrame(frame);
         animation?.stop();
+        closeChatMenu();
       };
     }
 
