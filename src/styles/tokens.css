@@ -164,10 +164,10 @@
     Consolas, monospace;
   /* 归档年份的装饰数字；字体资源仅由 Writing 页面加载。 */
   --font-year: 'Space Grotesk', var(--font-sans);
-  /* 衬线仅作为可选阅读样式，默认 Sans；专用衬线字体文件暂未加载。 */
+  /* 文章详情按需加载 Newsreader；中文沿用系统宋体回退。 */
   --font-serif:
-    'Newsreader', 'Source Serif 4', 'Noto Serif SC', 'Songti SC', 'STSong',
-    Georgia, serif;
+    'Newsreader Variable', 'Noto Serif SC', 'Songti SC', 'STSong', Georgia,
+    serif;
   --text-display: clamp(2.5rem, 2rem + 1.25vw, 3rem);
   --text-display--line-height: 1.15;
   --text-display--letter-spacing: -0.035em;

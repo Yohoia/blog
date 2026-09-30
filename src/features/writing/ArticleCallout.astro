@@ -1,0 +1,28 @@
+---
+interface Props {
+  label?: string;
+}
+
+const { label } = Astro.props;
+---
+
+<aside class="article-callout" role="note">
+  {label && <strong>{label}</strong>}
+  <slot />
+</aside>
+
+<style>
+  .article-callout {
+    padding: var(--item-gap);
+    border: 1px solid var(--border);
+    border-inline-start: 3px solid var(--signal-text);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    font-family: var(--font-sans);
+    font-size: var(--text-meta);
+    line-height: 1.7;
+  }
+  .article-callout :global(p) {
+    margin-block: 0.5rem 0;
+  }
+</style>

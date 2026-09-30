@@ -1,0 +1,235 @@
+---
+import { ListTree } from '@lucide/astro';
+import { iconTokens } from '@/config/icons';
+import type { Locale } from '@/config/i18n';
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: Heading[];
+  locale: Locale;
+}
+
+const { headings, locale } = Astro.props;
+const items = headings.filter(
+  (heading) => heading.depth >= 2 && heading.depth <= 4,
+);
+const label = locale === 'zh' ? '文章目录' : 'Table of contents';
+---
+
+{items.length > 0 && (
+  <aside class="article-aside">
+    <article-toc>
+      <button
+        class="toc-trigger"
+        type="button"
+        aria-label={locale === 'zh' ? '显示文章目录' : 'Show table of contents'}
+        aria-expanded="false"
+        aria-controls="article-toc-list"
+        data-toc-trigger
+        data-open-label={
+          locale === 'zh' ? '收起文章目录' : 'Hide table of contents'
+        }
+        data-closed-label={
+          locale === 'zh' ? '显示文章目录' : 'Show table of contents'
+        }
+      >
+        <ListTree
+          size={iconTokens.size.normal}
+          stroke-width={iconTokens.strokeWidth}
+          aria-hidden="true"
+        />
+      </button>
+      <nav
+        class="toc-nav"
+        id="article-toc-list"
+        aria-label={label}
+        data-toc-nav
+      >
+        <div class="toc-scroll" data-toc-scroll>
+          <ol class="toc-list">
+            {items.map((heading) => (
+              <li>
+                <a
+                  href={`#${heading.slug}`}
+                  class="toc-link"
+                  data-toc-link
+                  data-depth={heading.depth}
+                >
+                  {heading.text}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </nav>
+    </article-toc>
+  </aside>
+)}
+
+<script>
+  import { registerArticleToc } from '@/scripts/article-toc';
+  registerArticleToc();
+</script>
+
+<style>
+  .article-aside {
+    position: fixed;
+    z-index: 30;
+    inset-block-start: 6.5rem;
+    inset-inline-start: clamp(var(--gutter), 4vw, 4rem);
+    inline-size: 15rem;
+    block-size: var(--touch-target);
+  }
+  article-toc {
+    position: relative;
+    display: block;
+    font-family: var(--font-sans);
+  }
+  .toc-trigger {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: flex-start;
+    inline-size: var(--touch-target);
+    block-size: var(--touch-target);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--muted-text);
+    cursor: pointer;
+  }
+  .toc-trigger:hover,
+  .toc-trigger[aria-expanded='true'] {
+    color: var(--signal-text);
+  }
+  article-toc:not([data-ready]) .toc-trigger {
+    display: none;
+  }
+  .toc-nav {
+    position: absolute;
+    inset-block-start: 100%;
+    inset-inline-start: 0;
+    inline-size: 100%;
+    block-size: min(28rem, calc(100dvh - 10rem));
+    padding-block-start: 0.5rem;
+    overflow: hidden;
+  }
+  .toc-scroll {
+    block-size: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+  }
+  .toc-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  .toc-nav::before,
+  .toc-nav::after {
+    position: absolute;
+    z-index: 1;
+    inset-inline: 0;
+    block-size: 4rem;
+    opacity: 0;
+    pointer-events: none;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    content: '';
+  }
+  .toc-nav::before {
+    inset-block-start: 0;
+    background: linear-gradient(to bottom, var(--canvas), transparent);
+    -webkit-mask-image: linear-gradient(to bottom, #000 35%, transparent);
+    mask-image: linear-gradient(to bottom, #000 35%, transparent);
+  }
+  .toc-nav::after {
+    inset-block-end: 0;
+    background: linear-gradient(to top, var(--canvas), transparent);
+    -webkit-mask-image: linear-gradient(to top, #000 35%, transparent);
+    mask-image: linear-gradient(to top, #000 35%, transparent);
+  }
+  .toc-nav[data-can-scroll-up]::before,
+  .toc-nav[data-can-scroll-down]::after {
+    opacity: 1;
+  }
+  article-toc[data-ready] .toc-nav {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-4px);
+  }
+  .toc-list {
+    display: grid;
+    gap: 0.125rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .toc-link {
+    display: block;
+    inline-size: fit-content;
+    max-inline-size: 100%;
+    padding: 0.3rem 0.125rem;
+    color: var(--muted-text);
+    font-size: var(--text-meta);
+    line-height: 1.5;
+    text-decoration: underline;
+    text-decoration-color: var(--border-strong);
+    text-underline-offset: 0.22em;
+    overflow-wrap: anywhere;
+  }
+  .toc-link[data-depth='3'] {
+    margin-inline-start: 1rem;
+    max-inline-size: calc(100% - 1rem);
+  }
+  .toc-link[data-depth='4'] {
+    margin-inline-start: 2rem;
+    max-inline-size: calc(100% - 2rem);
+  }
+  .toc-link:hover,
+  .toc-link[aria-current='location'] {
+    color: var(--signal-text);
+    text-decoration-color: currentColor;
+  }
+  @media (max-width: 83.999rem) {
+    .article-aside {
+      inset-block-start: auto;
+      inset-block-end: var(--gutter);
+      inset-inline-start: var(--gutter);
+      inline-size: var(--touch-target);
+    }
+    .toc-nav {
+      position: absolute;
+      inset-block-start: auto;
+      inset-inline-start: 0;
+      inset-block-end: calc(100% + 0.5rem);
+      inline-size: min(18rem, calc(100vw - var(--gutter) * 2));
+      block-size: min(
+        28rem,
+        calc(100dvh - var(--gutter) * 2 - var(--touch-target))
+      );
+      margin: 0;
+      padding: var(--item-gap);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      box-shadow: var(--floating-shadow);
+    }
+    .toc-nav::before {
+      background: linear-gradient(to bottom, var(--surface), transparent);
+    }
+    .toc-nav::after {
+      background: linear-gradient(to top, var(--surface), transparent);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    article-toc[data-ready] .toc-nav {
+      transform: none;
+    }
+  }
+</style>

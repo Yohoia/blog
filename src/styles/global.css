@@ -20,7 +20,7 @@
 @layer base {
   html {
     background: var(--canvas);
-    scroll-padding-top: 5rem;
+    scroll-padding-top: var(--item-gap);
     /* 两侧对称预留滚动条空间，保持内容相对整个视口居中。 */
     scrollbar-gutter: stable both-edges;
     /* 原生轨道和两侧占位沿用画布色，切换主题时同步更新。 */

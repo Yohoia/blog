@@ -29,7 +29,7 @@
   .prose :where(h1, h2, h3, h4, h5, h6) {
     margin-block-start: var(--group-gap);
     margin-block-end: var(--item-gap);
-    scroll-margin-top: 5rem;
+    scroll-margin-top: var(--item-gap);
   }
   .prose :where(a) {
     color: var(--signal-text);

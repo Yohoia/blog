@@ -13,6 +13,7 @@ export interface Props {
   noindex?: boolean;
   publishedAt?: Date;
   updatedAt?: Date;
+  alternateLocales?: boolean;
 }
 
 const locale = getLocale(Astro.url.pathname);
@@ -25,6 +26,7 @@ const {
   noindex = false,
   publishedAt,
   updatedAt,
+  alternateLocales = true,
 } = Astro.props;
 
 const pageTitle = title ? `${title} | ${siteConfig.name}` : siteConfig.name;
@@ -40,6 +42,7 @@ const ogImage =
 {noindex && <meta name="robots" content="noindex, nofollow" />}
 {canonical && <link rel="canonical" href={canonical.href} />}
 {Astro.site &&
+  alternateLocales &&
   !noindex &&
   (['zh', 'en'] as const).map((language) => (
     <link

@@ -4,9 +4,9 @@
 
 这是一个 Astro 个人博客，采用 TypeScript、Tailwind CSS、Motion、Lucide、Content Collections、Markdown / MDX，以及按需 React Islands。
 
-项目已建立标准架构、公共设计系统、导航栏、中英文 Index、Writing 列表与 News。其他栏目页、详情页和内容仍待制作，按用户后续请求逐步实现。
+项目已建立标准架构、公共设计系统、导航栏、中英文 Index、Writing 列表、文章详情模板与 News。Writing 已接入一篇用户提供的机器学习案例文档；其他栏目页和用户自己的正式文章仍待制作，按用户后续请求逐步实现。
 
-进度同步日期：2026-09-29。About、Profile 已按用户要求移除导航、路由和相关信息，不属于当前待制作栏目。现有菜单为 Index、Writing、Fragments、Projects、Finder、News、Now；Fragments、Projects、Finder、Now 仍是计划入口，访问时进入自定义 404；News 已接入 AIHOT API。
+进度同步日期：2026-09-30。About、Profile 已按用户要求移除导航、路由和相关信息，不属于当前待制作栏目。现有菜单为 Index、Writing、Fragments、Projects、Finder、News、Now；Fragments、Projects、Finder、Now 仍是计划入口，访问时进入自定义 404；News 已接入 AIHOT API。
 
 403、404、500、502 中英文错误页面已实现，共用 `features/errors/ErrorPage.astro` 与配置；插图原件保留在 `public/images/`。
 
@@ -27,7 +27,7 @@
 - `src/pages/`：精简的路由、静态路径生成与端点。
 - `src/layouts/`：全局 HTML、SEO、主题与页面布局；页面使用 `BaseLayout` 或其衍生布局。
 - 常规站点页面使用 `SiteLayout`，复用 Header 和 SkipLink；页面主内容须包含 `id="main-content"`。Header 的激活态依据实际路径，导航配置统一从 `config/navigation.ts` 读取。
-- Header 的 Logo 与操作按钮分置视口两侧，以公共 Gutter 和 4vw / 64px 上限保留边距；桌面与移动端统一使用 Type Overlay 菜单入口，右侧按钮依次为菜单、中英切换、主题。Header 使用公共 `--header-surface`、`--header-blur` 与 `--header-saturation` 提供磨砂背景，滚动时保留细分隔线与收紧状态。窄屏适当缩小 Logo，所有图标按钮保持至少 44px，不恢复横向桌面导航或仅限移动端的菜单。
+- Header 的 Logo 与操作按钮分置视口两侧，以公共 Gutter 和 4vw / 64px 上限保留边距；桌面与移动端统一使用 Type Overlay 菜单入口，右侧按钮依次为菜单、中英切换、主题。Header 使用公共 `--header-surface`、`--header-blur` 与 `--header-saturation` 提供磨砂背景，保留在普通文档流中随页面自然滚动；不添加滚动收紧、固定、淡出或额外 Motion 动画。窄屏适当缩小 Logo，所有图标按钮保持至少 44px，不恢复横向桌面导航或仅限移动端的菜单。
 - `src/components/`：跨板块复用的 Astro 组件。
 - `src/features/<section>/`：板块专属组件、查询与业务逻辑。
 - `src/islands/`：可复用 React 交互组件；板块专属 Island 可以归入对应 feature。
@@ -63,7 +63,7 @@
 - 中英版本使用 Astro 原生 i18n，配置源为 `config/i18n.ts`；中文无前缀，英文 `/en/`。语言从 URL 读取，站内链接使用 `lib/i18n.ts` 的 `localizePath()`；公共翻译放在 `i18n/ui.ts`，板块文案放在对应 feature 配置。版式复用 feature 页面，不复制两套 UI；不得把原文自动视为真实译文。
 - 语言按钮使用 ClientRouter 的无动画 swap，普通站内入口保留 `data-astro-reload`。全屏菜单的栏目链接与 Header Logo 是例外：`data-navigation-transition` 标记后由 `scripts/navigation-transition.ts` 调用 ClientRouter，先用 Motion 驱动全屏 Canvas 字符噪声网格，完全覆盖后交换页面，再用同一网格退场。菜单控制器在完全覆盖后关闭 dialog；Logo 点击由公共脚本委托处理，普通 Logo 组件的其他实例不自动接入。`common/NavigationTransition.astro` 在 BaseLayout 中以顶层 Popover 持久化，覆盖原生 dialog；颜色与字体读取公共 Token，参数位于 `motionTokens.navigationTransition`。动画只用于不同栏目切换和从其他页面点击 Header Logo 返回首页，不用于语言、正文链接、当前栏目、刷新或历史返回；保留修饰键和无脚本链接行为，减少动画或不支持 Popover 时普通跳转，结束/离开后停止时钟与释放画布。不能同时叠加浏览器 View Transition 快照动画，也不能把尚未实现的栏目包装为已完成页面。
 - 主动切换语言时，阅读区块使用 `data-language-block` 保留滚动位置，不重播 Logo；历史前进 / 后退由 ClientRouter 恢复目标记录的滚动位置，不能用离开页面的位置覆盖历史记录。双语短文案允许响应式最小行数占位；不能用固定高度、截断或隐藏溢出掩盖翻译长度差异。
-- 导航在 `astro:after-swap` 和 `astro:page-load` 后，通过微任务重新读取恢复后的滚动位置并同步背景与收紧状态。菜单当前栏目由实际路径输出 `aria-current`。不能仅依赖元素连接时的滚动位置或 `scroll` 事件：首页播放内容在替换期间会短暂收起，恢复到原位置时浏览器可能不再触发滚动事件。生命周期监听随导航断开一起清理。
+- 菜单当前栏目由实际路径输出 `aria-current`。Header 随文档自然滚动，不再监听滚动位置；语言切换和历史导航仍由 ClientRouter 恢复各页面的阅读位置。菜单与栏目过渡各自管理生命周期清理。
 - 不提前引入数据库、CMS、全局状态库、GSAP、Three.js、WebSocket 或大型 UI 库。
 - 需要新依赖时说明具体用途，统一使用 npm 并同步 `package-lock.json`。
 
@@ -76,6 +76,7 @@
 - 姓名和联系方式统一读取 `config/site.ts`。首页使用 `pr -2 -t links.md` 与 `features/index/TerminalContacts.astro`，左侧 Email、QQ、X、小红书，右侧 Bilibili、GitHub、微信、Telegram，各四个。邮箱为 `imyohoia@gmail.com`，微信号码为 `13870096885`（点击复制），TG 为 `@Yohoia`（`https://t.me/Yohoia`）；渠道、标签、复制值和目标 URL 集中在 `siteConfig.contactLinks`，刷新播放时每行同时展示两列，不恢复 LinkedIn、简历或旧邮箱。首页公司、履历与统计经用户明确要求暂留参考内容，集中在 `features/index/config.ts`，不能自动视为真实个人资料或已接入的数据；待用户提供资料后替换。
 - 首页文章区使用用户确认的 `yohoia@space:~$ ls -ltr writing/ | tail -n 6`，用户名和文件所有者来自 `siteConfig.name`。参考文章集中在 `features/writing/config.ts`，按日期由旧到新排列，同日沿用用户提供顺序；首页取末尾 6 条，Writing 列表显示全部 9 条并按新到旧排列。`Writing — full blog` 跳转到对应语言的本站列表，文件名定位列表条目。保留逐行播放、响应式换行与语言切换进度；参考记录没有正文，不能视为本站已发布文章或已实现的阅读器。
 - Writing 列表采用 `writing-preview.html` 的期刊式归档结构，按当前参考记录 publishedAt 的年 / 月 / 日从新到旧分组，使用 UTC 计算日期与星期，避免部署时区改变日期；同日维持现有顺序。内容从 Header 下沿开始，删除介绍段和顶部统计；年份采用 Space Grotesk 600 字重的浅色描边数字，读取公共 --font-year；Writing 页面单独导入 @fontsource/space-grotesk/latin-600.css，从本站加载字体，月份侧栏与每行日期 / 星期组成时间线，文章行保持透明。标题与文件名按用户要求单行省略，DOM 与 title 属性保留完整文本；黄色标题色带固定 0.72em 高度，Motion 只动画 --writing-highlight-progress 的横向数值，不能插值混合 px / em 的 background-size 高度。日期数字、星期与标签统一读取 text-meta 字号与行高（默认 14px / 21px），继承相同字重；日期圆底尺寸跟随行高，标签不添加改变文字对齐的底部留白。每条最多展示三个按标题分类的 `#` 标签，由 Motion 驱动颜色与下划线。箭头固定在文章行最右侧，默认浅色，悬浮时蓝色圆底缩放显现并轻移箭头。交互使用 `scripts/writing.ts`、`motionTokens.writing` 与公共 Token，尊重减少动画偏好，主题改变时同步颜色；手机端日期与标签允许自然换行，月份移至文章上方。没有正文的参考条目保持静态文章结构，不创建占位详情链接，不编造摘要或阅读时长；离开页面清理动画。底部 `cd ../` 是可访问的普通链接，返回当前语言的首页，保留 44px 触摸区与键盘焦点，不调用浏览器历史回退或栏目字符过渡。
+- Writing 详情由 `features/writing/ArticlePage.astro` 和中英文 `[...id].astro` 静态路由实现，只由已发布 Content Collection 条目生成，支持嵌套目录并过滤草稿。正文通过 Astro 渲染 Markdown / MDX；文章 h1 是页面题目，目录从正文渲染的 h2 / h3 / h4 生成。宽屏左侧的无背景目录按钮与 Header Logo 左缘对齐，固定宽度的目录向下展开，限制高度、隐藏滚动条，并在可继续滚动的边缘显示渐进模糊；滚动时高亮当前章节。较窄窗口使用左下角按钮和可滚动目录，保留 680px 正文居中；点击、键盘焦点与 Escape 可操作，展开动画由 Motion 驱动并尊重减少动画，离开清理。680px 阅读栏使用按需加载的 Newsreader 与中文系统宋体回退；日期、原文署名、估算字词量与阅读分钟、标签、可选更新时间及封面均来自实际内容。九条无正文参考记录仍不创建详情链接。用户提供的 `get.md` 已作为一篇标记为案例的 Writing 条目，保留 `Get达人` 署名和来源日期，三张限时签名图片改用本地构建资源；不要将其误作用户自己的正式文章或英文译文。
 - 首页文章输出不显示 `total 6 posts`；底部入口仅在 `Writing` 文字下显示虚线，`— full blog` 无下划线，整段入口保持可点击。
 - News 内容从 Header 下沿开始，期号、选中日期、更新时间与刷新按钮保留在版面元信息行，顶部只保留头版的粗分隔线。右侧日历与分类目录参照 `news-heatmap-v3.html`：日历使用日报 / 周报 / 月报三种点阵视图，容器高度在桌面与窄屏内固定，切换不改变后续版面位置；每个日期或周期以圆点表示，深色为有日报、浅色为无日报，颜色不表示资讯数量。悬浮或聚焦只提示日期，不显示条数；日报按星期排列，周报按季度分四行并兼容 ISO 第 53 周，月报以 12 个月两行排列；周与月点选择对应周期内最新可用日报，无日报周期仍显示浅色点。选择有日报的点加载 `/dailies/{date}`，失败保留原版面，可返回最新资讯。分类包含全部头条与七个主题入口，补齐行业动态与开源入口，采用带两位序号的纵向透明文字行、细分隔线、选中下划线与悬浮轻移，动画来自 motionTokens.news；数量仅显示选中分类已载入条数。已移除搜索入口及交互。下方各分类使用三列网格，平板两列、手机单列；普通新闻卡片统一为 24rem 高度与相同内容宽度，减少底部留白；标题最多三行、简介最多四行；标题自然左对齐，完整文字保留在 DOM 与悬浮提示中。精选与 AI 评分移至卡片左上角，替代分类小标题；时间与来源靠底，保留原有数据；阅读原文位于卡片右上角，与精选及评分对齐，文章标题跳转 AIHOT 导读，来源名称仅展示文字，底部不重复放阅读链接；头条沿用独立版面。页面底部去除来源与语言说明，只保留左侧 cd ../ 返回当前语言首页，不显示箭头。分类加载期间保留最近成功版面，连续切换取消旧请求和过渡；日历模式、筛选与已载入内容随语言切换保留。News 已实现中英文报纸式页面 `/news/`、`/en/news/`，去除大报头；复用公共导航、1200px wide 容器与主题，展示头条、次要新闻、右侧热力图与分类目录，以及下方按分类分组的三列资讯。AIHOT 匿名只读 API v1 提供最近七天精选与最新日报；构建保存快照，浏览器打开时更新，前台每十分钟条件请求，也可手动刷新。API 当前提供五种分类；行业与商业入口均使用 industry，开源入口使用 q=开源，保留 API 返回的原始分类；24 条一页，游标分页追加；中英切换保留筛选与已载入内容。ETag / 304 复用成功缓存，失败保留最近成功的版面，429 遵守 Retry-After，游标失效重取首屏。标题、摘要、评分和来源均来自 API，不添加虚构期号、标签或新闻；英文优先采用 originalTitle，摘要保留来源语言，所有时间明确使用北京时间。 Provider 位于 `features/news/providers/aihot.ts`，统一类型位于 `features/news/types.ts`；只使用 `/api/v1/`，不新增 SSR、密钥、全库镜像或第三方正文抓取。无脚本读取构建快照；静态构建本身不会自动更新。日报由顶层 `report` 映射，版面日期、生成时间、统计窗口分别显示。外部文字通过 Astro 转义或 textContent 渲染，链接仅允许 HTTP(S)。
 - `SITE_URL` 在 `.env` 中配置；未确定域名时不填假生产域名。

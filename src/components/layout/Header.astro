@@ -13,58 +13,35 @@ const text = ui[locale];
 const pathname = unlocalizedPath(Astro.url.pathname);
 ---
 
-<site-navigation class="site-navigation">
-  <header class="site-header">
-    <div class="header-shell">
-      <div class="header-inner">
-        <Logo
-          class="site-name"
-          href={localizePath(sectionPaths.index, locale)}
-          aria-label={`${siteConfig.name} · ${text.home}`}
-          aria-current={pathname === '/' ? 'page' : undefined}
-          data-navigation-transition
-        />
+<header class="site-header">
+  <div class="header-shell">
+    <div class="header-inner">
+      <Logo
+        class="site-name"
+        href={localizePath(sectionPaths.index, locale)}
+        aria-label={`${siteConfig.name} · ${text.home}`}
+        aria-current={pathname === '/' ? 'page' : undefined}
+        data-navigation-transition
+      />
 
-        <div class="header-actions">
-          <TypeOverlayMenu />
-          <LanguageToggle />
-          <ThemeToggle class="header-theme-toggle" />
-        </div>
+      <div class="header-actions">
+        <TypeOverlayMenu />
+        <LanguageToggle />
+        <ThemeToggle class="header-theme-toggle" />
       </div>
     </div>
-  </header>
-</site-navigation>
-
-<script>
-  import { registerNavigation } from '@/scripts/navigation';
-  registerNavigation();
-</script>
+  </div>
+</header>
 
 <style>
-  .site-navigation {
-    --header-padding: 1.5rem;
-    --header-compact-padding: 0.75rem;
-    --header-content-height: 3rem;
-    --header-expansion: 1;
-    display: block;
-    position: sticky;
-    inset-block-start: 0;
-    z-index: 50;
-    /* 保留文档中的高度，滚动收紧时不会推移正文或触发滚动抖动。 */
-    block-size: calc(
-      var(--header-content-height) + var(--header-padding) * 2 + 1px
-    );
-  }
   .site-header {
-    position: absolute;
-    inset: 0 0 auto;
+    --header-padding: 1.5rem;
+    --header-content-height: 3rem;
+    position: relative;
+    z-index: 50;
   }
   .header-shell {
-    padding-block: calc(
-      var(--header-compact-padding) +
-        (var(--header-padding) - var(--header-compact-padding)) *
-        var(--header-expansion)
-    );
+    padding-block: var(--header-padding);
     padding-inline: clamp(var(--gutter), 4vw, 4rem);
     background: var(--header-surface);
     -webkit-backdrop-filter: blur(var(--header-blur))
@@ -72,9 +49,6 @@ const pathname = unlocalizedPath(Astro.url.pathname);
     /* 标准属性置于前缀之后，防止构建压缩只保留旧前缀。 */
     backdrop-filter: blur(var(--header-blur)) saturate(var(--header-saturation));
     border-block-end: 1px solid transparent;
-  }
-  .site-navigation[data-scrolled] .header-shell {
-    border-color: var(--border);
   }
   .header-inner {
     display: grid;
@@ -96,9 +70,8 @@ const pathname = unlocalizedPath(Astro.url.pathname);
     border-radius: var(--radius-pill);
   }
   @media (max-width: 59.999rem) {
-    .site-navigation {
+    .site-header {
       --header-padding: 1rem;
-      --header-compact-padding: 0.5rem;
     }
   }
   @media (max-width: 24rem) {

@@ -1,0 +1,13 @@
+---
+import type { GetStaticPaths } from 'astro';
+import ArticlePage from '@/features/writing/ArticlePage.astro';
+import { getPublishedEntries } from '@/lib/content/queries';
+
+export const getStaticPaths = (async () =>
+  (await getPublishedEntries('writing')).map((entry) => ({
+    params: { id: entry.id },
+    props: { entry },
+  }))) satisfies GetStaticPaths;
+---
+
+<ArticlePage entry={Astro.props.entry} />

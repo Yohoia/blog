@@ -7,14 +7,39 @@ import { iconTokens } from '@/config/icons';
 import { siteConfig } from '@/config/site';
 import { sectionPaths } from '@/config/navigation';
 import { getLocale, localizePath } from '@/lib/i18n';
-import { sortByDate } from '@/lib/content/queries';
+import { getPublishedEntries, sortByDate } from '@/lib/content/queries';
+import { getEntryPath } from '@/lib/content/paths';
+import { localeMetadata } from '@/config/i18n';
 import { ui } from '@/i18n/ui';
 import { referenceWritingEntries, writingContent } from './config';
 
 const locale = getLocale(Astro.url.pathname);
 const content = writingContent[locale];
+const published = await getPublishedEntries('writing');
+const publishedIds = new Set(published.map((entry) => entry.id));
 const entries = sortByDate(
-  [...referenceWritingEntries].reverse(),
+  [
+    ...[...referenceWritingEntries]
+      .reverse()
+      .filter(
+        (entry) => !publishedIds.has(entry.filename.replace(/\.mdx?$/, '')),
+      )
+      .map((entry) => ({
+        ...entry,
+        href: undefined,
+        language: 'en' as const,
+        anchor: entry.filename,
+      })),
+    ...published.map((entry) => ({
+      title: entry.data.title,
+      filename: entry.filePath?.split('/').at(-1) ?? entry.id,
+      publishedAt: entry.data.publishedAt.toISOString(),
+      tags: entry.data.tags,
+      href: localizePath(getEntryPath(entry), locale),
+      language: entry.data.language,
+      anchor: entry.id,
+    })),
+  ],
   (entry) => new Date(entry.publishedAt),
 );
 const years = new Map<number, Map<number, typeof entries>>();
@@ -88,26 +113,32 @@ const yearGroups = [...years].map(([year, months]) => ({
                   <ol class="writing-posts">
                     {month.posts.map((entry) => (
                       <li
-                        id={entry.filename}
-                        data-language-block={`writing-${entry.filename}`}
+                        id={entry.anchor}
+                        data-language-block={`writing-${entry.anchor}`}
                       >
                         <article
                           class="writing-post"
-                          aria-labelledby={`${entry.filename}-title`}
+                          aria-labelledby={`${entry.anchor}-title`}
                           data-writing-post
                         >
                           <h3
-                            id={`${entry.filename}-title`}
+                            id={`${entry.anchor}-title`}
                             class="writing-post-title text-section font-medium"
-                            lang="en"
                             title={entry.title}
+                            lang={localeMetadata[entry.language].language}
                             data-writing-title
                           >
                             <span
                               class="writing-title-highlight"
                               data-writing-highlight
                             >
-                              {entry.title}
+                              {entry.href ? (
+                                <a href={entry.href} data-astro-reload>
+                                  {entry.title}
+                                </a>
+                              ) : (
+                                entry.title
+                              )}
                             </span>
                           </h3>
                           <p
@@ -277,7 +308,7 @@ const yearGroups = [...years].map(([year, months]) => ({
   }
   .writing-month-sticky {
     position: sticky;
-    inset-block-start: calc(var(--touch-target) * 2 + var(--item-gap));
+    inset-block-start: var(--item-gap);
     display: flex;
     align-items: center;
     min-block-size: calc(
@@ -332,6 +363,10 @@ const yearGroups = [...years].map(([year, months]) => ({
     background-repeat: no-repeat;
     background-position: left 75%;
     background-size: calc(var(--writing-highlight-progress) * 100%) 0.72em;
+  }
+  .writing-title-highlight a {
+    color: inherit;
+    text-decoration: none;
   }
   .writing-post-filename {
     grid-column: 1;
