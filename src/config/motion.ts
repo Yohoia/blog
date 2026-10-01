@@ -16,10 +16,10 @@ export const motionTokens = {
   distance: { small: 4, medium: 8, large: 12 },
   scale: { pressed: 0.98, resting: 1 },
   reduced: { duration: 0.12 },
-  /** Theme-change.tsx 用户选定效果：rectangle / blur on / top-down。 */
+  /** Theme-change.tsx 用户选定效果：rectangle / blur on / bottom-up。 */
   theme: {
-    revealDuration: 1,
-    revealEase: [0.42, 0, 0.58, 1] as [number, number, number, number],
+    revealDuration: 0.7,
+    revealEase: [0.16, 1, 0.3, 1] as [number, number, number, number],
     blur: [8, 4, 0],
   },
   /** Writing 期刊式归档：只弱化其余标题，元信息始终保持可读。 */
@@ -31,6 +31,16 @@ export const motionTokens = {
   },
   article: {
     tocRevealDuration: 0.15,
+    railEnterDuration: 0.24,
+    railExitDuration: 0.18,
+    railHoverScale: 1.08,
+    railTipDistance: 4,
+    railIconDuration: 0.42,
+    railBellDuration: 0.5,
+    railIconTravel: 5,
+    railIconPopScale: 1.24,
+    railBellAngles: [-12, 9, -6, 3, 0],
+    railWiggleAngles: [-7, 5, -3, 0],
   },
   /** News 分类指示线与内容切换；减少动画时即时切换。 */
   news: {

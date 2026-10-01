@@ -5,30 +5,57 @@
   animation: none;
 }
 
-:root[data-theme-transition]::view-transition {
-  pointer-events: none;
-}
-
-:root[data-theme-transition]::view-transition-group(root),
-:root[data-theme-transition]::view-transition-old(root) {
-  animation: none;
-}
-
-:root[data-theme-transition]::view-transition-image-pair(root) {
-  isolation: isolate;
-}
-
-:root[data-theme-transition]::view-transition-old(root),
-:root[data-theme-transition]::view-transition-new(root) {
-  mix-blend-mode: normal;
-  opacity: 1;
-}
-
-:root[data-theme-transition]::view-transition-old(root) {
-  z-index: 0;
+/* 复刻 Theme-change.tsx 的 rectangle / bottom-up / blur：浏览器原生伪元素动画驱动。 */
+:root[data-theme-transition]::view-transition-group(root) {
+  animation-duration: var(--theme-transition-duration, 0.7s);
+  animation-timing-function: var(
+    --theme-transition-easing,
+    cubic-bezier(0.16, 1, 0.3, 1)
+  );
 }
 
 :root[data-theme-transition]::view-transition-new(root) {
-  z-index: 1;
+  animation-name: reveal-light-bottom-up-blur;
+  filter: blur(2px);
+}
+
+:root[data-theme-transition]::view-transition-old(root) {
   animation: none;
+  z-index: -1;
+}
+
+:root[data-theme-transition][data-theme='dark']::view-transition-new(root) {
+  animation-name: reveal-dark-bottom-up-blur;
+}
+
+@keyframes reveal-dark-bottom-up-blur {
+  from {
+    clip-path: polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%);
+    filter: blur(var(--theme-transition-blur-start, 8px));
+  }
+
+  50% {
+    filter: blur(var(--theme-transition-blur-middle, 4px));
+  }
+
+  to {
+    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+    filter: blur(var(--theme-transition-blur-end, 0px));
+  }
+}
+
+@keyframes reveal-light-bottom-up-blur {
+  from {
+    clip-path: polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%);
+    filter: blur(var(--theme-transition-blur-start, 8px));
+  }
+
+  50% {
+    filter: blur(var(--theme-transition-blur-middle, 4px));
+  }
+
+  to {
+    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+    filter: blur(var(--theme-transition-blur-end, 0px));
+  }
 }

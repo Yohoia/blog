@@ -103,7 +103,7 @@ const text =
             </ol>
           </div>
         </nav>
-        <div class="toc-actions">
+        <div class="toc-actions" data-toc-actions>
           {editUrl && (
             <a
               class="toc-action"
@@ -457,6 +457,17 @@ const text =
   article-toc:not([data-ready]) .toc-copy,
   article-toc:not([data-ready]) .toc-chat {
     display: none;
+  }
+  @media (min-width: 84rem) {
+    article-toc[data-ready] .toc-actions {
+      position: fixed;
+      inset-block-end: 20px;
+      inset-inline-start: var(--toc-viewport-left, 0);
+      z-index: 2;
+      inline-size: 15rem;
+      margin-block-start: 0;
+      background: var(--canvas);
+    }
   }
   @media (max-width: 83.999rem) {
     article-toc {

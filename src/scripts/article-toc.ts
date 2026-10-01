@@ -16,6 +16,7 @@ export function registerArticleToc(): void {
       const panel = this.querySelector<HTMLElement>('[data-toc-panel]');
       const nav = this.querySelector<HTMLElement>('[data-toc-nav]');
       const scroll = this.querySelector<HTMLElement>('[data-toc-scroll]');
+      const actions = this.querySelector<HTMLElement>('[data-toc-actions]');
       const copyButton =
         this.querySelector<HTMLButtonElement>('[data-toc-copy]');
       const copyLabel = this.querySelector<HTMLElement>(
@@ -38,6 +39,7 @@ export function registerArticleToc(): void {
         !panel ||
         !nav ||
         !scroll ||
+        !actions ||
         !copyButton ||
         !copyLabel ||
         !status ||
@@ -145,8 +147,20 @@ export function registerArticleToc(): void {
           positionChatMenu();
           return;
         }
+        const rootLeft = `${this.getBoundingClientRect().left}px`;
+        if (this.style.getPropertyValue('--toc-viewport-left') !== rootLeft)
+          this.style.setProperty('--toc-viewport-left', rootLeft);
+
         const top = panel.getBoundingClientRect().top;
-        const height = `${Math.max(0, Math.round(window.innerHeight - Math.max(0, top) - 20))}px`;
+        const actionsGap = 12;
+        const height = `${Math.max(
+          0,
+          window.innerHeight -
+            Math.max(0, top) -
+            actions.getBoundingClientRect().height -
+            20 -
+            actionsGap,
+        )}px`;
         if (panel.style.getPropertyValue('--toc-panel-height') !== height)
           panel.style.setProperty('--toc-panel-height', height);
         updateScrollEdges();

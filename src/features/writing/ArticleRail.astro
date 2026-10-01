@@ -1,0 +1,358 @@
+---
+import {
+  Bell,
+  CircleArrowUp,
+  Gift,
+  MessagesSquare,
+  Send,
+  ThumbsUp,
+} from '@lucide/astro';
+import { iconTokens } from '@/config/icons';
+import type { Locale } from '@/config/i18n';
+import { siteConfig } from '@/config/site';
+
+interface Props {
+  locale: Locale;
+  title: string;
+}
+
+const { locale, title } = Astro.props;
+const label = locale === 'zh' ? '文章快捷操作' : 'Article actions';
+const text =
+  locale === 'zh'
+    ? {
+        progress: '阅读进度',
+        top: '回到顶部',
+        like: '点赞这篇文章',
+        liked: '已点赞这篇文章',
+        share: '分享文章',
+        copied: '文章链接已复制',
+        shareFailed: '无法复制文章链接',
+        updates: '通过 GitHub 订阅更新',
+        support: '支持 Yohoia',
+        comments: '在 GitHub 反馈或评论',
+      }
+    : {
+        progress: 'Reading progress',
+        top: 'Back to top',
+        like: 'Like this post',
+        liked: 'Liked this post',
+        share: 'Share article',
+        copied: 'Article link copied',
+        shareFailed: 'Unable to copy article link',
+        updates: 'Follow updates on GitHub',
+        support: 'Support Yohoia',
+        comments: 'Comment or give feedback on GitHub',
+      };
+const updatesUrl = `${siteConfig.repositoryUrl}/commits/main.atom`;
+const supportUrl = `${siteConfig.contact.github}?tab=sponsors`;
+const commentsUrl = `${siteConfig.repositoryUrl}/issues`;
+---
+
+<aside class="article-rail" aria-label={label}>
+  <article-rail
+    data-article-rail-title={title}
+    data-top-label={text.top}
+    data-like-label={text.like}
+    data-liked-label={text.liked}
+    data-share-label={text.share}
+    data-copied-label={text.copied}
+    data-failed-label={text.shareFailed}
+  >
+    <div class="rail-group">
+      <button
+        class="rail-action"
+        type="button"
+        aria-pressed="false"
+        data-rail-icon="like"
+        data-rail-like
+      >
+        <ThumbsUp
+          size={iconTokens.size.normal}
+          stroke-width={iconTokens.strokeWidth}
+          aria-hidden="true"
+        />
+        <span class="rail-count" data-rail-like-count>
+          0
+        </span>
+        <span class="rail-tip" data-rail-like-tip-label>
+          {text.like}
+        </span>
+      </button>
+
+      <button
+        class="rail-action"
+        type="button"
+        aria-label={text.share}
+        data-rail-icon="share"
+        data-rail-share
+      >
+        <Send
+          size={iconTokens.size.normal}
+          stroke-width={iconTokens.strokeWidth}
+          aria-hidden="true"
+        />
+        <span class="rail-tip">{text.share}</span>
+      </button>
+
+      <a
+        class="rail-action"
+        href={updatesUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={text.updates}
+        data-rail-icon="bell"
+      >
+        <Bell
+          size={iconTokens.size.normal}
+          stroke-width={iconTokens.strokeWidth}
+          aria-hidden="true"
+        />
+        <span class="rail-tip">{text.updates}</span>
+      </a>
+
+      <a
+        class="rail-action"
+        href={supportUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={text.support}
+        data-rail-icon="gift"
+      >
+        <Gift
+          size={iconTokens.size.normal}
+          stroke-width={iconTokens.strokeWidth}
+          aria-hidden="true"
+        />
+        <span class="rail-tip">{text.support}</span>
+      </a>
+
+      <a
+        class="rail-action"
+        href={commentsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={text.comments}
+        data-rail-icon="comment"
+      >
+        <MessagesSquare
+          size={iconTokens.size.normal}
+          stroke-width={iconTokens.strokeWidth}
+          aria-hidden="true"
+        />
+        <span class="rail-tip">{text.comments}</span>
+      </a>
+    </div>
+
+    <div
+      class="rail-progress"
+      role="progressbar"
+      aria-label={text.progress}
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="0"
+      data-rail-progressbar
+    >
+      <svg viewBox="0 0 28 28" aria-hidden="true">
+        <circle class="rail-progress-track" cx="14" cy="14" r="11"></circle>
+        <circle
+          class="rail-progress-bar"
+          cx="14"
+          cy="14"
+          r="11"
+          pathLength="100"
+        ></circle>
+      </svg>
+      <span class="rail-percent" data-rail-percent>
+        0%
+      </span>
+    </div>
+
+    <button
+      class="rail-action rail-top"
+      type="button"
+      data-rail-icon="top"
+      data-rail-top
+    >
+      <CircleArrowUp
+        size={iconTokens.size.normal}
+        stroke-width={iconTokens.strokeWidth}
+        aria-hidden="true"
+      />
+      <span>{text.top}</span>
+    </button>
+
+    <p class="sr-only" role="status" data-rail-status></p>
+  </article-rail>
+</aside>
+
+<script>
+  import { registerArticleRail } from '@/scripts/article-rail';
+  registerArticleRail();
+</script>
+
+<style>
+  .article-rail {
+    --article-rail-width: 8.75rem;
+    display: none;
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: start;
+    align-self: start;
+    position: sticky;
+    inset-block-start: calc(100dvh - 23.5rem);
+    z-index: 20;
+    inline-size: var(--article-rail-width);
+  }
+
+  @media (min-width: 84rem) {
+    .article-rail {
+      display: block;
+    }
+  }
+
+  article-rail {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+    inline-size: var(--article-rail-width);
+    font-family: var(--font-sans);
+  }
+
+  .rail-group {
+    margin-inline-start: 1.125rem;
+  }
+
+  .rail-progress {
+    margin-inline-start: 1.625rem;
+  }
+
+  .rail-top {
+    margin-inline-start: 1.125rem;
+  }
+
+  .rail-progress {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto auto;
+    align-items: center;
+    min-block-size: var(--touch-target);
+    gap: 0.5rem;
+    color: var(--heading);
+    font-size: var(--text-meta);
+    line-height: var(--text-meta--line-height);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .rail-progress svg {
+    display: block;
+    inline-size: 1.125rem;
+    block-size: 1.125rem;
+    transform: rotate(-90deg);
+  }
+
+  .rail-progress circle {
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+  }
+
+  .rail-progress-track {
+    stroke: var(--border);
+  }
+
+  .rail-progress-bar {
+    stroke: var(--signal);
+    stroke-dasharray: 100;
+    stroke-dashoffset: calc(100 - var(--article-rail-progress, 0) * 100);
+  }
+
+  .rail-group {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    inline-size: max-content;
+    gap: 0.25rem;
+  }
+
+  /* 复刻参考站：图标、数量与文案在同一个按钮内，悬浮时整体展开。 */
+  .rail-action {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.625rem;
+    min-inline-size: 2.75rem;
+    min-block-size: 2.75rem;
+    padding-inline: 0.5rem;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--muted-text);
+    font: inherit;
+    font-size: var(--text-meta);
+    line-height: var(--text-meta--line-height);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .rail-action:hover,
+  .rail-action:focus-visible {
+    color: var(--heading);
+  }
+
+  .rail-action > :global(svg) {
+    flex: none;
+    inline-size: 1.125rem;
+    block-size: 1.125rem;
+    transform-origin: center;
+  }
+
+  /* Motion 管理宽度、位移、透明度、背景与图标弹簧。 */
+  .rail-tip {
+    inline-size: 0;
+    overflow: hidden;
+    color: inherit;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateX(-0.25rem);
+  }
+
+  .rail-top {
+    inline-size: max-content;
+    margin-block-start: -1.25rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(0.25rem);
+  }
+
+  article-rail[data-can-top] .rail-top {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .rail-count {
+    display: inline-flex;
+    align-items: center;
+    min-inline-size: 1rem;
+    line-height: 1;
+    text-align: start;
+    font-variant-numeric: tabular-nums;
+  }
+
+  article-rail[data-liked] .rail-action[data-rail-like],
+  article-rail[data-liked] .rail-count {
+    color: var(--warning);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rail-top {
+      transition: none;
+      transform: none;
+    }
+  }
+</style>

@@ -1,6 +1,5 @@
 import { THEME_STORAGE_KEY, type ThemePreference } from '@/config/theme';
 import { motionTokens } from '@/config/motion';
-import { NativeAnimation } from 'motion';
 
 let currentPreference: ThemePreference = 'system';
 let initialized = false;
@@ -9,7 +8,6 @@ interface ThemeTransition {
   transition: ViewTransition;
   root: HTMLElement;
   update: () => void;
-  animations: NativeAnimation<string>[];
 }
 
 let activeTransition: ThemeTransition | undefined;
@@ -21,7 +19,11 @@ function stopThemeTransition(): void {
   run.update();
   activeTransition = undefined;
   run.transition.skipTransition();
-  for (const animation of run.animations) animation.cancel();
+  run.root.style.removeProperty('--theme-transition-duration');
+  run.root.style.removeProperty('--theme-transition-easing');
+  run.root.style.removeProperty('--theme-transition-blur-start');
+  run.root.style.removeProperty('--theme-transition-blur-middle');
+  run.root.style.removeProperty('--theme-transition-blur-end');
   delete run.root.dataset.themeTransition;
 }
 
@@ -88,38 +90,34 @@ export async function toggleTheme(): Promise<void> {
     commitPreference(preference);
   };
   root.dataset.themeTransition = '';
+  root.style.setProperty(
+    '--theme-transition-duration',
+    `${motionTokens.theme.revealDuration}s`,
+  );
+  root.style.setProperty(
+    '--theme-transition-easing',
+    `cubic-bezier(${motionTokens.theme.revealEase.join(', ')})`,
+  );
+  root.style.setProperty(
+    '--theme-transition-blur-start',
+    `${motionTokens.theme.blur[0]}px`,
+  );
+  root.style.setProperty(
+    '--theme-transition-blur-middle',
+    `${motionTokens.theme.blur[1]}px`,
+  );
+  root.style.setProperty(
+    '--theme-transition-blur-end',
+    `${motionTokens.theme.blur[2]}px`,
+  );
+
   const run: ThemeTransition = {
     root,
     transition: document.startViewTransition(update),
     update,
-    animations: [],
   };
   activeTransition = run;
   try {
-    await run.transition.ready;
-    if (activeTransition !== run) return;
-    const options = {
-      element: root,
-      pseudoElement: '::view-transition-new(root)',
-      duration: motionTokens.theme.revealDuration * 1000,
-      ease: motionTokens.theme.revealEase,
-    };
-    run.animations.push(
-      new NativeAnimation({
-        ...options,
-        name: 'clipPath',
-        keyframes: [
-          'polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)',
-          'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)',
-        ],
-      }),
-      new NativeAnimation({
-        ...options,
-        name: 'filter',
-        keyframes: motionTokens.theme.blur.map((value) => `blur(${value}px)`),
-        times: [0, 0.5, 1],
-      }),
-    );
     await run.transition.finished;
   } catch {
     // 快速连点、导航或浏览器跳过快照时，主题仍须正确应用。

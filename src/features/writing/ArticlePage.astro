@@ -2,14 +2,18 @@
 import type { CollectionEntry } from 'astro:content';
 import { render } from 'astro:content';
 import { Image } from 'astro:assets';
+import { CalendarDays, Clock3, CornerUpLeft, Tags, Type } from '@lucide/astro';
 import { relative, resolve, sep } from 'node:path';
 import SiteLayout from '@/layouts/SiteLayout.astro';
 import Prose from '@/components/content/Prose.astro';
 import { localeMetadata } from '@/config/i18n';
+import { iconTokens } from '@/config/icons';
 import { sectionPaths } from '@/config/navigation';
 import { siteConfig } from '@/config/site';
+import YohoiaAvatar from '@/assets/images/yohoia-avatar.jpg';
 import { getLocale, localizePath } from '@/lib/i18n';
 import ArticleToc from './ArticleToc.astro';
+import ArticleRail from './ArticleRail.astro';
 import { getReadingStats } from './reading';
 import '@fontsource-variable/newsreader/wght.css';
 import './article.css';
@@ -31,33 +35,26 @@ const editUrl = sourcePath?.startsWith(`src${sep}content${sep}writing${sep}`)
       .join('/')}`
   : undefined;
 const stats = getReadingStats(entry.body ?? '');
-const dateFormatter = new Intl.DateTimeFormat(
-  localeMetadata[locale].dateLocale,
-  {
-    year: 'numeric',
-    month: locale === 'zh' ? 'long' : 'short',
-    day: 'numeric',
-    timeZone: 'UTC',
-  },
-);
+const formatShortDate = (date: Date) =>
+  `${date.getUTCFullYear()}/${String(date.getUTCMonth() + 1).padStart(2, '0')}/${String(date.getUTCDate()).padStart(2, '0')}`;
 const text =
   locale === 'zh'
     ? {
         back: '返回写作',
-        words: '字词',
-        minutes: '分钟阅读',
+        words: '字',
+        minutes: '分钟',
         updated: '更新于',
-        author: '原文署名：',
-        example: '案例文档',
       }
     : {
         back: 'Back to Writing',
-        words: 'words / characters',
-        minutes: 'min read',
+        words: 'words',
+        minutes: 'min',
         updated: 'Updated',
-        author: 'Original author: ',
-        example: 'Example article',
       };
+const readingTime =
+  locale === 'zh'
+    ? `${stats.minutes}${text.minutes}`
+    : `${stats.minutes} ${text.minutes}`;
 ---
 
 <SiteLayout
@@ -67,16 +64,13 @@ const text =
   publishedAt={entry.data.publishedAt}
   updatedAt={entry.data.updatedAt}
   alternateLocales={false}
+  hideScrollbar
 >
   <main id="main-content" class="article-page">
     <ArticleToc headings={headings} locale={locale} editUrl={editUrl} />
+    <ArticleRail locale={locale} title={entry.data.title} />
     <article class="article-main" data-article-content>
       <header class="article-header" data-language-block="article-header">
-        {entry.data.example && (
-          <p class="article-example font-mono text-meta text-muted-text">
-            {text.example}
-          </p>
-        )}
         <h1
           class="article-title"
           lang={localeMetadata[entry.data.language].language}
@@ -84,38 +78,71 @@ const text =
           {entry.data.title}
         </h1>
         <div
-          class="article-meta font-mono"
+          class="article-meta"
           aria-label={locale === 'zh' ? '文章信息' : 'Article information'}
         >
-          <time datetime={entry.data.publishedAt.toISOString()}>
-            {dateFormatter.format(entry.data.publishedAt)}
+          <span class="article-meta-item article-author">
+            <Image
+              class="article-author-avatar"
+              src={YohoiaAvatar}
+              alt=""
+              widths={[40, 64]}
+              sizes="20px"
+            />
+            <span>{siteConfig.name}</span>
+          </span>
+          <time
+            class="article-meta-item"
+            datetime={entry.data.publishedAt.toISOString()}
+          >
+            <CalendarDays
+              class="article-meta-icon"
+              size={iconTokens.size.small}
+              stroke-width={iconTokens.strokeWidth}
+              aria-hidden="true"
+            />
+            <span>{formatShortDate(entry.data.publishedAt)}</span>
           </time>
-          {entry.data.author && (
-            <span>
-              {text.author}
-              {entry.data.author}
-            </span>
-          )}
-          <span>
-            {stats.units.toLocaleString(localeMetadata[locale].dateLocale)}{' '}
-            {text.words}
-          </span>
-          <span>
-            {stats.minutes} {text.minutes}
-          </span>
           {entry.data.tags.length > 0 && (
-            <span class="article-tags">
+            <span class="article-meta-item article-tags">
+              <Tags
+                class="article-meta-icon"
+                size={iconTokens.size.small}
+                stroke-width={iconTokens.strokeWidth}
+                aria-hidden="true"
+              />
               {entry.data.tags.map((tag) => (
-                <span>#{tag}</span>
+                <span class="article-tag">{tag}</span>
               ))}
             </span>
           )}
+          <span class="article-meta-item">
+            <Type
+              class="article-meta-icon"
+              size={iconTokens.size.small}
+              stroke-width={iconTokens.strokeWidth}
+              aria-hidden="true"
+            />
+            <span>
+              {stats.units.toLocaleString(localeMetadata[locale].dateLocale)}{' '}
+              {text.words}
+            </span>
+          </span>
+          <span class="article-meta-item">
+            <Clock3
+              class="article-meta-icon"
+              size={iconTokens.size.small}
+              stroke-width={iconTokens.strokeWidth}
+              aria-hidden="true"
+            />
+            <span>{readingTime}</span>
+          </span>
         </div>
         {entry.data.updatedAt && (
           <p class="article-updated font-mono text-meta text-muted-text">
             {text.updated}{' '}
             <time datetime={entry.data.updatedAt.toISOString()}>
-              {dateFormatter.format(entry.data.updatedAt)}
+              {formatShortDate(entry.data.updatedAt)}
             </time>
           </p>
         )}
@@ -145,8 +172,20 @@ const text =
       </Prose>
 
       <footer class="article-footer" data-language-block="article-footer">
-        <a href={localizePath(sectionPaths.writing, locale)} data-astro-reload>
-          <span aria-hidden="true">←</span> {text.back}
+        <a
+          href={localizePath(sectionPaths.writing, locale)}
+          class="article-back"
+          aria-label={text.back}
+          title={text.back}
+          data-astro-reload
+        >
+          <span class="article-back-icon" aria-hidden="true">
+            <CornerUpLeft
+              size={iconTokens.size.small}
+              stroke-width={iconTokens.strokeWidth}
+            />
+          </span>
+          <code lang="en">cd ../</code>
         </a>
       </footer>
     </article>
