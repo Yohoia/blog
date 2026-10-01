@@ -12,6 +12,7 @@
 
 - 已完成中英文 Index、Writing 列表、文章详情模板、News 及 403 / 404 / 500 / 502 插画页。Writing 已接入一篇用户提供的机器学习案例文档，文章详情使用左侧随页面滚动并在顶部停靠的目录；菜单为 Index、Writing、Fragments、Projects、Finder、News、Now；About、Profile 已移除，Fragments、Projects、Finder、Now 栏目页与用户自己的正式文章尚未实现。
 - 公共主题仍为暖纸色与柔和暗色，Sans / Mono 从本站托管。小字使用对比度增强的 `--muted-text`、`--signal-text`；颜色、尺寸与动画参数分别由 `src/styles/tokens.css` 和 `src/config/motion.ts` 管理。
+- 明暗切换保留现有太阳 / 月亮按钮，复刻 `Theme-change.tsx` 用户选定的 rectangle、blur on、top-down：新主题从视口顶部向下矩形揭幕，约 1.0 秒，模糊由 8px 经 4px 消退至 0px。原生 View Transition 仅负责主题快照，Motion 驱动裁剪与模糊，参数为 `motionTokens.theme`；独立快照样式只在主题切换期间生效。减少动画或浏览器不支持时即时切换，快速连点、导航和页面离开时清理；不引入参考 Options 面板或黑白按钮，不改变栏目字符过渡。
 - Header 使用磨砂层：纸色 70% 与透明色混合、模糊 `1.25rem`、饱和度 `1.35`。Logo 与操作按钮分置视口两侧，水平边距缩至 `clamp(1rem, 3vw, 3rem)`，桌面 / 窄屏垂直边距分别为 1rem / 0.75rem；右侧依次为菜单、语言、主题。Header 在普通文档流中随页面自然滚动，没有滚动收紧、固定或淡出动画。
 - 桌面、移动端统一使用黑色全屏 Type Overlay。原生 dialog 管理焦点，Motion 从菜单按钮中心圆形展开并逐项显示大字号导航；保留关闭、Escape、减少动画与无脚本回退。开关菜单保持阅读位置和页面宽度，菜单可滚动但不显示滚动条。
 - 不同栏目切换以及从其他页面点击 Header Logo 返回首页时播放 ASCII 字符网格过渡；语言、正文链接、当前栏目和历史返回不播放。覆盖与退场各约 0.5 秒，结束后清理绘制。

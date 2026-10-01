@@ -1,0 +1,34 @@
+/* 仅主题切换启用快照样式，不干扰 ClientRouter 与栏目字符过渡。 */
+:root:not([data-theme-transition])::view-transition-group(root),
+:root:not([data-theme-transition])::view-transition-old(root),
+:root:not([data-theme-transition])::view-transition-new(root) {
+  animation: none;
+}
+
+:root[data-theme-transition]::view-transition {
+  pointer-events: none;
+}
+
+:root[data-theme-transition]::view-transition-group(root),
+:root[data-theme-transition]::view-transition-old(root) {
+  animation: none;
+}
+
+:root[data-theme-transition]::view-transition-image-pair(root) {
+  isolation: isolate;
+}
+
+:root[data-theme-transition]::view-transition-old(root),
+:root[data-theme-transition]::view-transition-new(root) {
+  mix-blend-mode: normal;
+  opacity: 1;
+}
+
+:root[data-theme-transition]::view-transition-old(root) {
+  z-index: 0;
+}
+
+:root[data-theme-transition]::view-transition-new(root) {
+  z-index: 1;
+  animation: none;
+}

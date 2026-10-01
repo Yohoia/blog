@@ -38,7 +38,7 @@ const text = ui[getLocale(Astro.url.pathname)];
 </Button>
 
 <script>
-  import { initializeTheme, setThemePreference } from '@/scripts/theme';
+  import { initializeTheme, toggleTheme } from '@/scripts/theme';
   import { animate, type AnimationPlaybackControls } from 'motion';
   import { motionTokens } from '@/config/motion';
 
@@ -110,11 +110,7 @@ const text = ui[getLocale(Astro.url.pathname)];
         if (registered.has(button)) return;
         registered.add(button);
         button.addEventListener('click', () => {
-          setThemePreference(
-            document.documentElement.dataset.theme === 'dark'
-              ? 'light'
-              : 'dark',
-          );
+          void toggleTheme();
         });
       });
     updateLabels();

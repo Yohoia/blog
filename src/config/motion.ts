@@ -16,6 +16,12 @@ export const motionTokens = {
   distance: { small: 4, medium: 8, large: 12 },
   scale: { pressed: 0.98, resting: 1 },
   reduced: { duration: 0.12 },
+  /** Theme-change.tsx 用户选定效果：rectangle / blur on / top-down。 */
+  theme: {
+    revealDuration: 1,
+    revealEase: [0.42, 0, 0.58, 1] as [number, number, number, number],
+    blur: [8, 4, 0],
+  },
   /** Writing 期刊式归档：只弱化其余标题，元信息始终保持可读。 */
   writing: {
     inactiveTitleOpacity: 0.72,

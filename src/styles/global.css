@@ -6,6 +6,7 @@
 @import './components.css';
 @import './prose.css';
 @import './cursors.css';
+@import './theme-transition.css';
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 @layer utilities {
   /* 只隐藏滚动条外观，保留滚轮、触控与键盘滚动。 */
