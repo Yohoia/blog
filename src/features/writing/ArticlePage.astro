@@ -3,7 +3,6 @@ import type { CollectionEntry } from 'astro:content';
 import { render } from 'astro:content';
 import { Image } from 'astro:assets';
 import { CalendarDays, Clock3, CornerUpLeft, Tags, Type } from '@lucide/astro';
-import { relative, resolve, sep } from 'node:path';
 import SiteLayout from '@/layouts/SiteLayout.astro';
 import Prose from '@/components/content/Prose.astro';
 import { localeMetadata } from '@/config/i18n';
@@ -25,15 +24,6 @@ interface Props {
 const { entry } = Astro.props;
 const locale = getLocale(Astro.url.pathname);
 const { Content, headings } = await render(entry);
-const sourcePath = entry.filePath
-  ? relative(process.cwd(), resolve(entry.filePath))
-  : undefined;
-const editUrl = sourcePath?.startsWith(`src${sep}content${sep}writing${sep}`)
-  ? `${siteConfig.repositoryUrl}/edit/main/${sourcePath
-      .split(sep)
-      .map(encodeURIComponent)
-      .join('/')}`
-  : undefined;
 const stats = getReadingStats(entry.body ?? '');
 const formatShortDate = (date: Date) =>
   `${date.getUTCFullYear()}/${String(date.getUTCMonth() + 1).padStart(2, '0')}/${String(date.getUTCDate()).padStart(2, '0')}`;
@@ -67,8 +57,6 @@ const readingTime =
   hideScrollbar
 >
   <main id="main-content" class="article-page">
-    <ArticleToc headings={headings} locale={locale} editUrl={editUrl} />
-    <ArticleRail locale={locale} title={entry.data.title} />
     <article class="article-main" data-article-content>
       <header class="article-header" data-language-block="article-header">
         <h1
@@ -153,8 +141,8 @@ const readingTime =
           <Image
             src={entry.data.cover}
             alt={entry.data.coverAlt ?? ''}
-            widths={[680, 1020, 1360]}
-            sizes="(max-width: 768px) 100vw, 680px"
+            widths={[640, 920, 1380, 1840]}
+            sizes="min(920px, calc(100vw - 3.75rem))"
           />
           {entry.data.coverAlt && (
             <figcaption>{entry.data.coverAlt}</figcaption>
@@ -189,5 +177,10 @@ const readingTime =
         </a>
       </footer>
     </article>
+
+    <div class="article-side">
+      <ArticleToc headings={headings} locale={locale} />
+      <ArticleRail locale={locale} title={entry.data.title} />
+    </div>
   </main>
 </SiteLayout>

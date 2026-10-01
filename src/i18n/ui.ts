@@ -28,6 +28,7 @@ export const ui = {
     emptyTitle: '还没有发布内容。',
     emptyDescription: '新的文章、笔记和项目会出现在这里。',
     footer: '一处个人数字空间。',
+    builtOn: '印于',
   },
   en: {
     navigation: {
@@ -58,5 +59,6 @@ export const ui = {
     emptyTitle: 'Nothing published yet.',
     emptyDescription: 'New writing, notes, and projects will appear here.',
     footer: 'A personal digital space.',
+    builtOn: 'Built on',
   },
 } as const;

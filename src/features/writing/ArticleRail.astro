@@ -193,19 +193,12 @@ const commentsUrl = `${siteConfig.repositoryUrl}/issues`;
 
 <style>
   .article-rail {
-    --article-rail-width: 8.75rem;
+    --article-rail-width: 100%;
     display: none;
-    grid-column: 3;
-    grid-row: 1;
-    justify-self: start;
-    align-self: start;
-    position: sticky;
-    inset-block-start: calc(100dvh - 23.5rem);
-    z-index: 20;
     inline-size: var(--article-rail-width);
   }
 
-  @media (min-width: 84rem) {
+  @media (min-width: 64rem) {
     .article-rail {
       display: block;
     }
@@ -215,30 +208,34 @@ const commentsUrl = `${siteConfig.repositoryUrl}/issues`;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 1.5rem;
+    gap: 0.25rem;
     inline-size: var(--article-rail-width);
     font-family: var(--font-sans);
   }
 
-  .rail-group {
-    margin-inline-start: 1.125rem;
-  }
-
   .rail-progress {
-    margin-inline-start: 1.625rem;
+    order: 1;
+    margin-inline-start: 2.6875rem;
   }
 
   .rail-top {
-    margin-inline-start: 1.125rem;
+    order: 2;
+    margin-inline-start: 2.1875rem;
+  }
+
+  .rail-group {
+    order: 3;
+    margin: 0 0 0 2.1875rem;
   }
 
   .rail-progress {
     position: relative;
+    inline-size: 9.375rem;
     display: grid;
     grid-template-columns: auto auto;
     align-items: center;
-    min-block-size: var(--touch-target);
-    gap: 0.5rem;
+    min-block-size: 2.25rem;
+    gap: 0.25rem;
     color: var(--heading);
     font-size: var(--text-meta);
     line-height: var(--text-meta--line-height);
@@ -283,7 +280,7 @@ const commentsUrl = `${siteConfig.repositoryUrl}/issues`;
     justify-content: flex-start;
     gap: 0.625rem;
     min-inline-size: 2.75rem;
-    min-block-size: 2.75rem;
+    min-block-size: 2.25rem;
     padding-inline: 0.5rem;
     border: 0;
     border-radius: var(--radius-sm);
@@ -320,7 +317,7 @@ const commentsUrl = `${siteConfig.repositoryUrl}/issues`;
 
   .rail-top {
     inline-size: max-content;
-    margin-block-start: -1.25rem;
+    margin-block-start: 0;
     white-space: nowrap;
     opacity: 0;
     visibility: hidden;

@@ -32,7 +32,6 @@ export const writingSchema = ({ image }: SchemaContext) =>
       tags,
       language: z.enum(['zh', 'en']).default('zh'),
       author: z.string().trim().min(1).optional(),
-      example: z.boolean().default(false),
       topic: z.string().trim().min(1).optional(),
       cover: image().optional(),
       coverAlt: z.string().trim().min(1).optional(),

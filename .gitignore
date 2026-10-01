@@ -46,3 +46,9 @@ Desktop.ini
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
+
+tests
+
+# Imported article source materials kept locally
+/KNN/
+/机器学习概述/

@@ -15,3 +15,34 @@ export function getReadingStats(body: string) {
   const minutes = Math.max(1, Math.ceil(han / 300 + words / 220));
   return { units, minutes };
 }
+
+/** 提取正文首个非标题文本块，用于列表单行预览；不使用 description 代替正文。 */
+export function getWritingExcerpt(body: string): string {
+  const plainBlock = (block: string) =>
+    block
+      .split('\n')
+      .filter((line) => !/^\s*(?:import|export)\b/.test(line))
+      .join(' ')
+      .replace(/<!--[\s\S]*?-->/g, ' ')
+      .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+      .replace(/`([^`]*)`/g, '$1')
+      .replace(/(?:\*\*|__|\*|_|~~)/g, ' ')
+      .replace(/^\s*(?:[-*+]|\d+[.)])\s+/gm, '')
+      .replace(/^\s*>\s?/gm, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/[\t ]+/g, ' ')
+      .replace(/(\p{Script=Han})\s+(?=[（【《“‘])/gu, '$1')
+      .trim();
+
+  return (
+    body
+      .replace(/```[\s\S]*?```/g, ' ')
+      .split(/\n{2,}/)
+      .map(plainBlock)
+      .find(
+        (block) =>
+          block && !/^#{1,6}\s/.test(block) && /\p{L}|\p{N}/u.test(block),
+      ) ?? ''
+  );
+}

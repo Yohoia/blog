@@ -1,18 +1,7 @@
 ---
-import {
-  ArrowUpRight,
-  ChevronDown,
-  ChevronLeft,
-  Copy,
-  MessageCircle,
-  Star,
-} from '@lucide/astro';
+import { ChevronLeft } from '@lucide/astro';
 import { iconTokens } from '@/config/icons';
 import type { Locale } from '@/config/i18n';
-import { siteConfig } from '@/config/site';
-import GitHub from '@/assets/icons/social/github.svg';
-import OpenAI from '@/assets/icons/social/openai.svg';
-import Claude from '@/assets/icons/social/claude.svg';
 
 interface Heading {
   depth: number;
@@ -23,44 +12,13 @@ interface Heading {
 interface Props {
   headings: Heading[];
   locale: Locale;
-  editUrl?: string;
 }
 
-const { headings, locale, editUrl } = Astro.props;
+const { headings, locale } = Astro.props;
 const items = headings.filter(
   (heading) => heading.depth >= 2 && heading.depth <= 4,
 );
 const label = locale === 'zh' ? '文章目录' : 'Table of contents';
-const text =
-  locale === 'zh'
-    ? {
-        edit: '在 GitHub 编辑此页',
-        star: '在 GitHub 加星',
-        copy: '复制本页',
-        copied: '已复制',
-        copyFailed: '复制失败',
-        chat: '在聊天中打开',
-        copyForChat: '复制文章内容',
-        chatGpt: '复制文章并打开 ChatGPT',
-        claude: '复制文章并打开 Claude',
-        copiedStatus: '文章内容已复制',
-        chatStatus: '文章内容已复制，请粘贴到聊天窗口',
-        failedStatus: '无法复制文章内容',
-      }
-    : {
-        edit: 'Edit this page on GitHub',
-        star: 'Star on GitHub',
-        copy: 'Copy page',
-        copied: 'Copied',
-        copyFailed: 'Copy failed',
-        chat: 'Open in Chat',
-        copyForChat: 'Copy article text',
-        chatGpt: 'Copy article and open ChatGPT',
-        claude: 'Copy article and open Claude',
-        copiedStatus: 'Article copied',
-        chatStatus: 'Article copied. Paste it into the chat.',
-        failedStatus: 'Unable to copy article',
-      };
 ---
 
 {items.length > 0 && (
@@ -103,115 +61,6 @@ const text =
             </ol>
           </div>
         </nav>
-        <div class="toc-actions" data-toc-actions>
-          {editUrl && (
-            <a
-              class="toc-action"
-              href={editUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <GitHub
-                class="toc-action-icon"
-                fill="currentColor"
-                aria-hidden="true"
-              />
-              <span class="toc-action-label">{text.edit}</span>
-              <ArrowUpRight class="toc-action-tail" aria-hidden="true" />
-            </a>
-          )}
-          <a
-            class="toc-action"
-            href={siteConfig.repositoryUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Star
-              class="toc-action-icon"
-              stroke-width={iconTokens.strokeWidth}
-              aria-hidden="true"
-            />
-            <span class="toc-action-label">{text.star}</span>
-            <ArrowUpRight class="toc-action-tail" aria-hidden="true" />
-          </a>
-          <button
-            class="toc-action toc-copy"
-            type="button"
-            data-toc-copy
-            data-copy-label={text.copy}
-            data-copied-label={text.copied}
-            data-failed-label={text.copyFailed}
-            data-copied-status={text.copiedStatus}
-            data-chat-status={text.chatStatus}
-            data-failed-status={text.failedStatus}
-          >
-            <Copy
-              class="toc-action-icon"
-              stroke-width={iconTokens.strokeWidth}
-              aria-hidden="true"
-            />
-            <span class="toc-action-label" data-toc-copy-label>
-              {text.copy}
-            </span>
-          </button>
-          <div class="toc-chat">
-            <button
-              class="toc-action"
-              type="button"
-              aria-expanded="false"
-              aria-controls="article-toc-chat-menu"
-              data-toc-chat-trigger
-            >
-              <MessageCircle
-                class="toc-action-icon"
-                stroke-width={iconTokens.strokeWidth}
-                aria-hidden="true"
-              />
-              <span class="toc-action-label">{text.chat}</span>
-              <ChevronDown
-                class="toc-action-tail toc-chat-chevron"
-                aria-hidden="true"
-              />
-            </button>
-            <div
-              class="toc-chat-menu"
-              id="article-toc-chat-menu"
-              popover="auto"
-              data-toc-chat-menu
-            >
-              <button class="toc-chat-option" type="button" data-toc-chat-copy>
-                <Copy aria-hidden="true" />
-                <span>{text.copyForChat}</span>
-              </button>
-              <div class="toc-chat-divider" aria-hidden="true"></div>
-              <a
-                class="toc-chat-option"
-                href="https://chatgpt.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={text.chatGpt}
-                data-toc-chat-link
-              >
-                <OpenAI aria-hidden="true" />
-                <span>ChatGPT</span>
-                <ArrowUpRight class="toc-chat-arrow" aria-hidden="true" />
-              </a>
-              <a
-                class="toc-chat-option"
-                href="https://claude.ai/new"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={text.claude}
-                data-toc-chat-link
-              >
-                <Claude aria-hidden="true" />
-                <span>Claude</span>
-                <ArrowUpRight class="toc-chat-arrow" aria-hidden="true" />
-              </a>
-            </div>
-          </div>
-          <p class="sr-only" role="status" data-toc-status></p>
-        </div>
       </div>
     </article-toc>
   </aside>
@@ -224,15 +73,10 @@ const text =
 
 <style>
   .article-aside {
-    position: sticky;
+    position: static;
     z-index: 30;
-    inset-block-start: 0;
-    grid-column: 1;
-    grid-row: 1;
-    align-self: start;
-    inline-size: 15rem;
-    block-size: var(--touch-target);
-    margin-inline-start: calc(clamp(1rem, 3vw, 3rem) - var(--gutter));
+    inline-size: 100%;
+    margin: 0;
   }
   article-toc {
     position: relative;
@@ -244,7 +88,7 @@ const text =
   }
   .toc-title {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     block-size: var(--touch-target);
     margin: 0;
     padding: 0;
@@ -262,17 +106,13 @@ const text =
     content: '';
   }
   .toc-panel {
-    position: absolute;
-    inset-block-start: 100%;
-    inset-inline-start: 0;
+    position: relative;
     display: flex;
     flex-direction: column;
-    inline-size: 100%;
-    block-size: var(
-      --toc-panel-height,
-      calc(100dvh - var(--touch-target) - var(--gutter) - 6.5rem)
-    );
-    padding-block-start: 0.5rem;
+    inline-size: 10.3125rem;
+    margin-inline-start: 2.1875rem;
+    block-size: auto;
+    padding-block-start: 0;
   }
   .toc-nav {
     position: relative;
@@ -281,7 +121,8 @@ const text =
     overflow: hidden;
   }
   .toc-scroll {
-    block-size: 100%;
+    block-size: auto;
+    max-block-size: 15.5rem;
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: none;
@@ -319,7 +160,6 @@ const text =
   }
   .toc-list {
     display: grid;
-    gap: 0.125rem;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -327,8 +167,9 @@ const text =
   .toc-link {
     display: block;
     inline-size: fit-content;
-    max-inline-size: 100%;
-    padding: 0.3rem 0.125rem;
+    max-inline-size: 9rem;
+    padding: 0.3rem 0.125rem 0.3rem 0.875rem;
+    line-height: 1.5;
     color: var(--muted-text);
     font-size: var(--text-meta);
     line-height: 1.5;
@@ -350,128 +191,24 @@ const text =
     color: var(--signal-text);
     text-decoration-color: currentColor;
   }
-  .toc-actions {
-    flex: none;
-    margin-block-start: var(--inline-gap);
-    padding-block-start: 0.375rem;
-    border-block-start: 1px solid var(--border);
-  }
-  .toc-action {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    inline-size: 100%;
-    min-block-size: 2.25rem;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: var(--muted-text);
-    font: inherit;
-    font-size: var(--text-meta);
-    line-height: 1.5;
-    text-align: start;
-    text-decoration: none;
-    cursor: pointer;
-  }
-  .toc-action:hover,
-  .toc-action:focus-visible,
-  .toc-chat-option:hover,
-  .toc-chat-option:focus-visible {
-    color: var(--heading);
-  }
-  .toc-action-icon {
-    flex: none;
-    inline-size: 1.125rem;
-    block-size: 1.125rem;
-  }
-  .toc-action-label {
-    min-inline-size: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .toc-action-tail {
-    flex: none;
-    inline-size: 0.875rem;
-    block-size: 0.875rem;
-    margin-inline-start: auto;
-  }
-  .toc-chat [aria-expanded='true'] .toc-chat-chevron {
-    transform: rotate(180deg);
-  }
-  .toc-chat-menu {
-    position: fixed;
-    inset: auto;
-    inline-size: min(15rem, calc(100vw - var(--gutter) * 2));
-    max-block-size: calc(100dvh - var(--gutter) * 2);
-    margin: 0;
-    padding: 0.375rem;
-    overflow-y: auto;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--surface);
-    box-shadow: var(--floating-shadow);
-    color: var(--muted-text);
-    font-family: var(--font-sans);
-    scrollbar-width: none;
-  }
-  .toc-chat-menu::-webkit-scrollbar {
-    display: none;
-  }
-  .toc-chat-option {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    inline-size: 100%;
-    min-block-size: var(--touch-target);
-    padding-inline: 0.5rem;
-    border: 0;
-    border-radius: var(--radius-sm);
-    background: transparent;
-    color: var(--muted-text);
-    font: inherit;
-    font-size: var(--text-meta);
-    text-align: start;
-    text-decoration: none;
-    cursor: pointer;
-  }
-  .toc-chat-option:hover,
-  .toc-chat-option:focus-visible {
-    background: var(--canvas);
-    color: var(--heading);
-  }
-  .toc-chat-option > :global(svg) {
-    flex: none;
-    inline-size: 1.125rem;
-    block-size: 1.125rem;
-  }
-  .toc-chat-option .toc-chat-arrow {
-    inline-size: 0.875rem;
-    block-size: 0.875rem;
-    margin-inline-start: auto;
-  }
-  .toc-chat-divider {
-    margin-block: 0.375rem;
-    border-block-start: 1px solid var(--border);
-  }
-  article-toc:not([data-ready]) .toc-copy,
-  article-toc:not([data-ready]) .toc-chat {
-    display: none;
-  }
-  @media (min-width: 84rem) {
-    article-toc[data-ready] .toc-actions {
-      position: fixed;
-      inset-block-end: 20px;
-      inset-inline-start: var(--toc-viewport-left, 0);
-      z-index: 2;
-      inline-size: 15rem;
-      margin-block-start: 0;
-      background: var(--canvas);
+  @media (min-width: 64rem) {
+    .toc-list {
+      gap: 0.0625rem;
+    }
+    .toc-link {
+      padding-block: 0.125rem;
+      line-height: 1.3125rem;
     }
   }
-  @media (max-width: 83.999rem) {
+  @media (max-width: 63.999rem) {
     article-toc {
       --toc-drawer-width: min(18rem, calc(100vw - 3.25rem));
+    }
+    .toc-title {
+      display: none;
+    }
+    .toc-scroll {
+      max-block-size: none;
     }
     .article-aside {
       position: fixed;
@@ -527,9 +264,6 @@ const text =
     article-toc[data-open] .toc-edge-trigger :global(svg) {
       transform: rotate(180deg);
     }
-    .toc-title {
-      display: none;
-    }
     .toc-panel {
       position: fixed;
       inset-block-start: var(--toc-mobile-top, 5rem);
@@ -562,15 +296,6 @@ const text =
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
-    }
-    .toc-action {
-      min-block-size: var(--touch-target);
-    }
-    .toc-nav::before {
-      background: linear-gradient(to bottom, var(--surface), transparent);
-    }
-    .toc-nav::after {
-      background: linear-gradient(to top, var(--surface), transparent);
     }
   }
 </style>
