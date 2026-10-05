@@ -5,17 +5,10 @@ const year = new Intl.DateTimeFormat('en-CA', {
   year: 'numeric',
   timeZone: siteConfig.timeZone,
 }).format(new Date());
-const username = siteConfig.name.toLowerCase();
 ---
 
 <footer class="site-footer">
   <p class="footer-line">
-    <span class="footer-prompt" aria-hidden="true">
-      <span class="footer-user">{username}</span>
-      <span class="footer-muted">@</span>
-      <span class="footer-host">space</span>
-      <span class="footer-muted">:~$</span>
-    </span>
     <span class="footer-copyright">
       © {year} {siteConfig.name} ·{' '}
     </span>
@@ -45,26 +38,6 @@ const username = siteConfig.name.toLowerCase();
     line-height: var(--touch-target);
     text-align: center;
     font-variant-numeric: tabular-nums;
-  }
-
-  .footer-prompt {
-    display: inline-block;
-    margin-inline-end: 0.5rem;
-    white-space: nowrap;
-  }
-
-  .footer-user {
-    color: var(--terminal-user);
-    font-weight: 600;
-  }
-
-  .footer-host {
-    color: var(--terminal-host);
-    font-weight: 600;
-  }
-
-  .footer-muted {
-    color: var(--muted-text);
   }
 
   .footer-copyright {

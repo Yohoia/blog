@@ -4,6 +4,7 @@ import { Image } from 'astro:assets';
 import { ArrowRight, ArrowUpRight } from '@lucide/astro';
 import SiteLayout from '@/layouts/SiteLayout.astro';
 import Container from '@/components/layout/Container.astro';
+import PageTitle from '@/components/common/PageTitle.astro';
 import { iconTokens } from '@/config/icons';
 import { getLocale } from '@/lib/i18n';
 import { getPublishedEntries } from '@/lib/content/queries';
@@ -21,7 +22,9 @@ const projects = (await getPublishedEntries('projects')).sort(
 <SiteLayout title={t.title} description={t.description}>
   <Container as="main" id="main-content" width="feature" class="projects-page">
     <header class="projects-heading" data-language-block="projects-intro">
-      <h1 class="text-display font-semibold">{t.title}</h1>
+      <PageTitle class="font-semibold" lang="en">
+        {t.title}
+      </PageTitle>
     </header>
 
     <ol class="project-chapters">

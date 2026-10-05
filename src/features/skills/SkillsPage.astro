@@ -4,6 +4,7 @@ import { Image } from 'astro:assets';
 import { ArrowUpRight } from '@lucide/astro';
 import SiteLayout from '@/layouts/SiteLayout.astro';
 import Container from '@/components/layout/Container.astro';
+import PageTitle from '@/components/common/PageTitle.astro';
 import { iconTokens } from '@/config/icons';
 import { getLocale } from '@/lib/i18n';
 import { getPublishedEntries } from '@/lib/content/queries';
@@ -32,7 +33,9 @@ const skills = (await getPublishedEntries('skills')).sort(
 <SiteLayout title={ui[locale].navigation.skill} description={text.description}>
   <Container as="main" id="main-content" width="feature" class="skills-page">
     <header class="skills-heading" data-language-block="skills-intro">
-      <h1 class="text-display font-semibold">{ui[locale].navigation.skill}</h1>
+      <PageTitle class="font-semibold" lang="en">
+        {ui[locale].navigation.skill}
+      </PageTitle>
     </header>
     <skills-grid>
       <ol class="skills-grid">

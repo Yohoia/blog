@@ -70,10 +70,15 @@ export function setThemePreference(preference: ThemePreference): void {
 }
 
 /** 仅主动点击播放；系统变化、语言切换与初次载入即时应用主题。 */
-export async function toggleTheme(): Promise<void> {
+export async function toggleTheme(
+  target?: Exclude<ThemePreference, 'system'>,
+): Promise<void> {
   stopThemeTransition();
   const root = document.documentElement;
-  const preference = root.dataset.theme === 'dark' ? 'light' : 'dark';
+  const preference =
+    target ?? (root.dataset.theme === 'dark' ? 'light' : 'dark');
+  const nextTheme = preference === 'dark' ? 'dark' : 'light';
+  if (root.dataset.theme === nextTheme) return;
   if (
     !document.startViewTransition ||
     window.matchMedia('(prefers-reduced-motion: reduce)').matches ||

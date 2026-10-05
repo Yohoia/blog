@@ -90,6 +90,7 @@ export const terminalSequence = [
   { id: 'tools', command: 'ls tools/' },
   { id: 'education', command: 'git log --oneline --reverse education/' },
   { id: 'links', command: 'pr -2 -t links.md' },
+  { id: 'config', command: 'website config' },
 ] as const;
 
 export const terminalLabels = {

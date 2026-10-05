@@ -1,5 +1,5 @@
 import type { CollectionEntry } from 'astro:content';
-import { sectionPaths } from '../../config/navigation';
+import { sectionPaths } from '@/config/navigation';
 
 /** 支持嵌套内容目录；以 Content Layer 的 entry.id 生成链接。 */
 export function getEntryPath(entry: CollectionEntry<'blog'>): string {

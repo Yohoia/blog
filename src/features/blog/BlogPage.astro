@@ -3,8 +3,8 @@ import '@fontsource/space-grotesk/latin-600.css';
 import { ArrowUpRight } from '@lucide/astro';
 import SiteLayout from '@/layouts/SiteLayout.astro';
 import Container from '@/components/layout/Container.astro';
+import PageTitle from '@/components/common/PageTitle.astro';
 import { iconTokens } from '@/config/icons';
-import { siteConfig } from '@/config/site';
 import { getLocale, localizePath } from '@/lib/i18n';
 import { getPublishedEntries, sortByDate } from '@/lib/content/queries';
 import { getEntryPath } from '@/lib/content/paths';
@@ -65,11 +65,9 @@ const yearGroups = [...years].map(([year, months]) => ({
 >
   <Container as="main" id="main-content" width="reading" class="blog-page">
     <header class="blog-introduction" data-language-block="introduction">
-      <p class="blog-eyebrow micro-label">
-        <span>Blog · {siteConfig.name}</span>
-        <span class="blog-rule" aria-hidden="true"></span>
-      </p>
-      <h1 class="text-display font-medium">{ui[locale].navigation.blog}</h1>
+      <PageTitle class="font-medium" lang="en">
+        {ui[locale].navigation.blog}
+      </PageTitle>
     </header>
 
     <blog-archive>
@@ -208,17 +206,6 @@ const yearGroups = [...years].map(([year, months]) => ({
   }
   .blog-introduction {
     padding-block-end: var(--item-gap);
-  }
-  .blog-eyebrow {
-    display: flex;
-    align-items: center;
-    gap: var(--inline-gap);
-    margin-block-end: var(--inline-gap);
-  }
-  .blog-rule {
-    flex: 1;
-    block-size: 1px;
-    background: var(--border);
   }
   blog-archive {
     display: block;

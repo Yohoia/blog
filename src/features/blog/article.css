@@ -144,11 +144,11 @@
 .article-prose.prose .article-callout {
   margin-block: var(--item-gap);
 }
-.article-footer {
-  margin-block-start: var(--section-gap);
-  padding-block-start: var(--item-gap);
+.article-return {
+  display: flex;
+  justify-content: flex-start;
 }
-.article-footer a {
+.article-return a {
   display: inline-flex;
   align-items: center;
   min-block-size: var(--touch-target);
@@ -162,11 +162,11 @@
   display: inline-flex;
   color: inherit;
 }
-.article-footer code {
+.article-return code {
   font: inherit;
   color: inherit;
 }
-.article-footer a:hover {
+.article-return a:hover {
   color: var(--signal-text);
 }
 @media (min-width: 80rem) {

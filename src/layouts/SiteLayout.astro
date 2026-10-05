@@ -217,6 +217,11 @@ const locale = getLocale(Astro.url.pathname);
     flex: 0 0 auto;
   }
 
+  /* Footer 与正文保留 32–40px 最小上间距；额外空白仍由页脚自动上边距吸收。 */
+  :global(body.site-document > main) {
+    padding-block-end: clamp(2rem, 1.5rem + 0.625vw, 2.5rem);
+  }
+
   /* 剩余空间由页脚上方吸收，正文保持自然高度和页面滚动。 */
   :global(body.site-document > .site-footer) {
     margin-block-start: auto;

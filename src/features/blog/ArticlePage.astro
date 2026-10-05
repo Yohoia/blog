@@ -58,6 +58,24 @@ const readingTime =
 >
   <main id="main-content" class="article-page">
     <article class="article-main" data-article-content>
+      <nav class="article-return" aria-label={text.back}>
+        <a
+          href={localizePath(sectionPaths.blog, locale)}
+          class="article-back"
+          aria-label={text.back}
+          title={text.back}
+          data-astro-reload
+        >
+          <span class="article-back-icon" aria-hidden="true">
+            <CornerUpLeft
+              size={iconTokens.size.small}
+              stroke-width={iconTokens.strokeWidth}
+            />
+          </span>
+          <code lang="en">cd ../</code>
+        </a>
+      </nav>
+
       <header class="article-header" data-language-block="article-header">
         <h1
           class="article-title"
@@ -158,24 +176,6 @@ const readingTime =
       >
         <Content />
       </Prose>
-
-      <footer class="article-footer" data-language-block="article-footer">
-        <a
-          href={localizePath(sectionPaths.blog, locale)}
-          class="article-back"
-          aria-label={text.back}
-          title={text.back}
-          data-astro-reload
-        >
-          <span class="article-back-icon" aria-hidden="true">
-            <CornerUpLeft
-              size={iconTokens.size.small}
-              stroke-width={iconTokens.strokeWidth}
-            />
-          </span>
-          <code lang="en">cd ../</code>
-        </a>
-      </footer>
     </article>
 
     <div class="article-side">

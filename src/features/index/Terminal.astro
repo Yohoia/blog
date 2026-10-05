@@ -27,6 +27,8 @@ const latestPosts = sortByDate(
     }).format(entry.data.publishedAt),
   }));
 const blogUrl = localizePath(sectionPaths.blog, locale);
+const targetLocale = locale === 'zh' ? 'en' : 'zh';
+const languageHref = localizePath(Astro.url.pathname, targetLocale);
 ---
 
 <yohoia-terminal class="index-introduction" data-language-block="introduction">
@@ -179,11 +181,76 @@ const blogUrl = localizePath(sectionPaths.blog, locale);
               )}
 
               {step.id === 'links' && <TerminalContacts />}
+
+              {step.id === 'config' && (
+                <div class="output-block config-output" data-terminal-output>
+                  <dl class="config-list">
+                    <div class="config-row">
+                      <dt>Language:</dt>
+                      <dd>
+                        {locale === 'zh' ? (
+                          <span class="config-option is-selected" lang="en">
+                            Chinese
+                          </span>
+                        ) : (
+                          <a
+                            class="config-option"
+                            lang="en"
+                            href={languageHref}
+                            data-language-toggle
+                          >
+                            Chinese
+                          </a>
+                        )}
+                        <span class="config-separator" aria-hidden="true">
+                          |
+                        </span>
+                        {locale === 'en' ? (
+                          <span class="config-option is-selected" lang="en">
+                            English
+                          </span>
+                        ) : (
+                          <a
+                            class="config-option"
+                            lang="en"
+                            href={languageHref}
+                            data-language-toggle
+                          >
+                            English
+                          </a>
+                        )}
+                      </dd>
+                    </div>
+                    <div class="config-row">
+                      <dt>DarkMode:</dt>
+                      <dd>
+                        <button
+                          type="button"
+                          class="config-option config-theme-dark"
+                          data-website-theme="dark"
+                        >
+                          On
+                        </button>
+                        <span class="config-separator" aria-hidden="true">
+                          |
+                        </span>
+                        <button
+                          type="button"
+                          class="config-option config-theme-light"
+                          data-website-theme="light"
+                        >
+                          Off
+                        </button>
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+              )}
             </div>
             {step.id === 'identity' && <PixelAvatar label={labels.avatar} />}
           </div>
 
-          {step.id !== 'links' && (
+          {step.id !== 'config' && (
             <hr
               class="introduction-divider"
               data-terminal-divider
@@ -207,6 +274,11 @@ const blogUrl = localizePath(sectionPaths.blog, locale);
 <script>
   import { registerTerminal } from '@/scripts/terminal';
   registerTerminal();
+</script>
+
+<script>
+  import { registerWebsiteConfig } from '@/scripts/website-config';
+  registerWebsiteConfig();
 </script>
 
 <style>
@@ -345,6 +417,55 @@ const blogUrl = localizePath(sectionPaths.blog, locale);
   .c-white {
     color: var(--heading);
     font-weight: 600;
+  }
+  .config-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0;
+  }
+  .config-row {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    align-items: baseline;
+    column-gap: 0.5rem;
+  }
+  .config-row dt {
+    color: var(--muted-text);
+  }
+  .config-row dd {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin: 0;
+  }
+  .config-separator {
+    color: var(--muted-text);
+  }
+  .config-option {
+    color: var(--muted-text);
+    font: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .config-option.is-selected,
+  :global(html:not([data-theme='dark'])) .config-theme-light,
+  :global(html[data-theme='dark']) .config-theme-dark {
+    color: var(--heading);
+    font-weight: 600;
+  }
+  .config-option:not(.is-selected):hover,
+  .config-option:not(.is-selected):focus-visible {
+    color: var(--heading);
+  }
+  @media (max-width: 35rem) {
+    .config-row {
+      grid-template-columns: 1fr;
+      row-gap: 0.25rem;
+    }
+    .config-row dd {
+      min-block-size: var(--touch-target);
+    }
   }
   .term-link {
     color: var(--signal-text);

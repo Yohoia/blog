@@ -40,6 +40,19 @@
   .section-heading p {
     margin-block-start: var(--inline-gap);
   }
+  /* Project / Blog / Skill 页面大标题的静态黄色色带，颜色随主题同步。 */
+  .title-highlight {
+    display: inline;
+    background-image: linear-gradient(
+      var(--blog-highlight),
+      var(--blog-highlight)
+    );
+    background-repeat: no-repeat;
+    background-position: left 75%;
+    background-size: 100% 0.6em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
   .metadata {
     @apply text-meta text-muted-text;
   }

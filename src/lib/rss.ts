@@ -1,6 +1,6 @@
 import rss from '@astrojs/rss';
-import { siteConfig } from '../config/site';
-import { localeMetadata, i18nConfig } from '../config/i18n';
+import { siteConfig } from '@/config/site';
+import { localeMetadata, i18nConfig } from '@/config/i18n';
 import { getEntryPath } from './content/paths';
 import { getPublishedEntries, sortByDate } from './content/queries';
 

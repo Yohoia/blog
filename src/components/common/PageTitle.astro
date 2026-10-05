@@ -1,0 +1,13 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = HTMLAttributes<'h1'>;
+
+const { class: className, ...attributes } = Astro.props;
+---
+
+<h1 class:list={['text-display', className]} {...attributes}>
+  <span class="title-highlight">
+    <slot />
+  </span>
+</h1>
