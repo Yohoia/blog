@@ -61,7 +61,8 @@ export function createPixelAvatar(
   const layout = element.closest<HTMLElement>('.identity-layout');
   const copy = layout?.querySelector<HTMLElement>(':scope > div');
   const desktop = window.matchMedia('(width > 35rem)');
-  const syncSize = () => {
+  let sizeFrame: number | undefined;
+  const measureSize = () => {
     if (!layout || !copy) return;
     if (!desktop.matches) {
       layout.style.removeProperty('--avatar-size');
@@ -71,6 +72,14 @@ export function createPixelAvatar(
     const next = `${Math.ceil(height)}px`;
     if (height > 0 && layout.style.getPropertyValue('--avatar-size') !== next)
       layout.style.setProperty('--avatar-size', next);
+  };
+  // 在观察回调之外合并尺寸写入，避免修改网格后再次同步触发观察器。
+  const syncSize = () => {
+    if (sizeFrame !== undefined || controller.signal.aborted) return;
+    sizeFrame = window.requestAnimationFrame(() => {
+      sizeFrame = undefined;
+      measureSize();
+    });
   };
   const sizeObserver = new ResizeObserver(syncSize);
   if (copy) sizeObserver.observe(copy);
@@ -140,7 +149,7 @@ export function createPixelAvatar(
     if (controller.signal.aborted) return Promise.resolve();
     stop();
     // 首行开始前测量已占位的完整文字；动画完成时不再改变尺寸或切换绘制方式。
-    syncSize();
+    measureSize();
     if (reducedMotion.matches || progress >= 1) {
       finish();
       return Promise.resolve();
@@ -201,6 +210,7 @@ export function createPixelAvatar(
     destroy() {
       controller.abort();
       sizeObserver.disconnect();
+      if (sizeFrame !== undefined) window.cancelAnimationFrame(sizeFrame);
       stop();
     },
   };

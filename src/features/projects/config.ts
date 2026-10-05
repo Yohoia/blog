@@ -1,0 +1,53 @@
+import { ui } from '@/i18n/ui';
+
+export const projectsContent = {
+  zh: {
+    title: ui.zh.navigation.projects,
+    description: '我制作的项目，以及它们各自的小小体验。',
+    visit: '进入项目',
+    source: '查看源码',
+    empty: '新的项目会出现在这里。',
+    demo: {
+      label: '语音与 AI 整理动画示例',
+      transcript: '明天十点读几页书，下午两点写一篇博客，晚上八点出去散步。',
+      transcriptLabel: '一段随口说的话',
+      voice: '语音输入',
+      transcribing: '正在转写…',
+      organizing: 'AI 正在整理…',
+      ready: '整理好了，确认后即可添加',
+      listTitle: 'AI 整理成待办',
+      count: '3 项待办',
+      tasks: ['读几页书', '写一篇博客', '出去散步'],
+      times: ['明天 10:00', '明天 14:00', '明天 20:00'],
+      completeLabel: '完成',
+      completed: '已完成',
+      finished: '示例清单完成了。',
+      noScript: '启用 JavaScript 可播放语音转写与 AI 整理动画。',
+    },
+  },
+  en: {
+    title: ui.en.navigation.projects,
+    description: 'Things I make, with a little experience of their own.',
+    visit: 'Open project',
+    source: 'View source',
+    empty: 'New projects will appear here.',
+    demo: {
+      label: 'Voice and AI task animation preview',
+      transcript:
+        'Tomorrow, read at ten, write a blog post at two, and go for a walk at eight in the evening.',
+      transcriptLabel: 'One spoken note',
+      voice: 'Voice input',
+      transcribing: 'Transcribing…',
+      organizing: 'AI is organizing…',
+      ready: 'Ready for you to review and add',
+      listTitle: 'AI turns it into tasks',
+      count: '3 tasks',
+      tasks: ['Read a few pages', 'Write a blog post', 'Go for a walk'],
+      times: ['Tomorrow 10:00', 'Tomorrow 14:00', 'Tomorrow 20:00'],
+      completeLabel: 'Complete',
+      completed: 'done',
+      finished: 'Sample list complete.',
+      noScript: 'Enable JavaScript to play the voice-to-task animation.',
+    },
+  },
+} as const;

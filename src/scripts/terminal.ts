@@ -1,4 +1,4 @@
-import { animate, type AnimationPlaybackControls } from 'motion';
+import { animate, cubicBezier, type AnimationPlaybackControls } from 'motion';
 import { animate as animateElement } from 'motion/mini';
 import { motionTokens } from '@/config/motion';
 import { isRefreshVisit } from '@/scripts/page-visit';
@@ -11,7 +11,7 @@ interface PlaybackSnapshot {
   completed: number;
   typed: number;
   outputStarted: boolean;
-  revealedLines: number;
+  outputProgress: number;
   login: string;
   avatarProgress: number;
 }
@@ -20,6 +20,7 @@ interface PlaybackSnapshot {
 export function registerTerminal(): void {
   if (customElements.get('yohoia-terminal')) return;
   let pending: PlaybackSnapshot | undefined;
+  const outputEase = cubicBezier(...motionTokens.easing);
 
   class YohoiaTerminal extends HTMLElement {
     private prompt: HTMLElement | null = null;
@@ -29,11 +30,11 @@ export function registerTerminal(): void {
     private completed = 0;
     private typed = 0;
     private outputStarted = false;
-    private revealedLines = 0;
+    private outputProgress = 0;
     private login = '';
     private controller?: AbortController;
     private typingAnimation?: AnimationPlaybackControls;
-    private lineAnimation?: AnimationPlaybackControls;
+    private outputAnimation?: AnimationPlaybackControls;
     private cursorAnimation?: AnimationPlaybackControls;
     private cursorObserver?: IntersectionObserver;
     private cursorInView = false;
@@ -58,7 +59,7 @@ export function registerTerminal(): void {
       this.completed = saved?.completed ?? 0;
       this.typed = saved?.typed ?? 0;
       this.outputStarted = saved?.outputStarted ?? false;
-      this.revealedLines = saved?.revealedLines ?? 0;
+      this.outputProgress = saved?.outputProgress ?? 0;
       this.prompt.hidden = this.outputStarted;
       this.login = saved?.login ?? new Date().toISOString();
       this.updateLogin();
@@ -66,12 +67,10 @@ export function registerTerminal(): void {
         const complete = index < this.completed;
         const active = index === this.completed && this.outputStarted;
         step.toggleAttribute('data-visible', complete || active);
-        this.outputLines(step).forEach((line, lineIndex) => {
-          line.toggleAttribute(
-            'data-line-visible',
-            complete || (active && lineIndex < this.revealedLines),
-          );
+        this.outputBlocks(step).forEach((block) => {
+          block.toggleAttribute('data-output-visible', complete || active);
         });
+        if (active) this.renderOutput(step, this.outputProgress);
         step
           .querySelector('[data-terminal-divider]')
           ?.toggleAttribute('data-visible', complete);
@@ -118,7 +117,7 @@ export function registerTerminal(): void {
       this.pageActive = false;
       this.controller?.abort();
       this.typingAnimation?.stop();
-      this.lineAnimation?.cancel();
+      this.outputAnimation?.stop();
       this.holdCursor();
       this.cursorObserver?.disconnect();
       this.avatar?.destroy();
@@ -133,7 +132,7 @@ export function registerTerminal(): void {
         completed: this.completed,
         typed: this.typed,
         outputStarted: this.outputStarted,
-        revealedLines: this.revealedLines,
+        outputProgress: this.outputProgress,
         login: this.login,
         avatarProgress: this.avatar?.progress ?? 0,
       };
@@ -205,16 +204,15 @@ export function registerTerminal(): void {
     private finish() {
       this.controller?.abort();
       this.typingAnimation?.stop();
-      this.lineAnimation?.cancel();
+      this.outputAnimation?.stop();
       this.holdCursor();
       this.avatar?.finish();
       this.steps.forEach((step) => {
         step.setAttribute('data-visible', '');
-        this.outputLines(step).forEach((line) => {
-          line.setAttribute('data-line-visible', '');
-          line.style.removeProperty('opacity');
-          line.style.removeProperty('transform');
+        this.outputBlocks(step).forEach((block) => {
+          block.setAttribute('data-output-visible', '');
         });
+        this.renderOutput(step, 1);
         step
           .querySelector('[data-terminal-divider]')
           ?.setAttribute('data-visible', '');
@@ -222,7 +220,7 @@ export function registerTerminal(): void {
       this.completed = this.steps.length;
       this.typed = 0;
       this.outputStarted = false;
-      this.revealedLines = 0;
+      this.outputProgress = 0;
       if (this.prompt) this.prompt.hidden = false;
       if (this.typing) this.typing.textContent = '';
       if (this.cursor) this.cursor.style.opacity = '1';
@@ -276,36 +274,87 @@ export function registerTerminal(): void {
       });
     }
 
-    private outputLines(step: HTMLElement): HTMLElement[] {
-      return [...step.querySelectorAll<HTMLElement>('[data-terminal-line]')];
+    private outputBlocks(step: HTMLElement): HTMLElement[] {
+      return [...step.querySelectorAll<HTMLElement>('[data-terminal-output]')];
     }
 
-    private revealLine(line: HTMLElement, signal: AbortSignal): Promise<void> {
+    private renderOutput(step: HTMLElement, progress: number) {
+      const eased = outputEase(progress);
+      for (const block of this.outputBlocks(step)) {
+        if (progress >= 1) {
+          block.style.removeProperty('opacity');
+          block.style.removeProperty('transform');
+        } else {
+          block.style.opacity = String(eased);
+          block.style.transform = `translateY(${motionTokens.terminal.blockReveal.distance * (1 - eased)}px)`;
+        }
+      }
+    }
+
+    private revealOutput(
+      step: HTMLElement,
+      signal: AbortSignal,
+    ): Promise<void> {
       return new Promise((resolve) => {
         if (signal.aborted) return resolve();
+        if (this.outputProgress >= 1) {
+          this.renderOutput(step, 1);
+          return resolve();
+        }
+        // 先写初态再显现，整块输出共享同一个 Motion 时钟。
+        this.renderOutput(step, this.outputProgress);
+        this.outputBlocks(step).forEach((block) => {
+          block.setAttribute('data-output-visible', '');
+        });
         const done = () => {
           signal.removeEventListener('abort', cancel);
-          this.lineAnimation = undefined;
+          this.outputAnimation = undefined;
           resolve();
         };
         const cancel = () => {
-          this.lineAnimation?.cancel();
+          this.outputAnimation?.stop();
           done();
         };
         signal.addEventListener('abort', cancel, { once: true });
-        const { duration, distance } = motionTokens.terminal.lineReveal;
-        // 原生 DOM 动画可直接取消，避免减少动画时留下逐帧写回的中间样式。
-        this.lineAnimation = animateElement(
-          line,
-          { opacity: [0, 1], transform: [`translateY(${distance}px)`, 'none'] },
-          { duration, ease: 'linear', onComplete: done },
+        this.outputAnimation = animate(this.outputProgress, 1, {
+          duration:
+            motionTokens.terminal.blockReveal.duration *
+            (1 - this.outputProgress),
+          ease: 'linear',
+          onUpdate: (progress) => {
+            this.outputProgress = progress;
+            this.renderOutput(step, progress);
+          },
+          onComplete: () => {
+            this.outputProgress = 1;
+            this.renderOutput(step, 1);
+            done();
+          },
+        });
+      });
+    }
+
+    private waitForFonts(signal: AbortSignal): Promise<void> {
+      return new Promise((resolve) => {
+        if (signal.aborted) return resolve();
+        const done = () => {
+          window.clearTimeout(timer);
+          signal.removeEventListener('abort', done);
+          resolve();
+        };
+        // 字体未就绪时使用回退字体继续播放；离开页面立即结束等待。
+        const timer = window.setTimeout(
+          done,
+          motionTokens.terminal.fontReadyTimeout * 1000,
         );
+        signal.addEventListener('abort', done, { once: true });
+        void document.fonts.ready.then(done, done);
       });
     }
 
     private async play(signal: AbortSignal, initial: boolean) {
       if (initial) {
-        await document.fonts.ready;
+        await this.waitForFonts(signal);
         await this.pause(motionTokens.terminal.initialDelay, signal);
       }
       while (!signal.aborted && this.completed < this.steps.length) {
@@ -327,27 +376,11 @@ export function registerTerminal(): void {
           if (this.typing) this.typing.textContent = '';
         }
 
-        const lines = this.outputLines(step);
-        // 从第一行信息开始聚合，时长覆盖整个 whoami 输出；语言切换接着当前进度播放。
+        // 头像与整块信息同步聚合；语言切换后接着各自保存的进度播放。
         const avatarPlayback = step.querySelector('[data-terminal-avatar]')
-          ? this.avatar?.play(
-              lines.length * motionTokens.terminal.lineReveal.duration +
-                Math.max(0, lines.length - 1) *
-                  motionTokens.terminal.lineReveal.interval,
-            )
+          ? this.avatar?.play(motionTokens.terminal.blockReveal.duration)
           : undefined;
-        for (let index = this.revealedLines; index < lines.length; index++) {
-          if (signal.aborted) return;
-          const line = lines[index];
-          if (!line) break;
-          line.setAttribute('data-line-visible', '');
-          this.revealedLines = index + 1;
-          await this.revealLine(line, signal);
-          if (signal.aborted) return;
-          if (index < lines.length - 1)
-            await this.pause(motionTokens.terminal.lineReveal.interval, signal);
-        }
-        await avatarPlayback;
+        await Promise.all([this.revealOutput(step, signal), avatarPlayback]);
         if (signal.aborted) return;
 
         step
@@ -355,7 +388,7 @@ export function registerTerminal(): void {
           ?.setAttribute('data-visible', '');
         this.completed += 1;
         this.outputStarted = false;
-        this.revealedLines = 0;
+        this.outputProgress = 0;
         if (this.prompt) this.prompt.hidden = false;
         if (this.completed === this.steps.length) this.startCursor();
 
@@ -371,6 +404,7 @@ export function registerTerminal(): void {
     if (event.newDocument.querySelector('yohoia-terminal'))
       event.newDocument.documentElement.dataset.terminalJs = 'true';
     if (
+      event.navigationType !== 'traverse' &&
       event.from.pathname !== event.to.pathname &&
       /^(?:\/en)?\/?$/.test(event.from.pathname) &&
       /^(?:\/en)?\/?$/.test(event.to.pathname)

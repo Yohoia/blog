@@ -5,7 +5,23 @@ import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import { loadEnv } from 'vite';
+import { fileURLToPath } from 'node:url';
 import { i18nConfig } from './src/config/i18n.ts';
+
+/** @type {import('vite').Plugin} */
+const dependencyCache = {
+  name: 'yohoia:dependency-cache',
+  config(config, { command }) {
+    // Astro check / sync 的临时 Vite 服务不能改写正在使用的浏览器依赖。
+    const scope =
+      command === 'serve' && !config.server?.middlewareMode ? 'dev' : 'tooling';
+    return {
+      cacheDir: fileURLToPath(
+        new URL(`./node_modules/.vite/${scope}/`, import.meta.url),
+      ),
+    };
+  },
+};
 
 const { SITE_URL } = loadEnv(
   process.env.NODE_ENV ?? 'development',
@@ -43,7 +59,8 @@ export default defineConfig({
           sitemap({
             // 错误页可直接预览，但不作为正常内容提交给搜索引擎。
             filter: (page) =>
-              !/^\/(?:en\/)?[45]\d{2}\/?$/.test(new URL(page).pathname),
+              !/^\/(?:en\/)?[45]\d{2}\/?$/.test(new URL(page).pathname) &&
+              !/^\/footer-explorer\/?$/.test(new URL(page).pathname),
           }),
         ]
       : []),
@@ -55,6 +72,10 @@ export default defineConfig({
     },
   },
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss(), dependencyCache],
+    // 提前预构建动画入口，避免首页加载中发现新依赖使缓存失效。
+    optimizeDeps: {
+      include: ['motion', 'motion/mini'],
+    },
   },
 });

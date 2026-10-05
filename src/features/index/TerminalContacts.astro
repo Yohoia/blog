@@ -10,9 +10,9 @@ const left = siteConfig.contactLinks.slice(0, midpoint);
 const right = siteConfig.contactLinks.slice(midpoint);
 ---
 
-<terminal-contacts class="terminal-links output-block">
+<terminal-contacts class="terminal-links output-block" data-terminal-output>
   {left.map((contact, index) => (
-    <div class="contact-row" data-terminal-line>
+    <div class="contact-row">
       {[contact, right[index]].map(
         (entry) =>
           entry && (
@@ -58,11 +58,6 @@ const right = siteConfig.contactLinks.slice(midpoint);
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: var(--item-gap);
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    :global(html[data-terminal-js]) .contact-row:not([data-line-visible]) {
-      display: none;
-    }
   }
   .contact-item {
     display: flex;

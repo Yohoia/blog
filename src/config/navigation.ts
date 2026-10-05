@@ -3,8 +3,7 @@ export const sectionPaths = {
   writing: '/writing/',
   fragments: '/fragments/',
   projects: '/projects/',
-  finder: '/finder/',
-  news: '/news/',
+  skills: '/skills/',
   now: '/now/',
 } as const;
 
@@ -20,8 +19,7 @@ export const mainNavigation = [
   { section: 'writing', label: 'Writing', href: sectionPaths.writing },
   { section: 'fragments', label: 'Fragments', href: sectionPaths.fragments },
   { section: 'projects', label: 'Projects', href: sectionPaths.projects },
-  { section: 'finder', label: 'Finder', href: sectionPaths.finder },
-  { section: 'news', label: 'News', href: sectionPaths.news },
+  { section: 'skills', label: 'Skills', href: sectionPaths.skills },
 ] as const satisfies readonly NavigationItem[];
 
 export const secondaryNavigation = [

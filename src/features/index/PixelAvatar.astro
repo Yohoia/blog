@@ -22,7 +22,7 @@ const { label } = Astro.props;
   .pixel-avatar {
     position: relative;
     display: block;
-    inline-size: var(--avatar-size, 9rem);
+    inline-size: min(var(--avatar-size, 9rem), var(--avatar-max-size, 9rem));
     aspect-ratio: 1;
     padding: 0;
     border: 0;

@@ -1,0 +1,97 @@
+---
+import '@fontsource/space-grotesk/latin-600.css';
+import { Image } from 'astro:assets';
+import { ArrowRight, ArrowUpRight } from '@lucide/astro';
+import SiteLayout from '@/layouts/SiteLayout.astro';
+import Container from '@/components/layout/Container.astro';
+import { iconTokens } from '@/config/icons';
+import { getLocale } from '@/lib/i18n';
+import { getPublishedEntries } from '@/lib/content/queries';
+import { projectsContent } from './config';
+import DidaPreview from './DidaPreview.astro';
+import './projects.css';
+
+const locale = getLocale(Astro.url.pathname);
+const t = projectsContent[locale];
+const projects = (await getPublishedEntries('projects')).sort(
+  (a, b) => a.data.order - b.data.order || a.id.localeCompare(b.id),
+);
+---
+
+<SiteLayout title={t.title} description={t.description}>
+  <Container as="main" id="main-content" width="feature" class="projects-page">
+    <header class="projects-heading" data-language-block="projects-intro">
+      <h1 class="text-display font-semibold">{t.title}</h1>
+    </header>
+
+    <ol class="project-chapters">
+      {projects.map(({ id, data }, index) => (
+        <li data-language-block={`project-${id}`}>
+          <article
+            class:list={[
+              'project-chapter',
+              { 'project-chapter-static': data.demo !== 'dida' },
+            ]}
+            aria-labelledby={`project-${id}-title`}
+          >
+            <div class="project-info">
+              <div class="project-identity">
+                <Image src={data.logo} alt="" width={48} class="project-logo" />
+                <h2
+                  id={`project-${id}-title`}
+                  class="text-section font-semibold"
+                >
+                  {data.title}
+                </h2>
+              </div>
+              <p class="project-summary">
+                {locale === 'zh' ? data.summary : data.summaryEn}
+              </p>
+              <div class="project-actions">
+                <p class="project-number" aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </p>
+                <project-links class="project-links">
+                  <a
+                    href={data.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="project-link"
+                  >
+                    <span class="project-link-label">{t.visit}</span>
+                    <ArrowRight
+                      size={iconTokens.size.small}
+                      stroke-width={iconTokens.strokeWidth}
+                    />
+                  </a>
+                  <a
+                    href={data.repository}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="project-source"
+                    aria-label={`${data.title} · ${t.source}`}
+                  >
+                    <span class="project-link-label">GitHub</span>
+                    <ArrowUpRight
+                      size={iconTokens.size.small}
+                      stroke-width={iconTokens.strokeWidth}
+                    />
+                  </a>
+                </project-links>
+              </div>
+            </div>
+            {data.demo === 'dida' && (
+              <DidaPreview locale={locale} title={data.title} />
+            )}
+          </article>
+        </li>
+      ))}
+    </ol>
+    {!projects.length && <p>{t.empty}</p>}
+  </Container>
+</SiteLayout>
+
+<script>
+  import { registerProjectLinks } from './project-links';
+  registerProjectLinks();
+</script>

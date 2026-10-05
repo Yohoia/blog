@@ -42,14 +42,38 @@ export const motionTokens = {
     railBellAngles: [-12, 9, -6, 3, 0],
     railWiggleAngles: [-7, 5, -3, 0],
   },
-  /** News 分类指示线与内容切换；减少动画时即时切换。 */
-  news: {
-    tabHoverDistance: 4,
-    heatHoverScale: 1.08,
-    heatHoverDuration: 0.15,
-    tabDuration: 0.22,
-    contentExitDuration: 0.1,
-    contentEnterDuration: 0.22,
+  /** Skills：参考插图卡片的轻微倾斜、插图视差与链接反馈。 */
+  skills: {
+    enterDuration: 0.42,
+    enterDistance: 8,
+    stagger: 0.06,
+    hoverDuration: 0.35,
+    resetDuration: 0.5,
+    rotateX: 1.1,
+    rotateY: 1.6,
+    artX: 3,
+    artY: 2,
+    artScale: 1.035,
+    arrowDistance: 2,
+  },
+  /** Projects：链接反馈、语音转写 → AI 整理 → 待办生成演示。 */
+  projects: {
+    hoverDuration: 0.35,
+    linkDistance: 5,
+    checkDuration: 0.32,
+    checkScale: 1.15,
+    voice: {
+      transcribeEnd: 3.6,
+      organizeEnd: 5.1,
+      taskStagger: 0.22,
+      taskRevealDuration: 0.42,
+      stageTransition: 0.42,
+      duration: 6.2,
+      holdDuration: 3,
+      resetDuration: 0.42,
+      waveFrequency: 2.4,
+      waveMinScale: 0.18,
+    },
   },
   /** navigation-lab Type Overlay：圆形展开与 Typography 逐项进入。 */
   menu: {
@@ -78,13 +102,14 @@ export const motionTokens = {
     noiseScale: 0.18,
     timeout: 15000,
   },
-  /** 首页匀速打字与逐行输出；打字、输出和光标均由 Motion 驱动。 */
+  /** 首页快速匀速打字与整块输出；打字、输出和光标均由 Motion 驱动。 */
   terminal: {
-    initialDelay: 1,
-    characterDelay: 0.09,
-    enterDelay: 0.3,
-    outputDelay: 0.6,
-    lineReveal: { duration: 0.22, interval: 0.12, distance: 4 },
+    fontReadyTimeout: 1.5,
+    initialDelay: 0.5,
+    characterDelay: 0.035,
+    enterDelay: 0.16,
+    outputDelay: 0.35,
+    blockReveal: { duration: 0.5, distance: 8 },
     cursorDuration: 1,
   },
   /** whoami 头像：与信息输出同步聚合；悬浮重播保留 HTML 预览的节奏。 */

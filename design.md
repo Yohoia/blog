@@ -1,32 +1,43 @@
 # Personal Blog Design System
 
-> Design direction for a personal digital space built around **Index / Writing / Fragments / Projects / Finder / News / Now**.
+> Design direction for a personal digital space built around **Index / Writing / Fragments / Projects / Skills / Now**.
 >
 > The goal is not to reproduce any reference website. The three reference systems are treated as design research: take their strongest ideas, remove what does not fit, and recombine them into a quieter, more personal system.
 
 ---
 
-# 当前落地规范（2026-09-30）
+# 当前落地规范（2026-10-05）
 
 本节记录当前项目的实际设计与进度；与后文早期建议不同的地方，以本节和对应章节的已落地说明为准。未制作板块的建议仍是后续规划，不代表已实现。
 
-- 已完成中英文 Index、Writing 列表、文章详情模板、News 及 403 / 404 / 500 / 502 插画页。Writing 已接入《机器学习概述》与《KNN算法》两篇真实文章，文章详情使用左侧随页面滚动并在顶部停靠的目录；菜单为 Index、Writing、Fragments、Projects、Finder、News、Now；About、Profile 已移除，Fragments、Projects、Finder、Now 栏目页与用户自己的正式文章尚未实现。
+- 已完成中英文 Index、Writing 列表、文章详情模板、Projects 及 403 / 404 / 500 / 502 插画页。Writing 已接入《机器学习概述》与《KNN算法》两篇真实文章。菜单为 Index、Writing、Fragments、Projects、Skills、Now；About、Profile 已按用户要求移除，不属于当前栏目；Fragments、Now 栏目页尚未实现。
+- Projects 当前采用一张完整卡片对应一个项目：薄边框与 radius-lg 圆角包裹 Logo、名称、简介、真实链接、水印式空心两位序号和专属动画，取消章节虚线、嵌套演示外框及重复品牌标题。沿用公共 compact 容器的 720px 内容区，卡片内介绍 / 动画按 42% / 58% 排列，padding、列间距与卡片间距使用 item-gap 的 0.75 倍；上下 padding 使用局部间距的 1.25 倍；窄屏自然堆叠，内容自然撑高。介绍 Logo 为 48px，空心序号保留浅淡水印风格，使用 Space Grotesk 600、font-year 和混合 8% heading 的 1px 描边；与链接横排，编号在左、两个同字号链接在右，互不遮挡。中文页面显示“项目”主标题，英文页面显示“Projects”；列表下方不添加横线或 cd ../ 返回区。后续项目统一沿用第 16 节的卡片设计规范。DiDa-todo 用 Typeless 风格深色浮动胶囊与白色细波形演示语音输入 → AI 整理 → 待办生成；单个 Motion 时间轴循环播放，结果停留 3 秒，0.42 秒淡出后重播。结果可勾选，聚焦待办、离开视口或后台时暂停，减少动画直接展示完整结果；中英切换保留状态。不显示分类、技术栈、播放按钮、卡片底栏或倒计时。链接保留 Motion 下划线和箭头反馈。公共主题、字体、导航与 Footer 沿用既有实现，不恢复旧版灵感手稿规范。
 - 公共主题仍为暖纸色与柔和暗色，Sans / Mono 从本站托管。小字使用对比度增强的 `--muted-text`、`--signal-text`；颜色、尺寸与动画参数分别由 `src/styles/tokens.css` 和 `src/config/motion.ts` 管理。
 - 明暗切换保留现有太阳 / 月亮按钮，复刻 `Theme-change.tsx` 用户选定的 rectangle、blur on、bottom-up：新主题从视口底部向上矩形揭幕，时长 0.7 秒，使用 Expo Out 缓动，模糊由 8px 经 4px 消退至 0px。实现与 `Theme-change.tsx` 相同：原生 View Transition 伪元素播放 CSS Keyframes，旧快照置于下层且不动画，新快照按目标主题选择 keyframes；参数为 `motionTokens.theme`，样式只在主题切换期间生效。减少动画或浏览器不支持时即时切换，快速连点、导航和页面离开时清理；不引入参考 Options 面板或黑白按钮，不改变栏目字符过渡。
 - Header 使用磨砂层：纸色 70% 与透明色混合、模糊 `1.25rem`、饱和度 `1.35`。Logo 与操作按钮分置视口两侧，水平边距缩至 `clamp(1rem, 3vw, 3rem)`，桌面 / 窄屏垂直边距分别为 1rem / 0.75rem；右侧依次为菜单、语言、主题。Header 在普通文档流中随页面自然滚动，没有滚动收紧、固定或淡出动画。
-- 公共 Footer 采用三行结构：站名与标语、12px Mono 的版权 / 构建信息、13px Sans 的站点与外部链接。内容最大 1200px 并与文章版式共享视觉节奏；顶部透明且无横线，仅底部链接前使用 1px 公共边框色。窄屏自然堆叠，不显示在线人数，也不添加参考站项目或虚构备案。
+- 公共 Footer 采用用户选定的「单行落款」：左侧 Yohoia 站名与简短描述，右侧版权和备案号；品牌使用公共 item 字号（桌面最大 20px）、500 字重，其余统一 14px Sans。内容最大 1200px，两端对齐，优先横排，空间不足时自然换行；透明、无横线或外框，上下无额外外部留白。不显示导航、社交、构建日期或时区；备案号读取真实配置并链接官方查询入口。
 - 桌面、移动端统一使用黑色全屏 Type Overlay。原生 dialog 管理焦点，Motion 从菜单按钮中心圆形展开并逐项显示大字号导航；保留关闭、Escape、减少动画与无脚本回退。开关菜单保持阅读位置和页面宽度，菜单可滚动但不显示滚动条。
 - 不同栏目切换以及从其他页面点击 Header Logo 返回首页时播放 ASCII 字符网格过渡；语言、正文链接、当前栏目和历史返回不播放。覆盖与退场各约 0.5 秒，结束后清理绘制。
 - Index 使用 760px 内容宽度，Writing 列表使用 680px，均从 Header 下沿开始。两页隐藏根滚动条并取消占位，保留滚轮、触控与键盘滚动。其他页面的原生滚动条轨道沿用画布色，随主题同步切换，避免边缘异色。
-- 首页为透明平铺的命令与信息，不使用终端窗口外框。绿色 `yohoia`、蓝色 `space`、柔和绿色光标；各部分用 1px 横线分隔，线上下各 12px。仅刷新播放匀速打字与逐行信息，直接访问及站内返回展示完整内容。`whoami` 右侧圆点头像与左侧输出同步结束，保留 Canvas 最后一帧以避免抖动；末尾光标仅在前台且可见时闪烁。
+- 首页为透明平铺的命令与信息，不使用终端窗口外框。绿色 `yohoia`、蓝色 `space`、柔和绿色光标；各部分用 1px 横线分隔，线上下各 12px。仅刷新播放更快的匀速打字与每条命令的整块信息浮现，直接访问、站内返回及历史导航展示完整内容；只有主动语言切换保留播放快照。刷新时字体最多等待 1.5 秒，超时后使用回退字体继续，离开页面及时清理等待。`whoami` 右侧圆点头像与左侧输出同步结束，保留 Canvas 最后一帧以避免抖动；末尾光标仅在前台且可见时闪烁。
 - Writing 按真实已发布条目的年 / 月 / 日归档，从新到旧排列，移除介绍与顶部统计。年份使用 Space Grotesk 600 字重的浅色描边数字，月份侧栏与每行日期 / 星期组成时间线；标题与正文首段单行省略，完整文字保留；文件名不显示，整张文章卡片可点击进入详情。黄色标题色带保持 `0.72em` 高度，Motion 仅驱动横向进度；最多三个 `#` 标签，悬浮变深并展开下划线。行尾浅色箭头在悬浮文章时显示蓝色圆底并轻移。底部 `cd ../` 返回当前语言的首页。
 - Article View 已落地为参考站比例的宽屏版式：正文纸张与右侧目录 / 快捷栏组成最大 1152px 的内容组合并整体居中；1280px 及以上正文为 920px，右侧栏为 200px，1024–1280px 保留右侧栏并让正文收缩，1024px 以下转为单列并使用右侧边缘箭头打开目录浮层。根滚动条外观隐藏但保留自然滚动。文章标题和下方 meta 行在正文纸张内水平居中；meta 单行展示头像版 Yohoia、YYYY/MM/DD 发布日期、细线索引标签、字数与分钟数，日期 / 标签 / 统计配线性小图标，所有子项继承同一 12px / 1.4 Mono Meta 样式，窄屏允许居中换行；可选更新时间、封面读取实际内容。正文使用本站托管的 Newsreader 和中文系统宋体回退，标题使用 Sans，代码块使用公共 Code Surface。文章 h1 是页面题目，目录从正文渲染的 h2 / h3 / h4 生成；“On this page” 保留 120px 顶部停靠偏移，可见高度约 248px，内部滚动并在溢出边缘显示渐进模糊，当前章节以 Signal 色标记，下方进度与快捷操作位置保持不变。右侧同一栏依次提供阅读进度、回到顶部、本地喜欢、分享、GitHub 更新 / 支持 / 反馈。底部左侧 `cd ../` 返回当前语言 Writing 列表；较窄目录浮层用 Motion 仅原地淡入淡出并尊重减少动画。
 - 可悬浮的精细指针使用本地 SVG 原生光标：普通区域使用 18px 黑色箭头，不使用白色描边；暗色主题与固定黑色的全屏菜单用浅色实心箭头，圆形缩为 24px，填充不透明度 55%。仅悬浮链接、按钮、菜单以及 Writing 文章 / 标签时变为浅黄色圆形，移开后恢复箭头；点击不单独触发。两种主题保持一致的辨识度；纯触控设备不启用，文本输入与禁用控件保留原生状态，不添加持续跟随动画。
 - 错误页使用无 Header 的独立全屏布局；响应式插画居中显示，保持比例与暗色可辨认，提供返回首页入口，标记 noindex。真正的服务器错误绑定待部署时配置。
 
-当前公司、履历和统计仍含用户要求暂留的参考内容。News 已接入 AIHOT API；用户自己的正式文章、其余栏目、RSS 与部署均待后续实现，详见 [README.md](README.md)。本地 HTML 原型与参考素材继续保留，不随代码发布。
+首页个人介绍、工具与四阶段教育经历已接入用户资料，在中英文页面均以英文展示；仅 `claude-code --stats` 的统计仍含此前要求暂留的参考内容。Writing 已接入两篇用户提供的正式文章；更多文章、其余栏目、RSS 与部署仍待后续实现，详见 [README.md](README.md)。本地 HTML 原型与参考素材继续保留，不随代码发布。
 
 ---
+
+## Footer · 单行落款规范（2026-10-05）
+
+位置规则：短页面贴住视口底部，长页面位于正文末尾，随页面自然滚动。SiteLayout 给 body 添加 `site-document`，使用纵向 Flex 与 `100vh` / `100dvh` 最小高度；Header、主内容与 Footer 不收缩，Footer 上方自动边距吸收剩余空间。正文保留自然高度，不增加内部滚动、固定页脚或高度测量脚本；错误页和探索页的独立 BaseLayout 不受影响。
+
+用户最新选定第二轮的 01「单行落款」，由 `src/components/layout/Footer.astro` 实现，所有常规页面经 SiteLayout 共用。左侧为 Yohoia 文字站名与当前语言的简短描述，右侧为 © 年份 Yohoia 和“赣ICP备2025075792号-2”。不展示站点入口、社交 / 联系方式、构建信息或时区，不加分隔线、色块、边框或阴影。`/footer-explorer/` 保留为探索记录。
+
+品牌站名使用 `--font-sans`、`--text-item`（桌面最大 20px）、500 字重、1.35 行高与 -0.025em 字距，颜色为 `--heading`；链接返回当前语言首页。描述与版权 / 备案统一读取 `--text-meta`（14px），行高 1.65，使用 `--muted-text`。两组之间的横向间距使用 `--item-gap`，换行间距使用 `--inline-gap`；组内间距为 `--inline-gap * 1.5`（桌面最大 18px）。容器和两组均使用横向 Flex 与自然换行，站点信息组以自动左边距靠右；不按 850px 断点强制将四项内容堆为四行，仅在实际空间不足时换行。Footer 不复用手写 Logo；Header 的品牌动画保持原有实现。
+
+容器整体居中，读取 `--container-wide` 和公共 gutter；内部品牌与站点信息各占一端。Footer 外框上下内边距均为 0，桌面和手机不额外增加外部留白；短页面的自动上边距仅负责吸收布局剩余空间，实现贴底。不固定整体高度，不截断描述或备案，窄屏自然换行。品牌与备案链接保持至少 44px 触摸高度，悬浮 / 聚焦显示强调色和下划线；键盘焦点沿用公共样式。版权年份按站点时区在构建时生成，站名与备案读取 `siteConfig`，备案链接为 `https://beian.miit.gov.cn/`；中英描述读取翻译字典，颜色随公共明暗主题同步。错误页继续使用独立 BaseLayout，不引入 Footer。
 
 # 1. Design Thesis
 
@@ -92,7 +103,7 @@ The strongest ideas to retain are:
 
 ### Translation into this site
 
-Use this higher-density language mainly for **News**, Finder utilities, search, filters, and technical project details.
+Use this higher-density language mainly for technical project details, search, and filters.
 
 Do not let this density leak into Writing.
 
@@ -119,8 +130,6 @@ The default light theme should feel slightly warm instead of pure white.
 
 Writing can have a more editorial rhythm.
 
-Projects may allow large imagery and wider layouts, while the rest of the site remains narrow and quiet.
-
 ---
 
 # 3. The Resulting Design Personality
@@ -130,7 +139,7 @@ The design should not feel like:
 - a SaaS dashboard
 - a component-library demo
 - a traditional portfolio template
-- a news portal
+- an information portal
 - a glassmorphism experiment
 - an animation showcase
 
@@ -222,7 +231,6 @@ Accent color is reserved for:
 - current / live state
 - selected filters
 - interactive hover states
-- News status
 - visualization semantics
 
 Most pages should remain mostly neutral.
@@ -316,9 +324,7 @@ Used for:
 - UI
 - metadata
 - lists
-- Finder
-- News
-- Projects
+- Skills
 
 ---
 
@@ -353,7 +359,7 @@ Used for:
 - code
 - timestamps
 - technical IDs
-- tiny News metadata where useful
+- compact technical metadata where useful
 
 ---
 
@@ -405,7 +411,7 @@ General Index content:
 max-width: 760px
 ```
 
-Projects / Finder / News may expand:
+Skills may expand:
 
 ```text
 max-width: 1080–1200px
@@ -487,9 +493,7 @@ Primary navigation:
 ```text
 Writing
 Fragments
-Projects
-Finder
-News
+Skills
 ```
 
 Secondary destinations:
@@ -580,7 +584,9 @@ Avoid:
 
 ### Index
 
-当前仅刷新时播放命令匀速打字、信息逐行淡入与同步圆点头像聚合。普通访问、站内返回与历史返回直接展示完整内容；语言切换保留播放进度。悬浮 / 聚焦可重播 Logo 与头像，末尾光标仅在可见且页面处于前台时闪烁。
+当前仅刷新时播放命令匀速打字、每条命令的信息整块淡入 / 上浮与同步圆点头像聚合。试行参数：每字符 35ms，输出 0.5 秒、上浮 8px，命令前后停顿适当缩短；输出读取公共 easing，以线性进度保存语言切换快照。普通访问、站内返回与历史返回直接展示完整内容；语言切换保留播放进度。悬浮 / 聚焦可重播 Logo 与头像，末尾光标仅在可见且页面处于前台时闪烁。
+
+圆点头像的桌面宽度不超过 144px，仍根据完整信息高度缩小；网格列与按钮共用 `--avatar-max-size` 上限，避免头像变宽挤压文字后反过来继续放大。ResizeObserver 的尺寸写入合并到下一帧，首行输出前仍同步测量，离开时取消待执行的测量。
 
 ### Writing
 
@@ -594,26 +600,9 @@ Avoid:
 
 Small layout transitions when filtering or opening related notes.
 
-### Projects
+### Skills
 
-Shared-layout transitions between project preview and detail are encouraged.
-
-### Finder
-
-This is one of the strongest interaction surfaces.
-
-Use:
-
-- folder transition
-- selection movement
-- preview expansion
-- shared layout animation
-
-### News
-
-New information can use a brief, subtle live-state animation.
-
-Never make the whole feed constantly move.
+参考插图卡片保持整体，只用轻微倾斜、插图视差、箭头反馈和短暂入场解释外链交互。减少动画关闭位移，手机不启用指针视差。
 
 ### Now
 
@@ -657,8 +646,7 @@ Rules:
 Recommended examples:
 
 ```text
-Finder       Folder / FolderOpen
-News         Newspaper / Activity
+Skills       Sparkles
 External     ArrowUpRight
 Theme        Sun / Moon
 Search       Search
@@ -695,7 +683,6 @@ Used for:
 - Writing
 - Fragments
 - recent Index entries
-- Finder entries
 
 Default:
 
@@ -737,8 +724,6 @@ Used only when the information benefits from grouping.
 
 Good uses:
 
-- News statistics
-- Finder preview
 - project technical metadata
 - search controls
 
@@ -774,13 +759,13 @@ whoami + 圆点头像
 cat philosophy.md
 claude-code --stats
 ls -ltr writing/ | tail -n 6
-ls compute-labs/agents/
-git log --oneline --reverse career/
+ls tools/
+git log --oneline --reverse education/
 pr -2 -t links.md（八个渠道，两列各四个）
 末尾空提示符
 ```
 
-各部分透明平铺，使用公共颜色与等宽字体，用紧凑横线组织信息。姓名与联系方式已替换为 Yohoia；公司、履历、统计仍是暂留参考内容，文章区取参考列表最新六条，不是已发布文章数据。原先 UTC 时钟和 Recently 模块已移除。
+各部分透明平铺，使用公共颜色与等宽字体，用紧凑横线组织信息。姓名、联系方式、个人介绍、工具与教育经历已替换为用户资料。`whoami` 保留姓名及三行英文介绍：AI Application Engineer、Independent Learner & Software Developer、Based in China；不显示旧公司或职场履历。`ls tools/` 每行显示蓝色工具名和一句基础英文简介，保持原双列排版，窄屏自然堆叠；仅展示用户提供的五款工具，名称使用已核对的官方链接，保留蓝色与细虚线下划线，悬浮 / 聚焦变为实线；新标签页打开，窄屏链接保留至少 44px 触摸高度。`git log --oneline --reverse education/` 保留黄色短哈希、年份、学习阶段与白色学校名，四行按 2012、2015、2018、2023 排列；不增加专业或毕业信息。三组内容在中英文页面均使用英文，输出容器统一使用 data-terminal-output，保留整块播放进度。统计仍是此前暂留参考内容；文章区从真实已发布 Writing 条目取最新六条，每行仅显示权限、所有者、日期和可点击文件名，不重复文件名右侧的文章标题；文件名继续定位当前语言的 Writing 条目。原先 UTC 时钟和 Recently 模块已移除。
 
 ---
 
@@ -844,183 +829,76 @@ No need for long descriptions on every list item.
 
 ---
 
-# 16. Projects
+# 16. Projects · 项目卡片设计规范
 
-## Personality
+本节是用户确认的当前 Projects 设计基线，适用于后续加入博客的真实项目。沿用当前卡片风格，项目特点通过内容与专属演示表达；此前撤销的灵感手稿方案不恢复。
 
-The Projects section is where the layout can become wider and more visual.
+## 页面与卡片布局
 
-It includes:
+- 中文 `/projects/` 与英文 `/en/projects/` 共用页面结构、公共 Header、主题和 Footer；主内容保留 `id="main-content"`。
+- 页面仅显示当前语言的栏目主标题（中文“项目”、英文“Projects”）与项目卡片列表。列表结束后自然进入公共 Footer，不添加列表下方横线或 `cd ../` 返回区。
+- 一张卡片对应一个项目。Logo、名称、简介、跳转链接、空心序号与功能演示放在同一个外框内；品牌只显示一次。
+- 内容最大宽度为 720px，直接使用公共 `--container-compact`，整体居中；较窄视口保留公共 gutter，卡片自然收缩。
+- 桌面卡片为介绍 42% / 演示 58% 的两列，内容垂直居中。卡片左右 padding、两列间距、卡片之间及主标题下方的间距统一使用 `--project-card-gap`；上下 padding 使用其 1.25 倍，为动画和简介保留更多空白。`--project-card-gap` 的值为公共 `--item-gap` 的 0.75 倍。
+- 768px 以下为单列：先介绍，后演示。高度由完整文本和演示内容自然撑开，不固定高度、截断简介或隐藏溢出来压缩卡片。
+- 卡片使用 1px `--border`、`--radius-lg` 和 `--surface`；悬浮或聚焦时使用 `--border-strong`。卡片外不加章节虚线，演示不再套第二层项目卡片外框。
 
-- full projects
-- tools
-- UI experiments
-- visualization experiments
-- WebGL experiments
-- smaller prototypes
+## 品牌、文案与链接
 
-## Layout
+| 内容 | 统一规则 |
+| --- | --- |
+| Logo 与名称 | 原始项目 Logo 为 48px；与名称横排，间距 `--inline-gap`。名称是唯一的 h2，使用 `text-section`、Sans 与 600 字重。 |
+| 项目简介 | `summary / summaryEn` 使用 `--text-meta`、1.65 行高与公共正文色；简介和编号 / 链接组合行上方间距为 `--inline-gap` 的 0.75 倍。先讲用户能得到什么，再用简短文字说明核心能力；依据真实项目资料，不编造效果、用户数或完成状态。 |
+| 跳转链接 | 保留真实产品入口和源码入口，两个链接统一使用 `--text-meta`（14px）与 1.5 行高，文字使用公共 `--signal-text` 或 `--muted-text`；链接在编号右侧，组合行垂直居中，两者间距使用 `--inline-gap`，操作区至少 44px。悬浮与键盘聚焦时展开细下划线、轻移箭头，参数读取 `motionTokens.projects`。 |
+| 空心序号 | 依已发布项目的展示顺序自动生成 01、02……，位于介绍区底部编号 / 链接组合行的左侧；链接在右侧，与编号垂直居中对齐。保留浅淡水印风格：`--font-year`（Space Grotesk 600）、透明填充、1px 描边（8% `--heading` 与透明色混合）、48–64px 响应字号、1 行高。采用自然 Flex 布局，不绝对定位叠在链接背后；窄屏链接可在右侧自然换行，始终不覆盖编号。设置 `aria-hidden` 与 `pointer-events: none`，两种主题随 Token 同步。 |
 
-Desktop may use:
+卡片不增加重复的品牌 Header、宣传 h3、分类、技术栈或内部 Footer。简介可按项目特点改写，但保留清晰、简短、自然的语气。品牌素材、字体、颜色、原生光标与主题沿用本站资源。
 
-```text
-2-column editorial grid
-```
+## 项目专属演示
 
-Selected work can use a larger feature item.
+每个项目选择一个最能说明用途的场景，用实际功能组织“输入 → 变化 → 结果”。统一的是演示在卡片中的位置和播放体验；波形、任务、配色、画布或其他表现应随项目功能变化。新项目不复制 DiDa-todo 的语料、任务列表或语音动画。
 
-Cards should not look like SaaS product cards.
+- 默认在演示可见且页面处于前台时自动循环，无须点击播放；结果阶段留出阅读时间，当前默认停留 3 秒、0.42 秒淡出后重播。特殊时序按产品特点确定，统一写入 `config/motion.ts`。
+- 离开视口、进入后台或焦点进入演示控件时暂停；返回后继续。页面切换与组件断开时清理动画、事件和观察器，每个演示实例独立管理状态。
+- 中英切换保留播放进度与已产生的交互状态。尊重减少动画偏好，直接提供完整静态结果；无脚本时也能阅读项目与演示结果。
+- 不添加默认播放、重播或计时控制栏。必要的真实示例交互可保留，如待办勾选；装饰元素不伪装成可点击按钮。
+- 不因展示动画申请麦克风权限、连接项目账户或调用 AI。示例数据需表达为演示，不使用用户本地任务；动态文字保持可读，读屏按语义阶段播报，循环不反复打断。
+- 状态切换共享自然占位，避免卡片跳高；演示使用 DOM / CSS / Canvas 和项目已有 Motion，文字与链接保持可编辑和可访问。
 
-Prefer:
+DiDa-todo 是当前实现示例：Typeless 风格的深色语音胶囊与白色细波形 → 逐字转写 → AI 整理 → 三条带明确时间的待办。它说明这一项目的语音与 AI 能力，其他项目按自身功能另做演示。
 
-- image / preview
-- title
-- one-line context
-- status
-- year
+## 新项目接入与验收
 
-Project detail pages may use large media with rounded corners.
-
----
-
-# 17. Finder
-
-## Personality
-
-Finder is a curated personal internet library.
-
-It should borrow the **idea** of a file browser without visually cloning macOS Finder.
-
-## Desktop Layout
-
-Recommended:
-
-```text
-Category / folder rail
-        |
-Content list
-        |
-Optional preview pane
-```
-
-Possible categories:
-
-- Design
-- Engineering
-- Tools
-- Reading
-- Inspiration
-- Websites
-
-## Entry
-
-Each item may include:
-
-- title
-- source / domain
-- note
-- date added
-- category
-- external link
-
-The personal note is more important than metadata.
-
-## Interaction
-
-Finder is a suitable place for richer Motion transitions:
-
-- active folder indicator
-- list transition
-- preview opening
-- back navigation
-- keyboard navigation later
+1. 收集真实名称、Logo、简介、双语文案与产品 / 源码 URL，按 `projectSchema` 新增 `src/content/projects/` 条目，设置展示顺序与草稿状态。
+2. 复用 `ProjectsPage.astro` 和 `projects.css` 的卡片结构；只为项目专属演示新增 feature 组件、文案与动效配置。当前 demo 标识仅有 `dida`，增加新演示时同步 Schema 与页面选择逻辑，不把未知标识当作已支持。
+3. 核对明暗主题、双语长文案、桌面两列与手机堆叠、链接与键盘操作、循环及暂停 / 清理、减少动画和无脚本结果。浏览器未实际检查的部分须如实记录。
+4. 执行类型、格式检查和生产构建，同步 README、AGENTS 及本地内容 / 架构 / 进度说明；不把测试样例或未部署能力写成正式项目成果。
 
 ---
 
-# 18. News
+# 17. Skills · 技能卡片设计规范
 
-## 当前落地（2026-09-29）
+已落地（2026-10-05）。本次是在既有博客中新增 Skills，方向由用户提供的 HTML 确定；只迁移技能卡片，不替换公共导航、Footer、主题与页面标题。
 
-News 内容从 Header 下沿开始，期号、选中日期、更新时间与刷新按钮保留在版面元信息行，顶部只保留头版的粗分隔线。右侧日历与分类目录参照 `news-heatmap-v3.html`：日历使用日报 / 周报 / 月报三种点阵视图，容器高度在桌面与窄屏内固定，切换不改变后续版面位置；每个日期或周期以圆点表示，深色为有日报、浅色为无日报，颜色不表示资讯数量。悬浮或聚焦只提示日期，不显示条数；日报按星期排列，周报按季度分四行并兼容 ISO 第 53 周，月报以 12 个月两行排列；周与月点选择对应周期内最新可用日报，无日报周期仍显示浅色点。选择有日报的点加载 `/dailies/{date}`，失败保留原版面，可返回最新资讯。分类包含全部头条与七个主题入口，补齐行业动态与开源入口，采用带两位序号的纵向透明文字行、细分隔线、选中下划线与悬浮轻移，动画来自 motionTokens.news；数量仅显示选中分类已载入条数。已移除搜索入口及交互。下方各分类使用三列网格，平板两列、手机单列；普通新闻卡片统一为 24rem 高度与相同内容宽度，减少底部留白；标题最多三行、简介最多四行；标题自然左对齐，完整文字保留在 DOM 与悬浮提示中。精选与 AI 评分移至卡片左上角，替代分类小标题；时间与来源靠底，保留原有数据；阅读原文位于卡片右上角，与精选及评分对齐，文章标题跳转 AIHOT 导读，来源名称仅展示文字，底部不重复放阅读链接；头条沿用独立版面。页面底部去除来源与语言说明，只保留左侧 cd ../ 返回当前语言首页，不显示箭头。分类加载期间保留最近成功版面，连续切换取消旧请求和过渡；日历模式、筛选与已载入内容随语言切换保留。
+## 内容与布局
 
-News 已实现中英文报纸式页面 `/news/`、`/en/news/`，去除大报头；复用公共导航、1200px wide 容器与主题，展示头条、次要新闻、右侧热力图与分类目录，以及下方按分类分组的三列资讯。AIHOT 匿名只读 API v1 提供最近七天精选与最新日报；构建保存快照，浏览器打开时更新，前台每十分钟条件请求，也可手动刷新。API 当前提供五种分类；行业与商业入口均使用 industry，开源入口使用 q=开源，保留 API 返回的原始分类；24 条一页，游标分页追加；中英切换保留筛选与已载入内容。ETag / 304 复用成功缓存，失败保留最近成功的版面，429 遵守 Retry-After，游标失效重取首屏。标题、摘要、评分和来源均来自 API，不添加虚构期号、标签或新闻；英文优先采用 originalTitle，摘要保留来源语言，所有时间明确使用北京时间。
+- Skills 替换原 Finder（发现）入口，中文与英文分别使用 `/skills/`、`/en/skills/`，两者复用同一 feature 页面；标题均为 Skills。Finder 不保留导航、内容集合、路由或别名。
+- 页面复用公共 Container，用 Skills 局部宽度将标题与卡片列表作为一个整体居中（宽屏约 782px 内容宽度），从 Header 下沿开始；只保留公共 display 标题与卡片列表，不迁移原型的独立页头、装饰 Hero、计数条与插图规则。
+- 桌面与平板两列，单卡最大宽度约 381px，网格限宽为两张卡片加 0.85 倍 item-gap，与标题左边缘对齐，整个内容区在视口内居中；640px 以下单列，内容区整体居中并限宽约 381px；卡片宽度、内边距、间距、圆角、标题与箭头圆底按 448px 版的 0.85 倍收紧，正文维持 14px、辅助信息维持 12px。目前只有用户提供的一个真实 Skill，保留一张卡片，不补虚构条目。
+- 一张卡片是一个可访问的完整外链。上方插图保持原有约 1.29 比例，并铺满整个上部区域，随卡片整体等比缩小；下方为名称与圆形箭头、短标题及简介。内容自然增高，英文允许换行，不固定卡片高度或截断文字。 插图上不添加流程胶囊，文字区不显示类别、编号、GitHub 路径、输入 / 输出及能力标签，卡片高度随精简后的内容自然收紧。
 
-所有文章结构由 Astro 输出，浏览器复用 Astro 模板与原生控件，不引入 React hydration 或新依赖。文字透明、无阴影、无圆角，以公共 Heading / Border 线分栏；头条摘要在宽屏分两栏，手机单栏，右侧日历与目录在窄屏移入正文。日历模式按钮、分类与操作链接保留 44px 触摸区和键盘焦点；触屏热力格至少 44px，密集周视图局部横向滚动。普通状态通过读屏播报，不占用额外可见行；错误与空结果可见。下文为早期规划，尚未提供的 API 字段与其他交互不视为已实现。
+## 素材与文字
 
-## Purpose
+- 用户 HTML 内嵌 PNG 原样解码到 `src/assets/images/skills/`，保留原图；Astro Image 生成响应式 WebP。原始 HTML 保存在本地 references/skills，仅作来源记录。
+- 复用原有插图、GitHub 链接、名称与简介；英文只翻译原文，不扩展功能与身份。正文内容集中在 skills Content Collection，草稿不公开；URL 仅接受 HTTP(S)。
+- 蓝黄插图承担视觉主角，保持原色与公共 illustration-canvas 的纸面背景，暗色不反转插图。文字区读取 surface、heading、body、muted-text、signal-text 与 border；薄边框、media 圆角，无持续动画与额外阴影。
+- 卡片名称沿用参考的衬线气质，使用本站托管 Newsreader，约 20px；其他文字使用公共 Sans / Mono。简介使用 text-meta，辅助信息不小于 text-micro（12px）；不复制参考的 6–8px 小字。
 
-News is a live AI information surface.
+## 交互与后续接入
 
-This page has the highest information density on the site.
-
-It should feel like:
-
-> a calm signal monitor, not a noisy news portal.
-
-## Content
-
-Possible groups:
-
-- News
-- Models
-- Products
-- Research
-- Open Source
-- Companies
-- Tools
-
-## Feed Item
-
-Each item should contain only useful information:
-
-```text
-timestamp
-source
-category
-headline
-short summary
-external link
-```
-
-Optional:
-
-```text
-importance
-language
-related item
-```
-
-## Visual Language
-
-News should borrow the technical density of a dashboard while preserving the site's calm style.
-
-Use:
-
-- hairline separators
-- small labels
-- timestamps
-- compact filters
-- subtle live indicators
-- flat data panels
-
-Avoid:
-
-- giant news cards
-- thumbnail-heavy layouts
-- aggressive breaking-news colors
-- constant pulsing animations
-
-## Real-time State
-
-New items may briefly use:
-
-```text
-Live color
-+
-soft background transition
-```
-
-Then settle back into the normal neutral feed.
+- 整卡跳转原 GitHub 仓库，新标签页保留 noopener / noreferrer；仅使用公共 Lucide 箭头表示外链。键盘焦点有明确轮廓，无脚本仍可访问。
+- Motion 管理有限入场、箭头轻移与变色、整幅插图缩放和轻微指针视差。旋转幅度沿用参考约 1° 以内，不拆散或重绘原图；只有可悬浮精细指针启用视差。减少动画立即更新反馈并取消位移，切换主题同步颜色，离开页面清理所有运行资源。
+- 参数位于 motionTokens.skills。未来每个真实 Skill 添加一个 Markdown 条目和对应原图，维护中英文简介与真实 URL；不为数量补卡片，不添加没有目标的按钮。
 
 ---
 
@@ -1080,9 +958,7 @@ Responsive design should change structure when necessary.
 
 Allow:
 
-- wider Projects
-- Finder multi-pane layout
-- News filters and metadata side-by-side
+- Skills two-column card grid
 - Essay TOC
 
 ## Mobile
@@ -1093,8 +969,7 @@ Prefer:
 - less chrome
 - simplified navigation
 - stacked metadata
-- Finder drill-down instead of three panes
-- News filters in horizontal scroll or expandable controls
+- Skills single-column cards with readable metadata
 - no desktop-only sidebars
 
 Do not compress desktop interfaces until they become tiny.
@@ -1128,8 +1003,6 @@ Focus states should be intentionally designed, not removed.
 - Let type create hierarchy
 - Use hairline borders for dense technical UI
 - Keep color contextual
-- Allow Projects to become visually wider
-- Let News become denser without becoming noisy
 - Use Motion to explain state change
 - Keep mobile layouts structurally simple
 
@@ -1142,9 +1015,6 @@ Focus states should be intentionally designed, not removed.
 - Use many global accent colors
 - Animate every scroll event
 - Make every page use the same information density
-- Clone macOS Finder literally
-- Make News look like a generic news website
-- Turn Projects into a startup portfolio template
 
 ---
 
@@ -1172,7 +1042,7 @@ Lucide
 → 通用界面图标；社交品牌使用本地 Simple Icons SVG
 
 Markdown / MDX
-→ Writing, Fragments, Projects content
+→ Writing, Fragments content
 ```
 
 No general-purpose UI component library is required.

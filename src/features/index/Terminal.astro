@@ -18,7 +18,6 @@ const latestPosts = sortByDate(
   .slice(0, terminalContent.posts.limit)
   .reverse()
   .map((entry) => ({
-    title: entry.data.title,
     filename: entry.filePath?.split('/').at(-1) ?? `${entry.id}.md`,
     anchor: entry.id,
     date: new Intl.DateTimeFormat('en-US', {
@@ -61,48 +60,36 @@ const writingUrl = localizePath(sectionPaths.writing, locale);
               </div>
 
               {step.id === 'identity' && (
-                <div class="output-block identity-copy">
-                  <p class="terminal-name c-white" data-terminal-line>
-                    {siteConfig.name}
-                  </p>
-                  <p class="c-muted" data-terminal-line>
-                    {terminalContent.identity.role}{' '}
-                    <span class="term-link">
-                      {terminalContent.identity.company}
-                    </span>
-                  </p>
-                  <p class="c-muted" data-terminal-line>
-                    {terminalContent.identity.experience}
-                  </p>
-                  <p class="c-muted" data-terminal-line>
-                    {terminalContent.identity.location}
-                  </p>
+                <div
+                  class="output-block identity-copy"
+                  lang="en"
+                  data-terminal-output
+                >
+                  <p class="terminal-name c-white">{siteConfig.name}</p>
+                  <p class="c-muted">{terminalContent.identity.role}</p>
+                  <p class="c-muted">{terminalContent.identity.experience}</p>
+                  <p class="c-muted">{terminalContent.identity.location}</p>
                 </div>
               )}
 
               {step.id === 'philosophy' && (
-                <div class="output-block">
-                  <p
-                    class="philosophy c-orange"
-                    lang="zh-CN"
-                    data-terminal-line
-                  >
+                <div class="output-block" data-terminal-output>
+                  <p class="philosophy c-orange" lang="zh-CN">
                     {terminalContent.philosophy.zh}
                   </p>
                   <div class="c-muted" lang="en">
                     {terminalContent.philosophy.en.map((line) => (
-                      <p data-terminal-line>{line}</p>
+                      <p>{line}</p>
                     ))}
                   </div>
                 </div>
               )}
 
               {step.id === 'workflows' && (
-                <div class="output-block output-stack">
+                <div class="output-block output-stack" data-terminal-output>
                   {terminalContent.workflows.map((line) => (
                     <p
                       class:list={{ 'c-muted': 'muted' in line && line.muted }}
-                      data-terminal-line
                     >
                       <span class="c-green" aria-hidden="true">
                         ■
@@ -119,10 +106,14 @@ const writingUrl = localizePath(sectionPaths.writing, locale);
               )}
 
               {step.id === 'posts' && (
-                <div class="output-block posts-output" lang="en">
+                <div
+                  class="output-block posts-output"
+                  lang="en"
+                  data-terminal-output
+                >
                   <ul class="post-list">
                     {latestPosts.map((post) => (
-                      <li class="post-row" data-terminal-line>
+                      <li class="post-row">
                         <span class="post-meta c-muted">
                           {terminalContent.posts.permissions}
                           {'  '}
@@ -137,16 +128,13 @@ const writingUrl = localizePath(sectionPaths.writing, locale);
                             data-astro-reload
                           >
                             {post.filename}
-                          </a>{' '}
-                          <span class="c-muted">— {post.title}</span>
+                          </a>
                         </span>
                       </li>
                     ))}
                   </ul>
-                  <p class="c-muted" data-terminal-line>
-                    {terminalContent.posts.hint}
-                  </p>
-                  <p data-terminal-line>
+                  <p class="c-muted">{terminalContent.posts.hint}</p>
+                  <p>
                     →{' '}
                     <a class="writing-link" href={writingUrl} data-astro-reload>
                       <span class="term-link">Writing</span>{' '}
@@ -156,25 +144,35 @@ const writingUrl = localizePath(sectionPaths.writing, locale);
                 </div>
               )}
 
-              {step.id === 'agents' && (
-                <div class="output-block">
-                  {terminalContent.agents.map((agent) => (
-                    <div class="agent-row" data-terminal-line>
-                      <span class="c-blue">{agent.name}</span>
-                      <span class="c-muted">{agent.description}</span>
+              {step.id === 'tools' && (
+                <div class="output-block" lang="en" data-terminal-output>
+                  {terminalContent.tools.map((tool) => (
+                    <div class="tool-row">
+                      <a
+                        class="tool-link"
+                        href={tool.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {tool.name}
+                      </a>
+                      <span class="c-muted">{tool.description}</span>
                     </div>
                   ))}
                 </div>
               )}
 
-              {step.id === 'career' && (
-                <div class="output-block output-stack">
-                  {terminalContent.career.map((entry) => (
-                    <p data-terminal-line>
+              {step.id === 'education' && (
+                <div
+                  class="output-block output-stack"
+                  lang="en"
+                  data-terminal-output
+                >
+                  {terminalContent.education.map((entry) => (
+                    <p>
                       <span class="c-yellow">{entry.hash}</span>{' '}
                       <span class="c-muted">{entry.year}</span> {entry.role}{' '}
-                      <span class="c-white">{entry.company}</span>{' '}
-                      <span class="c-muted">{entry.description}</span>
+                      <span class="c-white">{entry.institution}</span>
                     </p>
                   ))}
                 </div>
@@ -230,9 +228,13 @@ const writingUrl = localizePath(sectionPaths.writing, locale);
     margin-block-end: 0;
   }
   .identity-layout {
-    --avatar-size: 9rem;
+    --avatar-max-size: 9rem;
+    --avatar-size: var(--avatar-max-size);
     display: grid;
-    grid-template-columns: minmax(0, 1fr) var(--avatar-size);
+    grid-template-columns: minmax(0, 1fr) min(
+        var(--avatar-size),
+        var(--avatar-max-size)
+      );
     gap: var(--group-gap);
     align-items: start;
   }
@@ -247,16 +249,13 @@ const writingUrl = localizePath(sectionPaths.writing, locale);
   @media (prefers-reduced-motion: no-preference) {
     :global(html[data-terminal-js]) [data-terminal-step]:not([data-visible]),
     :global(html[data-terminal-js])
-      [data-terminal-line]:not([data-line-visible]),
-    :global(html[data-terminal-js])
       [data-terminal-divider]:not([data-visible]) {
       display: none;
     }
-    /* 首轮输出前就保留完整文字的高度，头像不随逐行出现而改大小。 */
+    /* 整块输出预留完整高度，头像开始聚合前即可准确测量。 */
     :global(html[data-terminal-js])
-      .identity-copy
-      [data-terminal-line]:not([data-line-visible]) {
-      display: block;
+      .index-introduction
+      :global([data-terminal-output]:not([data-output-visible])) {
       visibility: hidden;
     }
   }
@@ -288,14 +287,26 @@ const writingUrl = localizePath(sectionPaths.writing, locale);
     flex-direction: column;
     gap: 0.5rem;
   }
-  .agent-row {
+  .tool-row {
     display: grid;
     grid-template-columns: 10rem minmax(0, 1fr);
     gap: 0.5rem;
     margin-block-end: 0.25rem;
   }
-  .agent-row:last-child {
+  .tool-row:last-child {
     margin-block-end: 0;
+  }
+  .tool-link {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    color: var(--signal-text);
+    text-decoration: underline dotted;
+    text-underline-offset: 0.25em;
+  }
+  .tool-link:hover,
+  .tool-link:focus-visible {
+    text-decoration-style: solid;
   }
   .posts-output > p + p {
     margin-block-start: 0.25rem;
@@ -321,9 +332,6 @@ const writingUrl = localizePath(sectionPaths.writing, locale);
   }
   .c-green {
     color: var(--heading);
-  }
-  .c-blue {
-    color: var(--signal-text);
   }
   .c-yellow {
     color: var(--muted-text);
@@ -374,10 +382,13 @@ const writingUrl = localizePath(sectionPaths.writing, locale);
     .post-row {
       grid-template-columns: 1fr;
     }
-    .agent-row {
+    .tool-row {
       grid-template-columns: 1fr;
       gap: 0.25rem;
       margin-block-end: 0.75rem;
+    }
+    .tool-link {
+      min-block-size: var(--touch-target);
     }
   }
   @media (max-width: 24.999rem) {

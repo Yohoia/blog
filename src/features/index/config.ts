@@ -1,10 +1,9 @@
-/** 参考稿文案经用户确认暂时保留；公司、履历与统计是待替换的展示内容。 */
+/** 个人介绍、工具与教育经历来自用户；workflows 统计仍为暂留的参考内容。 */
 export const terminalContent = {
   identity: {
-    role: 'CTO & Co-Founder @',
-    company: 'Compute Labs',
-    experience: 'Ex-Airbnb, Apple, AWS — AI/ML veteran',
-    location: 'Redmond, WA',
+    role: 'AI Application Engineer',
+    experience: 'Independent Learner & Software Developer',
+    location: 'Based in China',
   },
   philosophy: {
     zh: '不要想AI能为你做什么，而是想你能为AI做什么',
@@ -25,52 +24,57 @@ export const terminalContent = {
     limit: 6,
     hint: '// latest 6 posts — view all in Writing',
   },
-  agents: [
+  tools: [
     {
-      name: 'deal-evaluator/',
-      description: '— 11 parallel AI sub-agents, multi-model orchestration',
+      name: 'Codex',
+      href: 'https://openai.com/codex/',
+      description: '— AI coding assistant for building and refining software',
     },
     {
-      name: 'market-intel/',
-      description: '— LLM-powered scraping, 45+ providers, 3200+ prices',
+      name: 'Claude Code',
+      href: 'https://claude.com/product/claude-code',
+      description: '— Terminal-based AI assistant for coding and debugging',
     },
     {
-      name: 'workflow-engine/',
-      description: '— state machine orchestrating $1.3B+ in GPU deals',
+      name: 'VS Code',
+      href: 'https://code.visualstudio.com/',
+      description: '— Code editor for development and debugging',
     },
     {
-      name: 'prompt-lab/',
-      description: '— A/B testing across Claude, Gemini, OpenAI',
+      name: 'CC Switch',
+      href: 'https://ccswitch.io/',
+      description: '— Manage and switch AI coding tool configurations',
+    },
+    {
+      name: 'Clash Verge',
+      href: 'https://www.clashverge.dev/',
+      description: '— Desktop client for managing proxy connections',
     },
   ],
-  career: [
+  education: [
     {
       hash: 'a1b2c3d',
-      year: '2019',
-      role: 'ML Engineer @',
-      company: 'Airbnb',
-      description: '— fraud detection, real-time ML inference',
+      year: '2012',
+      role: 'Junior High School Student @',
+      institution: 'Jinxian No. 2 Middle School',
     },
     {
       hash: 'd4e5f6a',
-      year: '2020',
-      role: 'ML Engineer @',
-      company: 'Apple',
-      description: '— Siri AI, on-device ML, BERT',
+      year: '2015',
+      role: 'Senior High School Student @',
+      institution: 'Jinxian No. 2 Middle School',
     },
     {
       hash: 'b7c8d9e',
-      year: '2022',
-      role: 'Sr SWE @',
-      company: 'AWS Athena',
-      description: '— petabyte-scale data infra',
+      year: '2018',
+      role: 'Undergraduate Student @',
+      institution: 'East China Jiaotong University',
     },
     {
       hash: 'f0a1b2c',
-      year: '2024',
-      role: 'CTO @',
-      company: 'Compute Labs',
-      description: '— multi-agent AI systems',
+      year: '2023',
+      role: 'Graduate Student @',
+      institution: 'Xiamen University of Technology',
     },
   ],
 } as const;
@@ -83,8 +87,8 @@ export const terminalSequence = [
     id: 'posts',
     command: 'ls -ltr writing/ | tail -n 6',
   },
-  { id: 'agents', command: 'ls compute-labs/agents/' },
-  { id: 'career', command: 'git log --oneline --reverse career/' },
+  { id: 'tools', command: 'ls tools/' },
+  { id: 'education', command: 'git log --oneline --reverse education/' },
   { id: 'links', command: 'pr -2 -t links.md' },
 ] as const;
 

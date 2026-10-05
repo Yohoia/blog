@@ -1,0 +1,93 @@
+---
+import '@fontsource-variable/newsreader/wght.css';
+import { Image } from 'astro:assets';
+import { ArrowUpRight } from '@lucide/astro';
+import SiteLayout from '@/layouts/SiteLayout.astro';
+import Container from '@/components/layout/Container.astro';
+import { iconTokens } from '@/config/icons';
+import { getLocale } from '@/lib/i18n';
+import { getPublishedEntries } from '@/lib/content/queries';
+import { ui } from '@/i18n/ui';
+import './skills.css';
+
+const locale = getLocale(Astro.url.pathname);
+const text =
+  locale === 'zh'
+    ? {
+        description: '我制作的 Skills，把工作方法变成可以复用的能力。',
+        open: '打开 GitHub 仓库',
+        empty: '新的 Skill 会出现在这里。',
+      }
+    : {
+        description:
+          'Skills I build to turn working methods into reusable capabilities.',
+        open: 'Open GitHub repository',
+        empty: 'New skills will appear here.',
+      };
+const skills = (await getPublishedEntries('skills')).sort(
+  (a, b) => a.data.order - b.data.order || a.id.localeCompare(b.id),
+);
+---
+
+<SiteLayout title={ui[locale].navigation.skills} description={text.description}>
+  <Container as="main" id="main-content" width="feature" class="skills-page">
+    <header class="skills-heading" data-language-block="skills-intro">
+      <h1 class="text-display font-semibold">{ui[locale].navigation.skills}</h1>
+    </header>
+    <skills-grid>
+      <ol class="skills-grid">
+        {skills.map(({ id, data }) => (
+          <li data-language-block={`skill-${id}`}>
+            <a
+              class="skill-card"
+              href={data.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${data.title} · ${text.open}`}
+              data-skill-card
+            >
+              <div class="skill-visual">
+                <Image
+                  src={data.illustration}
+                  alt={
+                    locale === 'zh'
+                      ? data.illustrationAlt
+                      : data.illustrationAltEn
+                  }
+                  widths={[360, 560, 760, 990]}
+                  sizes="(max-width: 420px) calc(100vw - 40px), (max-width: 639px) 381px, (max-width: 829px) calc((100vw - 72px) / 2), 381px"
+                  class="skill-illustration"
+                  draggable="false"
+                  data-skill-art
+                />
+              </div>
+              <div class="skill-content">
+                <div class="skill-title-row">
+                  <h2 class="skill-title">{data.title}</h2>
+                  <span class="skill-arrow" aria-hidden="true" data-skill-arrow>
+                    <ArrowUpRight
+                      size={iconTokens.size.normal}
+                      stroke-width={iconTokens.strokeWidth}
+                    />
+                  </span>
+                </div>
+                <p class="skill-subtitle">
+                  {locale === 'zh' ? data.subtitle : data.subtitleEn}
+                </p>
+                <p class="skill-description">
+                  {locale === 'zh' ? data.description : data.descriptionEn}
+                </p>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </skills-grid>
+    {!skills.length && <p>{text.empty}</p>}
+  </Container>
+</SiteLayout>
+
+<script>
+  import { registerSkillsGrid } from './skills';
+  registerSkillsGrid();
+</script>

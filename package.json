@@ -10,6 +10,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "check": "astro check",
+    "test": "node --test tests/terminal-playback.test.mjs",
     "build": "astro check && astro build",
     "preview": "astro preview",
     "format": "prettier --write .",

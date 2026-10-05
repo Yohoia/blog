@@ -2,7 +2,7 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import {
   writingSchema,
-  finderSchema,
+  skillSchema,
   fragmentSchema,
   staticPageSchema,
   projectSchema,
@@ -12,6 +12,10 @@ const markdownLoader = (section: string) =>
   glob({ base: `./src/content/${section}`, pattern: '**/*.{md,mdx}' });
 
 export const collections = {
+  projects: defineCollection({
+    loader: markdownLoader('projects'),
+    schema: projectSchema,
+  }),
   writing: defineCollection({
     loader: markdownLoader('writing'),
     schema: writingSchema,
@@ -20,16 +24,9 @@ export const collections = {
     loader: markdownLoader('fragments'),
     schema: fragmentSchema,
   }),
-  projects: defineCollection({
-    loader: markdownLoader('projects'),
-    schema: projectSchema,
-  }),
-  finder: defineCollection({
-    loader: glob({
-      base: './src/content/finder',
-      pattern: '**/*.{md,mdx,json}',
-    }),
-    schema: finderSchema,
+  skills: defineCollection({
+    loader: markdownLoader('skills'),
+    schema: skillSchema,
   }),
   now: defineCollection({
     loader: markdownLoader('now'),

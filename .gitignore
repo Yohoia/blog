@@ -47,7 +47,9 @@ Desktop.ini
 !.vscode/extensions.json
 !.vscode/settings.json
 
-tests
+# 本地探索测试不提交，首页播放回归检查随源码保留。
+/tests/*
+!/tests/terminal-playback.test.mjs
 
 # Imported article source materials kept locally
 /KNN/

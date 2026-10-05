@@ -8,14 +8,37 @@ import { getLocale } from '@/lib/i18n';
 import { ui } from '@/i18n/ui';
 
 type Props = ComponentProps<typeof BaseLayout>;
-const baseProps = Astro.props;
+const { bodyClass, ...baseProps } = Astro.props;
 const locale = getLocale(Astro.url.pathname);
 ---
 
-<BaseLayout {...baseProps}>
+<BaseLayout
+  {...baseProps}
+  bodyClass={['site-document', bodyClass].filter(Boolean).join(' ')}
+>
   <slot name="head" slot="head" />
   <SkipLink label={ui[locale].skip} />
   <Header />
   <slot />
   <Footer />
 </BaseLayout>
+
+<style>
+  :global(body.site-document) {
+    display: flex;
+    flex-direction: column;
+    min-block-size: 100vh;
+    min-block-size: 100dvh;
+  }
+
+  :global(body.site-document > .site-header),
+  :global(body.site-document > main),
+  :global(body.site-document > .site-footer) {
+    flex: 0 0 auto;
+  }
+
+  /* 剩余空间由页脚上方吸收，正文保持自然高度和页面滚动。 */
+  :global(body.site-document > .site-footer) {
+    margin-block-start: auto;
+  }
+</style>

@@ -1,0 +1,112 @@
+---
+import { Check, Mic, Sparkles } from '@lucide/astro';
+import type { Locale } from '@/config/i18n';
+import { iconTokens } from '@/config/icons';
+import { projectsContent } from './config';
+
+interface Props {
+  locale: Locale;
+  title: string;
+}
+const { locale, title } = Astro.props;
+const t = projectsContent[locale].demo;
+---
+
+<dida-preview
+  class="project-preview"
+  data-locale={locale}
+  data-phase="ready"
+  aria-label={`${title} · ${t.label}`}
+>
+  <div class="dida-scene">
+    <div class="dida-demo-stage">
+      <div class="dida-voice" data-dida-voice-panel aria-hidden="true">
+        <div class="dida-voice-capsule">
+          <span class="dida-mic" aria-hidden="true">
+            <span data-dida-mic-icon>
+              <Mic
+                size={iconTokens.size.normal}
+                stroke-width={iconTokens.strokeWidth}
+              />
+            </span>
+            <span data-dida-ai-icon hidden>
+              <Sparkles
+                size={iconTokens.size.normal}
+                stroke-width={iconTokens.strokeWidth}
+              />
+            </span>
+          </span>
+          <span class="dida-wave" aria-hidden="true">
+            {Array.from({ length: 27 }, (_, index) => (
+              <span
+                style={`--wave-height: ${8 + Math.sin(index * 1.7) ** 2 * 16}px`}
+                data-dida-wave
+              ></span>
+            ))}
+          </span>
+          <span class="dida-recording-dot" aria-hidden="true"></span>
+        </div>
+        <p class="dida-voice-label" data-dida-voice-label>
+          {t.voice}
+        </p>
+        <div class="dida-transcript" aria-label={t.transcriptLabel}>
+          <span class="dida-transcript-spacer" aria-hidden="true">
+            “{t.transcript}”
+          </span>
+          <span data-dida-transcript>“{t.transcript}”</span>
+        </div>
+      </div>
+      <div class="dida-list" data-dida-result-panel>
+        <div class="dida-list-meta">
+          <span>
+            <Sparkles
+              size={iconTokens.size.small}
+              stroke-width={iconTokens.strokeWidth}
+            />
+            <span>{t.listTitle}</span>
+          </span>
+          <span class="font-mono" data-dida-count>
+            {t.count}
+          </span>
+        </div>
+        <ul class="dida-tasks" data-dida-tasks>
+          {t.tasks.map((task, index) => (
+            <li class="dida-task" data-task-index={index} data-ready>
+              <span class="dida-task-skeleton" aria-hidden="true">
+                <span></span>
+                <span></span>
+              </span>
+              <label>
+                <input
+                  type="checkbox"
+                  disabled
+                  aria-label={`${t.completeLabel} ${task}`}
+                />
+                <span class="dida-checkbox" aria-hidden="true">
+                  <Check
+                    size={iconTokens.size.small}
+                    stroke-width={iconTokens.strokeWidth}
+                  />
+                </span>
+                <span class="dida-task-title">{task}</span>
+                <span class="dida-task-time font-mono">{t.times[index]}</span>
+              </label>
+            </li>
+          ))}
+        </ul>
+        <p class="dida-process-status" data-dida-process-status>
+          {t.ready}
+        </p>
+      </div>
+    </div>
+  </div>
+  <p class="sr-only" role="status" aria-live="polite" data-dida-status></p>
+  <noscript>
+    <p class="dida-noscript">{t.noScript}</p>
+  </noscript>
+</dida-preview>
+
+<script>
+  import { registerDidaPreview } from './dida-preview';
+  registerDidaPreview();
+</script>

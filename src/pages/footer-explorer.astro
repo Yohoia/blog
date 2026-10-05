@@ -1,0 +1,31 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Footer 风格对比"
+  description="Yohoia 品牌、版权与备案信息的五种 Footer 排版方向。"
+  noindex
+  alternateLocales={false}
+  bodyClass="footer-explorer-host"
+>
+  <main id="main-content">
+    <iframe
+      src="/design-explorations/footer-round-02.html"
+      title="Yohoia Footer 风格对比：精简基线与五种设计方向"
+    ></iframe>
+  </main>
+</BaseLayout>
+
+<style>
+  :global(html:has(.footer-explorer-host)) {
+    scrollbar-gutter: auto;
+  }
+
+  iframe {
+    display: block;
+    inline-size: 100%;
+    block-size: 100dvh;
+    border: 0;
+  }
+</style>

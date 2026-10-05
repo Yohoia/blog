@@ -1,6 +1,5 @@
 import { reference, type SchemaContext } from 'astro:content';
 import { z } from 'astro/zod';
-import { finderCategories } from '../../config/categories';
 
 const title = z.string().trim().min(1);
 const tags = z.array(z.string().trim().min(1)).default([]);
@@ -47,34 +46,38 @@ export const fragmentSchema = z
   })
   .refine(validDateOrder, dateOrderMessage);
 
-export const projectSchema = ({ image }: SchemaContext) =>
-  z
-    .object({
-      ...metadata,
-      ...dates,
-      tags,
-      kind: z.enum(['project', 'experiment', 'creation']).default('project'),
-      status: z
-        .enum(['in-progress', 'completed', 'archived'])
-        .default('completed'),
-      stack: z.array(z.string().trim().min(1)).default([]),
-      url: httpUrl.optional(),
-      repository: httpUrl.optional(),
-      cover: image().optional(),
-      coverAlt: z.string().trim().min(1).optional(),
-    })
-    .refine(validDateOrder, dateOrderMessage);
-
-export const finderSchema = z.object({
-  ...metadata,
-  url: httpUrl,
-  category: z.enum(finderCategories),
-  addedAt: z.coerce.date(),
-  tags,
-  note: z.string().optional(),
-});
+export const skillSchema = ({ image }: SchemaContext) =>
+  z.object({
+    ...metadata,
+    descriptionEn: title,
+    subtitle: title,
+    subtitleEn: title,
+    url: httpUrl,
+    illustration: image(),
+    illustrationAlt: title,
+    illustrationAltEn: title,
+    order: z.number().int().nonnegative().default(0),
+  });
 
 export const staticPageSchema = z.object({
   ...metadata,
   updatedAt: z.coerce.date(),
 });
+
+export const projectSchema = ({ image }: SchemaContext) =>
+  z.object({
+    ...metadata,
+    descriptionEn: title,
+    tagline: title,
+    taglineEn: title,
+    summary: title,
+    summaryEn: title,
+    category: title,
+    categoryEn: title,
+    order: z.number().int().nonnegative().default(0),
+    stack: tags,
+    url: httpUrl,
+    repository: httpUrl,
+    logo: image(),
+    demo: z.enum(['dida']).optional(),
+  });

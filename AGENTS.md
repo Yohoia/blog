@@ -4,15 +4,19 @@
 
 这是一个 Astro 个人博客，采用 TypeScript、Tailwind CSS、Motion、Lucide、Content Collections、Markdown / MDX，以及按需 React Islands。
 
-项目已建立标准架构、公共设计系统、导航栏、公共 Footer、中英文 Index、Writing 列表、文章详情模板与 News。Writing 已接入《机器学习概述》与《KNN算法》两篇用户提供的真实文章；其他栏目页和更多正式文章仍待制作，按用户后续请求逐步实现。
+项目已建立标准架构、公共设计系统、导航栏、公共 Footer、中英文 Index、Writing 列表、文章详情模板、Projects 与 Skills。Writing 已接入《机器学习概述》与《KNN算法》两篇用户提供的真实文章；其他栏目页和更多正式文章仍待制作，按用户后续请求逐步实现。
 
-进度同步日期：2026-10-02。About、Profile 已按用户要求移除导航、路由和相关信息，不属于当前待制作栏目。现有菜单为 Index、Writing、Fragments、Projects、Finder、News、Now；Fragments、Projects、Finder、Now 仍是计划入口，访问时进入自定义 404；News 已接入 AIHOT API。
+进度同步日期：2026-10-05。About、Profile 已移除，不属于当前栏目。Projects 接入真实 DiDa-todo，采用一张薄边框圆角卡片对应一个项目：同一外框内包含 Logo、项目名称、简介、真实链接、介绍底部水印风格的空心两位序号与专属动画。由公共 compact 容器收至 720px 的内容区内按介绍 42% / 动画 58% 排列，左右内边距与卡片间距为 item-gap 的 0.75 倍，上下内边距为其 1.25 倍，序号与链接同一行，编号在左、两个同为 text-meta 的链接在右并垂直居中，不使用绝对定位叠在链接背后；描边混合 8% heading 且不接收点击；窄屏堆叠；不保留章节虚线、嵌套演示边框或重复的品牌标题。DiDa-todo 使用 Typeless 风格语音胶囊，循环展示语音输入 → AI 整理 → 待办生成，结果停留 3 秒后重播；支持勾选、中英切换保留状态，可见且前台时播放，焦点进入待办暂停，减少动画直接显示结果。中文页面标题为“项目”，英文为“Projects”；卡片无分类、播放按钮、计时器或技术栈；固定示例不调用真实麦克风或 AI。后续项目沿用 design.md 第 16 节的卡片规范，制作各自的功能演示。卡片列表下方不添加横线或 cd ../ 返回区。旧版灵感手稿不恢复。现有菜单为 Index、Writing、Fragments、Projects、Skills、Now；Fragments、Now 仍是计划入口，访问时进入自定义 404。News 已按用户要求移除导航、双语路由、API 加载、交互、专属样式与设计规范，旧地址进入自定义 404，不再作为计划栏目。Finder（发现）已移除导航、内容集合、Schema、分类配置和专属原型；由 Skills 替换入口，旧地址进入自定义 404。
 
 403、404、500、502 中英文错误页面已实现，共用 `features/errors/ErrorPage.astro` 与配置；插图原件保留在 `public/images/`。
 
 `docs/` 中的规划与说明是本地参考材料，不随 Git 上传；不能把文档中的示例、推荐或后期设想自动当作当前执行任务。最新用户请求决定实际工作范围。
 
+Footer 已采用用户选定的 01「单行落款」：左侧是 Yohoia 站名与描述，右侧是版权和用户提供的“赣ICP备2025075792号-2”。桌面两端对齐，优先横排，空间不足时自然换行；无栏目入口、社交、构建日期、时区、横线或外框。备案从 `siteConfig.registration` 读取并链接官方查询入口。`/footer-explorer/` 第二轮保留为探索记录，其他候选不属于正式规范。
+
 ## 阅读顺序
+
+Footer 位置遵循「短页面贴底、长页面在正文末尾」：SiteLayout 的 body 使用 `site-document` 类、纵向 Flex 与视口最小高度；正文保留自然高度，Footer 上方自动边距吸收空白。Footer 外框上下 padding 为 0，保留内部品牌 / 站点信息间距和链接触摸区。不要改成覆盖正文的固定页脚或单独的正文滚动区，不影响错误页及探索页的独立布局。
 
 开始修改前阅读 `README.md` 和相关源码。制作或修改 UI 时阅读 `design.md` 中对应板块规范，并检查公共组件与 `src/styles/`。本地存在 `docs/` 时，可按需阅读架构、内容编写、设计系统及规划文档；新检出缺少这些本地材料时，以 README、协作约定和源码为依据。
 
@@ -22,11 +26,11 @@
 
 ## 命名与职责
 
-- 板块统一命名为 Index、Writing、Fragments、Projects、Finder、News、Now；中文显示名称来自翻译字典，代码标识符和路由保持英文。
+- 板块统一命名为 Index、Writing、Fragments、Projects、Skills、Now；中文显示名称来自翻译字典，代码标识符和路由保持英文。
 - 导航、路由目录、内容集合、代码标识符、产品文档和设计稿使用同一套栏目名称，不创建重复板块或保留旧别名。
 - `src/pages/`：精简的路由、静态路径生成与端点。
 - `src/layouts/`：全局 HTML、SEO、主题与页面布局；页面使用 `BaseLayout` 或其衍生布局。
-- 常规站点页面使用 `SiteLayout`，复用 Header 和 SkipLink；页面主内容须包含 `id="main-content"`。 `SiteLayout` 同时引入公共 `Footer`：内容最大 1200px、顶部透明无横线，按品牌、版权 / 构建信息、站点与外部链接三行组织；只用真实站点链接与联系方式，不添加在线人数、参考站项目或虚构备案。Header 的激活态依据实际路径，导航配置统一从 `config/navigation.ts` 读取。
+- 常规站点页面使用 `SiteLayout`，复用 Header 和 SkipLink；页面主内容须包含 `id="main-content"`。`SiteLayout` 同时引入公共 `Footer`：内容最大 1200px，采用单行落款；左侧品牌站名使用公共 item 字号（桌面最大 20px）、500 字重，描述及右侧版权 / 备案为 14px Sans。两端对齐，优先横排，空间不足时自然换行；透明、无横线或外框，不恢复栏目入口、社交、构建日期或时区。站名、备案与年份时区读取 `siteConfig`，站名返回当前语言首页，站名与备案链接保留至少 44px 触摸高度，主题与键盘焦点沿用公共样式。Header 的激活态依据实际路径，导航配置统一从 `config/navigation.ts` 读取。
 - Header 的 Logo 与操作按钮分置视口两侧，水平边距为 `clamp(1rem, 3vw, 3rem)`；桌面与移动端统一使用 Type Overlay 菜单入口，右侧按钮依次为菜单、中英切换、主题。Header 使用公共 `--header-surface`、`--header-blur` 与 `--header-saturation` 提供磨砂背景，保留在普通文档流中随页面自然滚动；不添加滚动收紧、固定、淡出或额外 Motion 动画。桌面垂直边距为 1rem，窄屏为 0.75rem；窄屏适当缩小 Logo，所有图标按钮保持至少 44px，不恢复横向桌面导航或仅限移动端的菜单。
 - `src/components/`：跨板块复用的 Astro 组件。
 - `src/features/<section>/`：板块专属组件、查询与业务逻辑。
@@ -51,10 +55,10 @@
 - 公共鼠标样式由 `styles/cursors.css` 和 `assets/cursors/` 的原生 SVG 提供，读取 `--cursor-default`、`--cursor-interactive`；暗色主题与固定黑色的全屏菜单共用 `--cursor-on-dark`，菜单在局部覆盖默认光标，不改变页面主题。仅对可悬浮的精细指针启用：普通区域是 18px 实心箭头（亮色主题黑色、暗色主题浅色，均无描边），24px 浅黄色圆形（填充不透明度 55%）仅用于链接、按钮、菜单及 Writing 文章 / 标签的悬浮反馈，移开后恢复箭头。通过 CSS :hover 实现，不增加点击或 :active 触发，保留文本输入和禁用状态光标；静态参考文章不增加虚构链接。不引入 DOM 光标、持续跟随时钟或重复事件监听。
 - 全屏导航使用 `components/layout/TypeOverlayMenu.astro` 与 `scripts/type-overlay-menu.ts`，原生 `dialog` 提供顶层显示、焦点约束和背景 inert，Tailwind 与公共 Token 定义布局、固定黑色背景和大字号。Motion 从菜单图标中心圆形展开，链接逐项淡入并上移，悬浮和聚焦时右移；参数统一来自 `motionTokens.menu`。支持 Escape、关闭按钮、动画中途关闭、减少动画和无脚本折叠菜单。打开时只锁定根节点滚动，保留页面的滚动条占位，补偿 dialog 的起点并用实际视口像素设置宽高，避免 `100vw` 被占位缩小，关闭时恢复阅读位置；不要修改 body 的 overflow 或边距，否则会改变 sticky 导航的参照并造成跳动。菜单内部使用公共 `scrollbar-hidden` 隐藏滚动条外观，保留内容滚动。页面替换、离开和断开连接时清理动画及滚动锁。不引入 React hydration 或额外动画库，不迁移参考稿中的旧栏目名。
 - Logo 保留原始 SVG 轮廓与遮罩显现顺序，用 Motion 时间线播放；不添加 CSS keyframes、SMIL 或 React hydration 重复驱动动画。其品牌时序位于 `motionTokens.logo`，多个实例必须拥有独立遮罩 ID。
-- 首页介绍沿用参考稿内容与播放节奏：Astro 输出完整内容，Motion 驱动打字与光标，参数位于 `motionTokens.terminal`。按用户最新要求直接平铺在页面中，使用公共容器、颜色和明暗主题，不添加终端窗口外框、标签栏、状态栏或内部滚动。仅浏览器刷新自动播放，直接访问、站内跳转与历史返回立即展示完整内容；`scripts/page-visit.ts` 结合 Navigation Timing 与 ClientRouter 生命周期判断，不能只检查 Navigation Timing 后在客户端返回时重复播放。语言切换保留当前播放进度、访问时间和页面阅读位置；播放结束后，末尾空提示符的光标继续闪烁；仅在光标可见且页面处于前台时运行，移出视口、进入后台、离开或断开连接时停止，返回后恢复。进入历史缓存前完成内容，减少动画模式立即展示完整内容并保持光标常亮。Logo 的自动播放也仅在刷新时触发，保留悬浮与聚焦重播。
+- 首页介绍沿用参考稿内容与播放节奏：Astro 输出完整内容，Motion 驱动更快的打字、整块输出与光标，参数位于 `motionTokens.terminal`。按用户最新要求直接平铺在页面中，使用公共容器、颜色和明暗主题，不添加终端窗口外框、标签栏、状态栏或内部滚动。仅浏览器刷新自动播放，直接访问、站内跳转与历史返回立即展示完整内容；`scripts/page-visit.ts` 结合 Navigation Timing 与 ClientRouter 生命周期判断，不能只检查 Navigation Timing 后在客户端返回时重复播放。主动语言切换保留当前播放进度、访问时间和页面阅读位置；历史前进 / 后退（traverse）不保存或恢复播放快照，立即显示完整内容。刷新播放等待字体最多 1.5 秒，超时或字体 Promise 拒绝时使用回退字体继续；页面离开或减少动画时取消等待计时器；播放结束后，末尾空提示符的光标继续闪烁；仅在光标可见且页面处于前台时运行，移出视口、进入后台、离开或断开连接时停止，返回后恢复。进入历史缓存前完成内容，减少动画模式立即展示完整内容并保持光标常亮。Logo 的自动播放也仅在刷新时触发，保留悬浮与聚焦重播。
 - 首页内容区相对视口居中，正文左对齐，从 Header 下沿开始排布，不额外预留顶部组间距；各部分使用公共边框颜色的 1px 横线分隔，横线上下各 12px，避免恢复原先 32–48px 的大组间距。中英文首页、Writing 列表与文章详情页通过 `BaseLayout` 的 `hideScrollbar` 属性隐藏根滚动条并取消其占位，保留自然滚动；其他页面保留对称的滚动条占位，保持内容与导航的中心一致；原生滚动条轨道使用画布色，随主题同步更新。
-- 首页提示符的用户名用绿色，主机名用蓝色，光标为柔和绿色；颜色读取公共 Token，并保留浅色主题的文字对比度。命令匀速逐字输入，输出按语义行依次淡入；当前行数与输出阶段也要纳入语言切换快照。输出过程中隐藏下一条空提示符，等整部分输出完毕后再显示分隔线与下一条提示符。每条命令开始时从可见相位重新闪烁，等待下一条输入时保持光标可见；历史命令行不复制光标。
-- `whoami` 右侧使用 `features/index/PixelAvatar.astro`，原始头像与 64×64 圆点 SVG 保留在 `src/assets/images/`。首轮聚合从第一行信息开始，与完整输出同步结束；下一部分等待文字和头像都完成。`scripts/pixel-avatar.ts` 使用一个 Motion 时钟驱动 Canvas，参数来自 `motionTokens.avatar`，配色读取公共 Token，完成后保留 Canvas 最后一帧并停止动画，避免 Canvas / SVG 交接造成细点闪变。语言切换保存头像进度，离开页面清理动画和观察器；静态访问、减少动画或无脚本时显示完整 SVG。桌面端默认 144px，隐藏的 identity 行提前保留完整文字高度，聚合开始前同步头像尺寸；手机端使用 128px / 100px，保持命令全宽。不要在逐行输出结束时才测量和缩放头像，不要恢复过大的头像导致左侧底部空白，也不要把本地 HTML 原型的调试控件加入首页。
+- 首页提示符的用户名用绿色，主机名用蓝色，光标为柔和绿色；颜色读取公共 Token，并保留浅色主题的文字对比度。命令匀速逐字输入，当前试行每字符 35ms；每条命令的全部输出一起淡入并上浮 8px、历时 0.5 秒，不逐行错峰。参数集中在 motionTokens.terminal.blockReveal；输出的线性进度、命令进度与输出阶段也要纳入语言切换快照，视觉缓动读取公共 easing。输出过程中隐藏下一条空提示符，等整部分输出完毕后再显示分隔线与下一条提示符。每条命令开始时从可见相位重新闪烁，等待下一条输入时保持光标可见；历史命令行不复制光标。
+- `whoami` 右侧使用 `features/index/PixelAvatar.astro`，原始头像与 64×64 圆点 SVG 保留在 `src/assets/images/`。首轮聚合与整块个人信息同时开始，使用同样的 0.5 秒时长并同步结束；下一部分等待文字和头像都完成。`scripts/pixel-avatar.ts` 使用一个 Motion 时钟驱动 Canvas，参数来自 `motionTokens.avatar`，配色读取公共 Token，完成后保留 Canvas 最后一帧并停止动画，避免 Canvas / SVG 交接造成细点闪变。语言切换保存头像进度，离开页面清理动画和观察器；静态访问、减少动画或无脚本时显示完整 SVG。桌面端默认 144px，隐藏的 identity 输出块提前保留完整文字高度，聚合开始前同步头像尺寸；手机端使用 128px / 100px，保持命令全宽。不要在逐行输出结束时才测量和缩放头像，不要恢复过大的头像导致左侧底部空白，也不要把本地 HTML 原型的调试控件加入首页。
 - 通用界面图标使用 `@lucide/astro` 或 `lucide-react`，按图标名导入。用户明确要求社交渠道使用对应品牌图标，首页 Gmail、QQ、X、小红书、Bilibili、GitHub、微信与 Telegram 使用本地 Simple Icons SVG；来源提交与 CC0 许可位于 `src/assets/icons/social/`，由 Astro 内联并沿用公共尺寸和颜色，不引入远程运行时或徽章样式。
 - 图片使用 `astro:assets` 的 Image / Picture；代码高亮使用 Astro 内置 Shiki。
 - 错误页按用户要求使用 `BaseLayout` 的独立全屏布局，不显示 Header、Logo、导航或顶部操作区；插图与简短说明在整个视口居中、保持比例，保留返回首页入口。原图保留在 `public/images/`，仅供服务端使用的 `features/errors/images.ts` 静态导入图片，由 `astro:assets` 生成响应式 WebP；不要把公共路径字符串当成已优化的图片，也不要从客户端文案配置导入图片模块。原图的深色字样用公共 `--illustration-canvas` 纸色底保证暗色可辨认，主题继承现有脚本。错误页设为 `noindex` 并从 Sitemap 排除；`404.astro` 是未知地址的兜底入口。静态托管只回传根错误文件时，`scripts/error-page.ts` 从实际 URL 同步文案与返回首页链接的语言。不能把静态预览路由当作已部署的服务器错误拦截；真正的 403 / 500 / 502 由托管服务器绑定，Nginx 示例位于 `deploy/nginx-errors.conf`。
@@ -70,16 +74,18 @@
 
 ## 内容与发布
 
+首页头像的网格列与按钮共用 `--avatar-max-size`（桌面 144px）上限，保留按完整文字高度缩小；ResizeObserver 回调将尺寸写入合并到下一帧，整块输出前同步测量，离开时取消排队测量。Vite 预构建 `motion` 与 `motion/mini`，依赖缓存按开发服务与检查 / 构建分别存于 `node_modules/.vite/dev/` 与 `node_modules/.vite/tooling/`，避免检查改写正在使用的浏览器依赖。开发期间遇到 `504 (Outdated Optimize Dep)` 时检查依赖缓存和开发服务，不能据此改变首页播放时序或仅刷新播放规则。
+
 - Content Collections 配置位于 `src/content.config.ts`，Schema 位于 `src/lib/content/schemas.ts`；使用 Content Layer 的 `entry.id`。
 - 公共列表、详情静态路径与 RSS 必须过滤草稿，优先复用 `getPublishedEntries()`。
-- Writing / Fragments / Projects 的详情路径使用 `getEntryPath()` 与 `[...id].astro`，支持嵌套内容目录。
-- 不编造文章、作品、个人身份、联系方式或 News 新闻来填充目录。
-- 姓名和联系方式统一读取 `config/site.ts`。首页使用 `pr -2 -t links.md` 与 `features/index/TerminalContacts.astro`，左侧 Email、QQ、X、小红书，右侧 Bilibili、GitHub、微信、Telegram，各四个。邮箱为 `imyohoia@gmail.com`，微信号码为 `13870096885`（点击复制），TG 为 `@Yohoia`（`https://t.me/Yohoia`）；渠道、标签、复制值和目标 URL 集中在 `siteConfig.contactLinks`，刷新播放时每行同时展示两列，不恢复 LinkedIn、简历或旧邮箱。首页公司、履历与统计经用户明确要求暂留参考内容，集中在 `features/index/config.ts`，不能自动视为真实个人资料或已接入的数据；待用户提供资料后替换。
-- 首页文章区使用用户确认的 `yohoia@space:~$ ls -ltr writing/ | tail -n 6`，用户名和文件所有者来自 `siteConfig.name`。最新文章从已发布 Writing Content Collection 读取，按日期由旧到新显示，最多 6 条；`Writing — full blog` 跳转到对应语言的本站列表，文件名定位列表条目。保留逐行播放、响应式换行与语言切换进度；测试参考记录已清除，不再用无正文配置充当已发布文章。
+- Writing / Fragments 的详情路径使用 `getEntryPath()` 与 `[...id].astro`，支持嵌套内容目录。
+- 不编造文章、作品、个人身份、联系方式来填充目录。
+- 姓名和联系方式统一读取 `config/site.ts`。首页使用 `pr -2 -t links.md` 与 `features/index/TerminalContacts.astro`，左侧 Email、QQ、X、小红书，右侧 Bilibili、GitHub、微信、Telegram，各四个。邮箱为 `imyohoia@gmail.com`，微信号码为 `13870096885`（点击复制），TG 为 `@Yohoia`（`https://t.me/Yohoia`）；渠道、标签、复制值和目标 URL 集中在 `siteConfig.contactLinks`，刷新播放时联系区两列整体浮现，不恢复 LinkedIn、简历或旧邮箱。首页个人介绍、工具与教育经历使用用户资料，集中在 `features/index/config.ts`；这三组内容按用户要求在中英文页面均展示英文。个人介绍为 AI Application Engineer、Independent Learner & Software Developer、Based in China；`ls tools/` 展示 Codex、Claude Code、VS Code、CC Switch、Clash Verge 及一句基础简介；名称以蓝色带下划线的普通链接打开已核对的对应官网，href 集中在 tools 配置，使用新标签页及 noopener / noreferrer，窄屏保留 44px 触摸高度；`git log --oneline --reverse education/` 展示 2012 / 2015 进贤二中、2018 华东交通大学、2023 厦门理工学院的四个学习阶段。提交式短哈希仅为版式装饰，不添加未提供的专业、学位、毕业年份或工作任职。`claude-code --stats` 的统计仍是此前明确暂留的参考内容，不能自动视为真实个人数据。
+- 首页文章区使用用户确认的 `yohoia@space:~$ ls -ltr writing/ | tail -n 6`，用户名和文件所有者来自 `siteConfig.name`。最新文章从已发布 Writing Content Collection 读取，按日期由旧到新显示，最多 6 条；`Writing — full blog` 跳转到对应语言的本站列表，每行仅显示权限、所有者、日期和可点击文件名，不重复右侧文章标题；文件名定位列表条目。保留整块输出播放、响应式换行与语言切换进度；测试参考记录已清除，不再用无正文配置充当已发布文章。
 - Writing 列表采用期刊式归档结构，按真实已发布条目的年 / 月 / 日从新到旧分组，使用 UTC 计算日期与星期；同日维持稳定顺序。内容从 Header 下沿开始，删除介绍段和顶部统计；年份采用 Space Grotesk 600 字重的浅色描边数字，读取公共 --font-year；Writing 页面单独导入对应字重，月份侧栏与每行日期 / 星期组成时间线，文章行保持透明。标题与正文首段按用户要求单行省略，正文首段从 Content Collection 的 body 提取，DOM 与 title 属性保留完整文本；文件名不显示；整个真实文章卡片使用覆盖式链接进入详情，保留键盘焦点。黄色标题色带固定 0.72em 高度，Motion 只动画 --writing-highlight-progress 的横向数值，不能插值混合 px / em 的 background-size 高度。日期数字、星期与标签统一读取 text-meta 字号与行高（默认 14px / 21px），继承相同字重；日期圆底尺寸跟随行高，标签不添加改变文字对齐的底部留白。每条最多展示三个按标题分类的 `#` 标签，由 Motion 驱动颜色与下划线。箭头固定在文章行最右侧，默认浅色，悬浮时蓝色圆底缩放显现并轻移箭头。交互使用 `scripts/writing.ts`、`motionTokens.writing` 与公共 Token，尊重减少动画偏好，主题改变时同步颜色；手机端日期与标签允许自然换行，月份移至文章上方。底部 `cd ../` 是可访问的普通链接，返回当前语言的首页，保留 44px 触摸区与键盘焦点，不调用浏览器历史回退或栏目字符过渡。
 - Writing 详情由 `features/writing/ArticlePage.astro` 和中英文 `[...id].astro` 静态路由实现，只由已发布 Content Collection 条目生成，支持嵌套目录并过滤草稿；详情页隐藏根滚动条外观但保留自然滚动。正文通过 Astro 渲染 Markdown / MDX；文章 h1 是页面题目，目录从正文渲染的 h2 / h3 / h4 生成。宽屏复刻参考站比例：正文纸张与右侧目录 / 快捷栏组成最大 1152px 的内容组合并整体居中；1280px 及以上正文为 920px，右侧栏为 200px，1024–1280px 保留右侧栏并让正文收缩，1024px 以下转为单列并使用右侧边缘箭头打开目录浮层。“On this page” 保留 120px 顶部停靠偏移；目录可见高度约 248px，内部滚动、隐藏滚动条并显示渐进模糊，滚动时高亮当前章节，下方进度与快捷操作位置保持不变。右侧同一栏依次提供阅读进度、回到顶部、本地喜欢、分享、GitHub 更新 / 支持 / 反馈；喜欢计数只保存在当前浏览器。正文底部左侧使用与 Writing 列表一致的 `cd ../` 可访问普通链接，返回当前语言 Writing 列表；较窄目录浮层用 Motion 原地淡入淡出并尊重减少动画，离开清理。正文使用按需加载的 Newsreader 与中文系统宋体回退；标题 meta 单行展示头像版站点作者 Yohoia、YYYY/MM/DD 发布日期、细线索引标签、字数与分钟数，所有子项统一继承 12px / 1.4 的 Mono Meta 样式，窄屏居中换行。用户提供的《机器学习概述》与《KNN算法》均已作为正式 Writing 条目接入，页面标题 meta 统一展示站点作者，图片改用本地构建资源；原始导入目录仅保留在本地并由 Git 忽略。
 - 首页文章输出不显示 `total 6 posts`；底部入口仅在 `Writing` 文字下显示虚线，`— full blog` 无下划线，整段入口保持可点击。
-- News 内容从 Header 下沿开始，期号、选中日期、更新时间与刷新按钮保留在版面元信息行，顶部只保留头版的粗分隔线。右侧日历与分类目录参照 `news-heatmap-v3.html`：日历使用日报 / 周报 / 月报三种点阵视图，容器高度在桌面与窄屏内固定，切换不改变后续版面位置；每个日期或周期以圆点表示，深色为有日报、浅色为无日报，颜色不表示资讯数量。悬浮或聚焦只提示日期，不显示条数；日报按星期排列，周报按季度分四行并兼容 ISO 第 53 周，月报以 12 个月两行排列；周与月点选择对应周期内最新可用日报，无日报周期仍显示浅色点。选择有日报的点加载 `/dailies/{date}`，失败保留原版面，可返回最新资讯。分类包含全部头条与七个主题入口，补齐行业动态与开源入口，采用带两位序号的纵向透明文字行、细分隔线、选中下划线与悬浮轻移，动画来自 motionTokens.news；数量仅显示选中分类已载入条数。已移除搜索入口及交互。下方各分类使用三列网格，平板两列、手机单列；普通新闻卡片统一为 24rem 高度与相同内容宽度，减少底部留白；标题最多三行、简介最多四行；标题自然左对齐，完整文字保留在 DOM 与悬浮提示中。精选与 AI 评分移至卡片左上角，替代分类小标题；时间与来源靠底，保留原有数据；阅读原文位于卡片右上角，与精选及评分对齐，文章标题跳转 AIHOT 导读，来源名称仅展示文字，底部不重复放阅读链接；头条沿用独立版面。页面底部去除来源与语言说明，只保留左侧 cd ../ 返回当前语言首页，不显示箭头。分类加载期间保留最近成功版面，连续切换取消旧请求和过渡；日历模式、筛选与已载入内容随语言切换保留。News 已实现中英文报纸式页面 `/news/`、`/en/news/`，去除大报头；复用公共导航、1200px wide 容器与主题，展示头条、次要新闻、右侧热力图与分类目录，以及下方按分类分组的三列资讯。AIHOT 匿名只读 API v1 提供最近七天精选与最新日报；构建保存快照，浏览器打开时更新，前台每十分钟条件请求，也可手动刷新。API 当前提供五种分类；行业与商业入口均使用 industry，开源入口使用 q=开源，保留 API 返回的原始分类；24 条一页，游标分页追加；中英切换保留筛选与已载入内容。ETag / 304 复用成功缓存，失败保留最近成功的版面，429 遵守 Retry-After，游标失效重取首屏。标题、摘要、评分和来源均来自 API，不添加虚构期号、标签或新闻；英文优先采用 originalTitle，摘要保留来源语言，所有时间明确使用北京时间。 Provider 位于 `features/news/providers/aihot.ts`，统一类型位于 `features/news/types.ts`；只使用 `/api/v1/`，不新增 SSR、密钥、全库镜像或第三方正文抓取。无脚本读取构建快照；静态构建本身不会自动更新。日报由顶层 `report` 映射，版面日期、生成时间、统计窗口分别显示。外部文字通过 Astro 转义或 textContent 渲染，链接仅允许 HTTP(S)。
+- Skills 使用 `features/skills/SkillsPage.astro` 和中英文 `/skills/` 路由，从已发布 skills 集合读取真实条目。第 17 节规范以用户提供的 `yoho-skills-v3-illustration.html` 为基础：上方约 1.29 比例、铺满整个上部的插图，下方名称 / 箭头 / 简介；不显示类别、编号或 GitHub 路径，一张卡片一个外链；桌面与平板两列，单卡最大约 381px，网格与标题左边缘对齐且整个内容区居中，手机单列，内容自然增高，不用固定高度或截断隐藏译文。沿用公共 SiteLayout、Container 与局部内容宽度（宽屏约 782px、手机约 381px）、主题、Sans / Mono 与正文颜色，仅卡片名称按参考使用本站托管的 Newsreader；插图保持原色纸面，不反色。原 HTML 的 base64 PNG 已无修改解码为 `src/assets/images/skills/yoho-get-design.png`，通过 astro:assets 输出响应式 WebP；卡片真实 GitHub 链接和内容由 `src/content/skills/yoho-get-design.md` 管理，不增加未提供的技能、安装入口或虚构指标。`features/skills/skills.ts` 用 Motion 实现轻微倾斜、插图视差、箭头反馈与有限入场，参数集中在 motionTokens.skills；精细指针才启用视差，减少动画取消位移，主题改变同步颜色，离开清理观察器、监听和动画。保留整卡键盘焦点与无脚本可用外链。
 - `SITE_URL` 在 `.env` 中配置；未确定域名时不填假生产域名。
 - RSS 构建函数已在 `lib/rss.ts` 中准备，实际内容路由完成后再创建公开 RSS 端点。
 - 服务端密钥不放入 `PUBLIC_*` 变量或客户端文件。
@@ -91,13 +97,14 @@
 ```sh
 npm run dev
 npm run check
+npm test
 npm run format:check
 npm run build
 ```
 
 修改后先执行相关验证，再执行格式检查和生产构建。`npm run build` 包含 Astro 类型检查。只针对重要行为和实际风险增加测试；不为目录占位、配置字面量或简单可逆修改建立测试框架。
 
-首页 `/`、`/en/`、Writing `/writing/`、`/en/writing/`、News `/news/`、`/en/news/` 应正常显示；其他栏目页目前未实现。空内容集合的提示属于预期。首页当前展示平铺介绍，已移除原 Recently 模块。验证集成需要临时样例时，验证后移除样例，不能把测试页面变成产品页面。
+首页 `/`、`/en/`、Writing `/writing/`、`/en/writing/`、Projects `/projects/`、`/en/projects/`、Skills `/skills/`、`/en/skills/` 应正常显示；Fragments、Now 目前未实现。空内容集合的提示属于预期。首页当前展示平铺介绍，已移除原 Recently 模块。验证集成需要临时样例时，验证后移除样例，不能把测试页面变成产品页面。
 
 不修改 `node_modules/`、`.astro/`、`dist/` 等生成文件；提交源文件、配置与锁文件，忽略 `.env`。未经用户要求不自动初始化 Git、提交、推送或部署。
 
