@@ -312,6 +312,8 @@ export function startNavigationTransition(
     url.search === location.search
   ) {
     covered();
+    if (location.hash !== url.hash) window.location.assign(url.href);
+    else window.scrollTo({ left: 0, top: 0, behavior: 'instant' });
     return true;
   }
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches)

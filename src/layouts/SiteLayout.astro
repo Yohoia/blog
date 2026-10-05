@@ -7,21 +7,51 @@ import SkipLink from '@/components/common/SkipLink.astro';
 import { getLocale } from '@/lib/i18n';
 import { ui } from '@/i18n/ui';
 
-type Props = ComponentProps<typeof BaseLayout>;
-const { bodyClass, ...baseProps } = Astro.props;
+type BackgroundWave = 'wave' | 'fabric' | 'tide';
+type Props = ComponentProps<typeof BaseLayout> & {
+  backgroundWave?: BackgroundWave | false;
+};
+const { bodyClass, backgroundWave, ...baseProps } = Astro.props;
+const organicBackground =
+  backgroundWave === undefined && !bodyClass?.includes('background-preview');
 const locale = getLocale(Astro.url.pathname);
 ---
 
 <BaseLayout
   {...baseProps}
-  bodyClass={['site-document', bodyClass].filter(Boolean).join(' ')}
+  bodyClass={[
+    'site-document',
+    organicBackground && 'organic-background',
+    bodyClass,
+  ]
+    .filter(Boolean)
+    .join(' ')}
 >
   <slot name="head" slot="head" />
+  {organicBackground && (
+    <canvas class="background-organic-canvas" aria-hidden="true" />
+  )}
+  {backgroundWave && (
+    <canvas
+      class="background-wave-canvas"
+      aria-hidden="true"
+      data-wave-variant={backgroundWave}
+    />
+  )}
   <SkipLink label={ui[locale].skip} />
   <Header />
   <slot />
   <Footer />
 </BaseLayout>
+
+<script>
+  import { initializeBackgroundHalo } from '@/scripts/background-halo';
+  import { initializeOrganicBackground } from '@/scripts/background-organic';
+  import { initializeBackgroundWave } from '@/scripts/background-wave';
+  initializeBackgroundHalo();
+  initializeOrganicBackground();
+  initializeBackgroundWave();
+</script>
 
 <style>
   :global(body.site-document) {
@@ -29,6 +59,156 @@ const locale = getLocale(Astro.url.pathname);
     flex-direction: column;
     min-block-size: 100vh;
     min-block-size: 100dvh;
+  }
+
+  :global(body.background-preview-grid),
+  :global(body.background-preview-drift),
+  :global(body.background-preview-motion) {
+    --site-grid-line: rgb(27 27 24 / 0.035);
+    --site-halo-opacity: 0;
+    background-image:
+      radial-gradient(
+        circle 260px at var(--site-halo-x, -1000px) var(--site-halo-y, -1000px),
+        rgb(107 140 255 / var(--site-halo-opacity)) 0%,
+        transparent 78%
+      ),
+      linear-gradient(to right, var(--site-grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--site-grid-line) 1px, transparent 1px);
+    background-size:
+      auto,
+      40px 40px,
+      40px 40px;
+    background-position:
+      0 0,
+      0 0,
+      0 0;
+    background-attachment: fixed;
+    animation: site-grid-drift 48s linear infinite;
+  }
+
+  :global(body.background-preview-grid[data-background-halo]),
+  :global(body.background-preview-drift[data-background-halo]),
+  :global(body.background-preview-motion[data-background-halo]) {
+    --site-halo-opacity: 0.18;
+  }
+
+  :global(html[data-theme='dark'] body.background-preview-grid),
+  :global(html[data-theme='dark'] body.background-preview-drift),
+  :global(html[data-theme='dark'] body.background-preview-motion) {
+    --site-grid-line: rgb(241 240 233 / 0.05);
+  }
+
+  :global(
+    html[data-theme='dark'] body.background-preview-grid[data-background-halo]
+  ),
+  :global(
+    html[data-theme='dark'] body.background-preview-drift[data-background-halo]
+  ),
+  :global(
+    html[data-theme='dark'] body.background-preview-motion[data-background-halo]
+  ) {
+    --site-halo-opacity: 0.22;
+  }
+
+  @keyframes site-grid-drift {
+    to {
+      background-position:
+        0 0,
+        40px 40px,
+        40px 40px;
+    }
+  }
+
+  :global(.background-wave-canvas) {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    display: none;
+    inline-size: 100%;
+    block-size: 100%;
+    pointer-events: none;
+  }
+
+  :global(.background-organic-canvas) {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    pointer-events: none;
+    background-image: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--heading) 12%, transparent) 0 1px,
+      transparent 1.2px
+    );
+    background-size: 40px 40px;
+    -webkit-mask-image: radial-gradient(
+      ellipse at center,
+      black 40%,
+      transparent 90%
+    );
+    mask-image: radial-gradient(ellipse at center, black 40%, transparent 90%);
+  }
+
+  :global(body[data-organic-active] .background-organic-canvas) {
+    background-image: none;
+  }
+
+  :global(body[data-wave-active] .background-wave-canvas) {
+    display: block;
+  }
+
+  :global(body.site-document:has(> .background-wave-canvas) > .site-header),
+  :global(body.site-document:has(> .background-wave-canvas) > main),
+  :global(body.site-document:has(> .background-wave-canvas) > .site-footer),
+  :global(body.site-document:has(> .background-organic-canvas) > .site-header),
+  :global(body.site-document:has(> .background-organic-canvas) > main),
+  :global(body.site-document:has(> .background-organic-canvas) > .site-footer) {
+    position: relative;
+    z-index: 1;
+  }
+
+  :global(body.site-document[data-wave-active]) {
+    background-image: radial-gradient(
+      circle 260px at var(--site-halo-x, -1000px) var(--site-halo-y, -1000px),
+      rgb(107 140 255 / var(--site-halo-opacity)) 0%,
+      transparent 78%
+    );
+    animation: none;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(html:not([data-theme='light']) body.background-preview-grid),
+    :global(html:not([data-theme='light']) body.background-preview-drift) {
+      --site-grid-line: rgb(241 240 233 / 0.05);
+    }
+
+    :global(html:not([data-theme='light']) body.background-preview-motion) {
+      --site-grid-line: rgb(241 240 233 / 0.05);
+    }
+
+    :global(
+      html:not([data-theme='light'])
+        body.background-preview-grid[data-background-halo]
+    ),
+    :global(
+      html:not([data-theme='light'])
+        body.background-preview-drift[data-background-halo]
+    ),
+    :global(
+      html:not([data-theme='light'])
+        body.background-preview-motion[data-background-halo]
+    ) {
+      --site-halo-opacity: 0.22;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(body.background-preview-grid),
+    :global(body.background-preview-drift),
+    :global(body.background-preview-motion) {
+      animation: none;
+    }
   }
 
   :global(body.site-document > .site-header),

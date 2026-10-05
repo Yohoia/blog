@@ -1,10 +1,8 @@
 export const sectionPaths = {
   index: '/',
-  writing: '/writing/',
-  fragments: '/fragments/',
-  projects: '/projects/',
-  skills: '/skills/',
-  now: '/now/',
+  blog: '/blog',
+  project: '/project',
+  skill: '/skill',
 } as const;
 
 export type Section = keyof typeof sectionPaths;
@@ -16,12 +14,12 @@ export interface NavigationItem {
 }
 
 export const mainNavigation = [
-  { section: 'writing', label: 'Writing', href: sectionPaths.writing },
-  { section: 'fragments', label: 'Fragments', href: sectionPaths.fragments },
-  { section: 'projects', label: 'Projects', href: sectionPaths.projects },
-  { section: 'skills', label: 'Skills', href: sectionPaths.skills },
+  { section: 'blog', label: 'Blog', href: sectionPaths.blog },
+  { section: 'project', label: 'Project', href: sectionPaths.project },
+  { section: 'skill', label: 'Skill', href: sectionPaths.skill },
 ] as const satisfies readonly NavigationItem[];
 
-export const secondaryNavigation = [
-  { section: 'now', label: 'Now', href: sectionPaths.now },
+export const headerNavigation = [
+  { section: 'index', label: 'Index', href: sectionPaths.index },
+  ...mainNavigation,
 ] as const satisfies readonly NavigationItem[];

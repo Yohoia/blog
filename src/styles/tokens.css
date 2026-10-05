@@ -20,7 +20,7 @@
   --muted-text: #706f67;
   --signal-text: #405dcb;
   --signal-contrast: #fff;
-  --writing-highlight: #f3d76a;
+  --blog-highlight: #f3d76a;
   /* 原生 SVG 光标沿用参考图的黑色箭头与浅黄色圆点，两种主题均可辨认。 */
   --cursor-default: url('../assets/cursors/arrow.svg') 3 2, default;
   --cursor-on-dark: url('../assets/cursors/arrow-dark.svg') 3 2, default;
@@ -80,7 +80,7 @@
     --code-surface: #1b1c19;
     --muted-text: #85847d;
     --signal-text: #6b8cff;
-    --writing-highlight: #9a7524;
+    --blog-highlight: #9a7524;
     --floating-shadow: 0 8px 32px rgb(0 0 0 / 0.18);
     --terminal-user: #3fb950;
     --terminal-host: #58a6ff;
@@ -102,7 +102,7 @@
   --code-surface: #1b1c19;
   --muted-text: #85847d;
   --signal-text: #6b8cff;
-  --writing-highlight: #9a7524;
+  --blog-highlight: #9a7524;
   --floating-shadow: 0 8px 32px rgb(0 0 0 / 0.18);
   --terminal-user: #3fb950;
   --terminal-host: #58a6ff;
@@ -149,7 +149,7 @@
   --font-mono:
     'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco,
     Consolas, monospace;
-  /* Writing 年份与 Projects 序号的装饰数字；对应页面按需加载字体。 */
+  /* Blog 年份与 Projects 序号的装饰数字；对应页面按需加载字体。 */
   --font-year: 'Space Grotesk', var(--font-sans);
   /* 文章详情按需加载 Newsreader；中文沿用系统宋体回退。 */
   --font-serif:

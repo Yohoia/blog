@@ -4,7 +4,7 @@ const github = 'https://github.com/Yohoia';
 /** 站点资料和用户确认的联系方式在这里集中维护。 */
 export const siteConfig = {
   name: 'Yohoia',
-  description: '文章、碎片笔记、作品与 Skills 组成的个人数字空间。',
+  description: 'Blog、Project 与 Skill 组成的个人数字空间。',
   timeZone: 'Asia/Shanghai',
   registration: {
     icpNumber: '赣ICP备2025075792号-2',

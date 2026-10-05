@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "project": "Yohoia 网格波动",
+  "brief": "在真实首页中比较网格线形变形成的波浪，保持原有内容、主题和鼠标光晕。",
+  "round": "03",
+  "serve": {
+    "command": "npm run dev -- --host 127.0.0.1",
+    "cwd": "/Users/yohoia/Desktop/blog",
+    "url": "http://127.0.0.1:4321"
+  },
+  "candidates": [
+    {
+      "id": "current",
+      "name": "现状 · 平缓漂移",
+      "concept": "以原有背景为对照，观察网格形变带来的变化。",
+      "typography": "现有 Geist Mono 与 Geist Sans，内容与字号不变",
+      "palette": ["#f6f5f1", "#111210", "#6b8cff"],
+      "traits": ["40px 网格", "整体缓慢漂移", "鼠标光晕"],
+      "kind": "url",
+      "baseline": true,
+      "url": "http://127.0.0.1:4321/design-explorations/background/drift/"
+    },
+    {
+      "id": "wave",
+      "name": "01 · 水平波浪",
+      "concept": "横线连续上下起伏，保留竖线的坐标感。",
+      "typography": "现有 Geist Mono 与 Geist Sans，内容与字号不变",
+      "palette": ["#f6f5f1", "#111210", "#6b8cff"],
+      "traits": ["横线纵向波动", "13px 波幅", "竖线稳定"],
+      "kind": "url",
+      "url": "http://127.0.0.1:4321/design-explorations/background/wave/"
+    },
+    {
+      "id": "fabric",
+      "name": "02 · 柔性网面",
+      "concept": "横竖线在同一个位移场里轻微弯曲，像一张缓慢呼吸的网面。",
+      "typography": "现有 Geist Mono 与 Geist Sans，内容与字号不变",
+      "palette": ["#f6f5f1", "#111210", "#6b8cff"],
+      "traits": ["横竖线同步形变", "9px 最大纵向波幅", "低速循环"],
+      "kind": "url",
+      "url": "http://127.0.0.1:4321/design-explorations/background/fabric/"
+    },
+    {
+      "id": "tide",
+      "name": "03 · 局部潮汐",
+      "concept": "波动集中在页面中段，向上下渐隐，保留周边网格的稳定感。",
+      "typography": "现有 Geist Mono 与 Geist Sans，内容与字号不变",
+      "palette": ["#f6f5f1", "#111210", "#6b8cff"],
+      "traits": ["中段起伏", "向上下渐隐", "最大 16px 波幅"],
+      "kind": "url",
+      "url": "http://127.0.0.1:4321/design-explorations/background/tide/"
+    }
+  ]
+}

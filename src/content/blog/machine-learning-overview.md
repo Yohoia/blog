@@ -13,7 +13,7 @@ tags: [机器学习, 基础概念]
 
 ## 1.1 基本术语
 
-![训练集、验证集、测试集与特征、标签、模型参数的关系示意图](../../assets/images/writing/machine-learning-overview/diagram-1.png)
+![训练集、验证集、测试集与特征、标签、模型参数的关系示意图](../../assets/images/blog/machine-learning-overview/diagram-1.png)
 
 - **数据集（Data Set）**：多条记录的集合。
 
@@ -59,11 +59,11 @@ _**机器学习方法 = 模型 + 策略 + 算法**_
 
 ### 1.2.3 各种类型的机器学习方法
 
-![监督学习、无监督学习、半监督学习与强化学习的分类图](../../assets/images/writing/machine-learning-overview/diagram-2.png)
+![监督学习、无监督学习、半监督学习与强化学习的分类图](../../assets/images/blog/machine-learning-overview/diagram-2.png)
 
 ### 1.2.4 建模流程
 
-![从数据收集到模型部署的机器学习建模流程图](../../assets/images/writing/machine-learning-overview/diagram-3.png)
+![从数据收集到模型部署的机器学习建模流程图](../../assets/images/blog/machine-learning-overview/diagram-3.png)
 
 ## 1.3 特征工程
 

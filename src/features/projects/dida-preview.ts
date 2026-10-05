@@ -354,8 +354,8 @@ export function registerDidaPreview(): void {
     pending = undefined;
     if (
       event.from.pathname !== event.to.pathname &&
-      /^(?:\/en)?\/projects\/?$/.test(event.from.pathname) &&
-      /^(?:\/en)?\/projects\/?$/.test(event.to.pathname)
+      /^(?:\/en)?\/project\/?$/.test(event.from.pathname) &&
+      /^(?:\/en)?\/project\/?$/.test(event.to.pathname)
     ) {
       pending = document.querySelector<DidaPreview>('dida-preview')?.snapshot();
     }

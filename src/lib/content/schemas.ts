@@ -1,4 +1,4 @@
-import { reference, type SchemaContext } from 'astro:content';
+import type { SchemaContext } from 'astro:content';
 import { z } from 'astro/zod';
 
 const title = z.string().trim().min(1);
@@ -23,7 +23,7 @@ const dateOrderMessage = {
   path: ['updatedAt'],
 };
 
-export const writingSchema = ({ image }: SchemaContext) =>
+export const blogSchema = ({ image }: SchemaContext) =>
   z
     .object({
       ...metadata,
@@ -37,15 +37,6 @@ export const writingSchema = ({ image }: SchemaContext) =>
     })
     .refine(validDateOrder, dateOrderMessage);
 
-export const fragmentSchema = z
-  .object({
-    ...metadata,
-    ...dates,
-    tags,
-    related: z.array(reference('fragments')).default([]),
-  })
-  .refine(validDateOrder, dateOrderMessage);
-
 export const skillSchema = ({ image }: SchemaContext) =>
   z.object({
     ...metadata,
@@ -58,11 +49,6 @@ export const skillSchema = ({ image }: SchemaContext) =>
     illustrationAltEn: title,
     order: z.number().int().nonnegative().default(0),
   });
-
-export const staticPageSchema = z.object({
-  ...metadata,
-  updatedAt: z.coerce.date(),
-});
 
 export const projectSchema = ({ image }: SchemaContext) =>
   z.object({

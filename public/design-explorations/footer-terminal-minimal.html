@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="data:," />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Footer · 终端极简预览</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --canvas: #f6f5f1;
+        --heading: #1b1b18;
+        --copy: #706f67;
+        --border: rgb(27 27 24 / 0.12);
+        --signal: #405dcb;
+        --prompt-user: #237b45;
+        --prompt-host: #2463c7;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          monospace;
+        color: var(--heading);
+        background: var(--canvas);
+        font-synthesis: none;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          color-scheme: dark;
+          --canvas: #111210;
+          --heading: #f1f0e9;
+          --copy: #85847d;
+          --border: rgb(241 240 233 / 0.14);
+          --signal: #6b8cff;
+          --prompt-user: #3fb950;
+          --prompt-host: #58a6ff;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+        background: var(--canvas);
+      }
+
+      main {
+        width: min(760px, calc(100% - 48px));
+        margin: 0 auto;
+        padding: 15vh 0 18vh;
+        flex: 1;
+      }
+
+      h1 {
+        margin: 0 0 18px;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        font-size: clamp(28px, 4vw, 46px);
+        font-weight: 520;
+        letter-spacing: -0.04em;
+      }
+
+      .intro {
+        max-width: 36rem;
+        margin: 0;
+        color: var(--copy);
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        line-height: 1.75;
+      }
+
+      .rule {
+        height: 1px;
+        margin-top: 28vh;
+        background: var(--border);
+      }
+
+      footer {
+        width: min(1200px, calc(100% - 64px));
+        margin: auto auto 0;
+        padding: 0 0 28px;
+        color: var(--copy);
+        font-size: 13px;
+        line-height: 1.5;
+        text-align: center;
+      }
+
+      .prompt {
+        display: block;
+        min-height: 44px;
+        min-width: 0;
+        line-height: 44px;
+      }
+
+      .prompt-user {
+        color: var(--prompt-user);
+        font-weight: 600;
+      }
+
+      .prompt-host {
+        color: var(--prompt-host);
+        font-weight: 600;
+      }
+
+      .prompt-path {
+        color: var(--copy);
+      }
+
+      .command {
+        color: var(--heading);
+      }
+
+      .command a {
+        color: inherit;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+
+      .command a:hover,
+      .command a:focus-visible {
+        color: var(--signal);
+        text-decoration: underline;
+        text-underline-offset: 4px;
+      }
+
+      @media (max-width: 640px) {
+        main {
+          width: min(100% - 32px, 760px);
+          padding: 14vh 0 20vh;
+        }
+
+        footer {
+          width: calc(100% - 32px);
+          padding-bottom: 22px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Writing / 2026</h1>
+      <p class="intro">真实文章、工具记录和不断修正的个人工作流，沿着同一页继续向下。</p>
+      <div class="rule" aria-hidden="true"></div>
+    </main>
+
+    <footer>
+      <div class="prompt" id="terminal-footer">
+        <span class="prompt-user">yohoia</span><span>@</span
+        ><span class="prompt-host">space</span><span class="prompt-path">:~$</span>
+        <span class="command"><span id="copyright">© 2026 Yohoia · </span><a
+            id="registration"
+            href="https://beian.miit.gov.cn/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >赣ICP备2025075792号-2</a
+          ></span>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,202 @@
+---
+import SiteLayout from '@/layouts/SiteLayout.astro';
+import Container from '@/components/layout/Container.astro';
+import Terminal from '@/features/index/Terminal.astro';
+import { terminalLabels } from '@/features/index/config';
+
+export function getStaticPaths() {
+  return [
+    'baseline',
+    'paper',
+    'grid',
+    'drift',
+    'edge',
+    'rise',
+    'glide',
+    'scan',
+    'wave',
+    'fabric',
+    'tide',
+  ].map((variant) => ({ params: { variant } }));
+}
+
+const variant = Astro.params.variant;
+const wavePreview =
+  variant === 'wave' || variant === 'fabric' || variant === 'tide'
+    ? variant
+    : false;
+const motionPreview =
+  ['rise', 'glide', 'scan'].includes(variant ?? '') || Boolean(wavePreview);
+---
+
+<SiteLayout
+  title="背景效果探索"
+  description="Yohoia 网站背景效果的设计预览。"
+  noindex
+  alternateLocales={false}
+  hideScrollbar
+  backgroundWave={wavePreview}
+  bodyClass={`background-preview background-preview-${variant}${motionPreview ? ' background-preview-motion' : ''}`}
+>
+  <Container as="main" width="index" id="main-content" class="index-page">
+    <h1 class="sr-only">{terminalLabels.zh.title}</h1>
+    <Terminal />
+  </Container>
+</SiteLayout>
+
+<style>
+  .index-page {
+    padding-block: 0 var(--section-gap);
+  }
+
+  :global(body.background-preview) {
+    --background-detail: rgb(27 27 24 / 0.045);
+    --background-signal: rgb(64 93 203 / 0.2);
+  }
+
+  :global(html[data-theme='dark'] body.background-preview) {
+    --background-detail: rgb(241 240 233 / 0.055);
+    --background-signal: rgb(107 140 255 / 0.28);
+  }
+
+  :global(body.background-preview-paper) {
+    background-color: var(--canvas);
+    background-image:
+      radial-gradient(
+        circle at 2px 3px,
+        var(--background-detail) 0.4px,
+        transparent 0.9px
+      ),
+      radial-gradient(
+        circle at 7px 6px,
+        var(--background-detail) 0.35px,
+        transparent 0.85px
+      );
+    background-size:
+      13px 17px,
+      19px 23px;
+    background-attachment: fixed;
+  }
+
+  :global(body.background-preview-edge) {
+    background-color: var(--canvas);
+    background-image:
+      radial-gradient(circle, var(--background-signal) 1px, transparent 1.7px),
+      radial-gradient(circle, var(--background-signal) 1px, transparent 1.7px);
+    background-size: 8px 34px;
+    background-position:
+      left 24px top 0,
+      right 24px top 17px;
+    background-repeat: repeat-y;
+    background-attachment: fixed;
+    animation: background-edge-travel 34s linear infinite;
+  }
+
+  :global(body.background-preview-rise) {
+    animation: background-grid-rise 14s linear infinite;
+  }
+
+  :global(body.background-preview-glide) {
+    animation: background-grid-glide 18s linear infinite;
+  }
+
+  :global(body.background-preview-scan) {
+    --scan-line: rgb(107 140 255 / 0.1);
+    background-image:
+      radial-gradient(
+        circle 260px at var(--site-halo-x, -1000px) var(--site-halo-y, -1000px),
+        rgb(107 140 255 / var(--site-halo-opacity)) 0%,
+        transparent 78%
+      ),
+      linear-gradient(
+        to bottom,
+        transparent 0%,
+        var(--scan-line) 50%,
+        transparent 100%
+      ),
+      linear-gradient(to right, var(--site-grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--site-grid-line) 1px, transparent 1px);
+    background-size:
+      auto,
+      100% 280px,
+      40px 40px,
+      40px 40px;
+    background-position:
+      0 0,
+      0 -140px,
+      0 0,
+      0 0;
+    background-repeat: no-repeat, no-repeat, repeat, repeat;
+    animation: background-grid-scan 14s linear infinite;
+  }
+
+  :global(html[data-theme='dark'] body.background-preview-scan) {
+    --scan-line: rgb(107 140 255 / 0.14);
+  }
+
+  @keyframes background-grid-rise {
+    to {
+      background-position:
+        0 0,
+        0 0,
+        0 -40px;
+    }
+  }
+
+  @keyframes background-grid-glide {
+    to {
+      background-position:
+        0 0,
+        40px 40px,
+        40px 40px;
+    }
+  }
+
+  @keyframes background-grid-scan {
+    to {
+      background-position:
+        0 0,
+        0 calc(100vh + 140px),
+        0 0,
+        0 0;
+    }
+  }
+
+  @keyframes background-edge-travel {
+    to {
+      background-position:
+        left 24px top 34px,
+        right 24px top 51px;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    :global(body.background-preview-edge) {
+      background-position:
+        left 8px top 0,
+        right 8px top 17px;
+    }
+    @keyframes background-edge-travel {
+      to {
+        background-position:
+          left 8px top 34px,
+          right 8px top 51px;
+      }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(body.background-preview-edge),
+    :global(body.background-preview-motion) {
+      animation: none;
+    }
+
+    :global(body.background-preview-scan) {
+      background-size:
+        auto,
+        0 0,
+        40px 40px,
+        40px 40px;
+    }
+  }
+</style>

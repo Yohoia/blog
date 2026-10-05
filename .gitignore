@@ -13,7 +13,7 @@ dist/
 # Local reference material and empty-directory placeholders
 /docs/
 /references/
-/writing-preview.html
+/blog-preview.html
 .gitkeep
 
 # Logs, test output and temporary files

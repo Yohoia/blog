@@ -2,7 +2,7 @@ import { ui } from '@/i18n/ui';
 
 export const projectsContent = {
   zh: {
-    title: ui.zh.navigation.projects,
+    title: ui.zh.navigation.project,
     description: '我制作的项目，以及它们各自的小小体验。',
     visit: '进入项目',
     source: '查看源码',
@@ -26,7 +26,7 @@ export const projectsContent = {
     },
   },
   en: {
-    title: ui.en.navigation.projects,
+    title: ui.en.navigation.project,
     description: 'Things I make, with a little experience of their own.',
     visit: 'Open project',
     source: 'View source',

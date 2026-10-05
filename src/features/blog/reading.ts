@@ -17,7 +17,7 @@ export function getReadingStats(body: string) {
 }
 
 /** 提取正文首个非标题文本块，用于列表单行预览；不使用 description 代替正文。 */
-export function getWritingExcerpt(body: string): string {
+export function getBlogExcerpt(body: string): string {
   const plainBlock = (block: string) =>
     block
       .split('\n')

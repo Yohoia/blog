@@ -31,13 +31,13 @@ K-近邻算法（K Nearest Neighbor，简称KNN）
 > 思考：那如何对K超参数进行调优？也就是如何找到最合适的K值？
 > 答：交叉验证、网格搜索。
 
-![K 值对模型拟合影响的示意图](../../assets/images/writing/knn/knn-fitting.png)
+![K 值对模型拟合影响的示意图](../../assets/images/blog/knn/knn-fitting.png)
 
 - 解决问题：分类问题、回归问题
 - 算法思想：若一个样本在特征空间中的K个最相似的样本大多数属于某一个类别，则该样本也属于这个类别。
 - 相似性：欧式距离
 
-![KNN 分类流程示意图](../../assets/images/writing/knn/knn-example.png)
+![KNN 分类流程示意图](../../assets/images/blog/knn/knn-example.png)
 
 **分类流程**
 
@@ -136,7 +136,7 @@ print(y_pred)
 
 这里的 ‖·‖₂ 就是 **L2 范数**。
 
-![欧式距离示意图](../../assets/images/writing/knn/euclidean-distance.png)
+![欧式距离示意图](../../assets/images/blog/knn/euclidean-distance.png)
 
 ---
 

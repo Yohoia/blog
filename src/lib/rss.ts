@@ -4,14 +4,14 @@ import { localeMetadata, i18nConfig } from '../config/i18n';
 import { getEntryPath } from './content/paths';
 import { getPublishedEntries, sortByDate } from './content/queries';
 
-/** Writing 路由实现后，可在 src/pages/rss.xml.ts 中调用此函数。 */
-export async function createWritingFeed(site: URL | undefined) {
+/** Blog 路由实现后，可在 src/pages/rss.xml.ts 中调用此函数。 */
+export async function createBlogFeed(site: URL | undefined) {
   if (!site) {
     throw new Error('Set SITE_URL in .env before generating the RSS feed.');
   }
 
-  const writing = sortByDate(
-    await getPublishedEntries('writing'),
+  const blog = sortByDate(
+    await getPublishedEntries('blog'),
     (entry) => entry.data.publishedAt,
   );
 
@@ -19,7 +19,7 @@ export async function createWritingFeed(site: URL | undefined) {
     title: siteConfig.name,
     description: siteConfig.description,
     site,
-    items: writing.map((entry) => ({
+    items: blog.map((entry) => ({
       title: entry.data.title,
       description: entry.data.description,
       pubDate: entry.data.publishedAt,

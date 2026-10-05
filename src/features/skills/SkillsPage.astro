@@ -14,13 +14,13 @@ const locale = getLocale(Astro.url.pathname);
 const text =
   locale === 'zh'
     ? {
-        description: '我制作的 Skills，把工作方法变成可以复用的能力。',
+        description: '我制作的 Skill，把工作方法变成可以复用的能力。',
         open: '打开 GitHub 仓库',
         empty: '新的 Skill 会出现在这里。',
       }
     : {
         description:
-          'Skills I build to turn working methods into reusable capabilities.',
+          'A Skill I built to turn working methods into a reusable capability.',
         open: 'Open GitHub repository',
         empty: 'New skills will appear here.',
       };
@@ -29,10 +29,10 @@ const skills = (await getPublishedEntries('skills')).sort(
 );
 ---
 
-<SiteLayout title={ui[locale].navigation.skills} description={text.description}>
+<SiteLayout title={ui[locale].navigation.skill} description={text.description}>
   <Container as="main" id="main-content" width="feature" class="skills-page">
     <header class="skills-heading" data-language-block="skills-intro">
-      <h1 class="text-display font-semibold">{ui[locale].navigation.skills}</h1>
+      <h1 class="text-display font-semibold">{ui[locale].navigation.skill}</h1>
     </header>
     <skills-grid>
       <ol class="skills-grid">

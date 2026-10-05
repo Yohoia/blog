@@ -30,7 +30,7 @@
       select:not(:disabled)
     ):not([aria-disabled='true']):hover,
   /* 文章与标签虽未接入正文 / 筛选链接，悬浮反馈仍使用圆形。 */
-  :root :is([data-writing-post], [data-writing-tag]):hover {
+  :root :is([data-blog-post], [data-blog-tag]):hover {
     cursor: var(--cursor-interactive);
   }
 

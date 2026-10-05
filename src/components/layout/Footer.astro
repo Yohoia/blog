@@ -1,43 +1,33 @@
 ---
-import { sectionPaths } from '@/config/navigation';
 import { siteConfig } from '@/config/site';
-import { getLocale, localizePath } from '@/lib/i18n';
-import { ui } from '@/i18n/ui';
 
-const locale = getLocale(Astro.url.pathname);
-const t = ui[locale];
 const year = new Intl.DateTimeFormat('en-CA', {
   year: 'numeric',
   timeZone: siteConfig.timeZone,
 }).format(new Date());
+const username = siteConfig.name.toLowerCase();
 ---
 
 <footer class="site-footer">
-  <div class="footer-shell">
-    <div class="footer-brand">
-      <a
-        class="footer-name"
-        href={localizePath(sectionPaths.index, locale)}
-        aria-label={`${siteConfig.name} · ${t.home}`}
-      >
-        {siteConfig.name}
-      </a>
-      <p class="footer-tagline">{t.footer}</p>
-    </div>
-    <div class="footer-info">
-      <span class="footer-copyright">
-        © {year} {siteConfig.name}
-      </span>
-      <a
-        class="footer-registration"
-        href={siteConfig.registration.icpUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {siteConfig.registration.icpNumber}
-      </a>
-    </div>
-  </div>
+  <p class="footer-line">
+    <span class="footer-prompt" aria-hidden="true">
+      <span class="footer-user">{username}</span>
+      <span class="footer-muted">@</span>
+      <span class="footer-host">space</span>
+      <span class="footer-muted">:~$</span>
+    </span>
+    <span class="footer-copyright">
+      © {year} {siteConfig.name} ·{' '}
+    </span>
+    <a
+      class="footer-registration"
+      href={siteConfig.registration.icpUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {siteConfig.registration.icpNumber}
+    </a>
+  </p>
 </footer>
 
 <style>
@@ -45,70 +35,51 @@ const year = new Intl.DateTimeFormat('en-CA', {
     padding-block: 0;
   }
 
-  .footer-shell {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--inline-gap) var(--item-gap);
-    inline-size: 100%;
-    max-inline-size: var(--container-wide);
-    margin-inline: auto;
-    padding-inline: var(--gutter);
-    font-family: var(--font-sans);
+  .footer-line {
+    inline-size: fit-content;
+    max-inline-size: calc(100% - var(--gutter) * 2);
+    min-block-size: var(--touch-target);
+    margin: 0 auto;
+    font-family: var(--font-mono);
     font-size: var(--text-meta);
-    line-height: 1.65;
-    text-align: start;
+    line-height: var(--touch-target);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
   }
 
-  .footer-brand,
-  .footer-info {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: calc(var(--inline-gap) * 1.5);
-    min-inline-size: 0;
+  .footer-prompt {
+    display: inline-block;
+    margin-inline-end: 0.5rem;
+    white-space: nowrap;
   }
 
-  .footer-name {
-    font-size: var(--text-item);
-    font-weight: 500;
-    line-height: 1.35;
-    letter-spacing: -0.025em;
-    color: var(--heading);
+  .footer-user {
+    color: var(--terminal-user);
+    font-weight: 600;
   }
 
-  .footer-tagline {
-    margin: 0;
-    color: var(--muted-text);
-    text-wrap: pretty;
+  .footer-host {
+    color: var(--terminal-host);
+    font-weight: 600;
   }
 
-  .footer-info {
-    margin-inline-start: auto;
+  .footer-muted {
     color: var(--muted-text);
   }
 
   .footer-copyright {
-    font-variant-numeric: tabular-nums;
+    color: var(--heading);
   }
 
-  .footer-name,
   .footer-registration {
     display: inline-flex;
     align-items: center;
     min-block-size: var(--touch-target);
-    max-inline-size: 100%;
+    color: var(--heading);
     text-decoration: none;
-    overflow-wrap: anywhere;
+    white-space: nowrap;
   }
 
-  .footer-registration {
-    color: inherit;
-  }
-
-  .footer-name:hover,
-  .footer-name:focus-visible,
   .footer-registration:hover,
   .footer-registration:focus-visible {
     color: var(--signal-text);

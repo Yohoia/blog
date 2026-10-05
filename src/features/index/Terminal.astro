@@ -12,7 +12,7 @@ const locale = getLocale(Astro.url.pathname);
 const labels = terminalLabels[locale];
 const username = siteConfig.name.toLowerCase();
 const latestPosts = sortByDate(
-  await getPublishedEntries('writing'),
+  await getPublishedEntries('blog'),
   (entry) => entry.data.publishedAt,
 )
   .slice(0, terminalContent.posts.limit)
@@ -26,7 +26,7 @@ const latestPosts = sortByDate(
       timeZone: 'UTC',
     }).format(entry.data.publishedAt),
   }));
-const writingUrl = localizePath(sectionPaths.writing, locale);
+const blogUrl = localizePath(sectionPaths.blog, locale);
 ---
 
 <yohoia-terminal class="index-introduction" data-language-block="introduction">
@@ -124,7 +124,7 @@ const writingUrl = localizePath(sectionPaths.writing, locale);
                         <span class="post-details">
                           <a
                             class="term-link"
-                            href={`${writingUrl}#${post.anchor}`}
+                            href={`${blogUrl}#${post.anchor}`}
                             data-astro-reload
                           >
                             {post.filename}
@@ -136,9 +136,9 @@ const writingUrl = localizePath(sectionPaths.writing, locale);
                   <p class="c-muted">{terminalContent.posts.hint}</p>
                   <p>
                     →{' '}
-                    <a class="writing-link" href={writingUrl} data-astro-reload>
-                      <span class="term-link">Writing</span>{' '}
-                      <span class="c-muted">— full blog</span>
+                    <a class="blog-link" href={blogUrl} data-astro-reload>
+                      <span class="term-link">Blog</span>{' '}
+                      <span class="c-muted">— all posts</span>
                     </a>
                   </p>
                 </div>
@@ -352,7 +352,7 @@ const writingUrl = localizePath(sectionPaths.writing, locale);
     border-block-end: 1px dotted currentColor;
     padding-block-end: 1px;
   }
-  .writing-link {
+  .blog-link {
     text-decoration: none;
   }
   .cursor {

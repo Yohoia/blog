@@ -1,11 +1,11 @@
 import { animate, type AnimationPlaybackControls } from 'motion';
 import { motionTokens } from '@/config/motion';
 
-/** 归档保持静态排版，Motion 只解释当前悬浮行与返回入口。 */
-export function registerWritingArchive(): void {
-  if (customElements.get('writing-archive')) return;
+/** 归档保持静态排版，Motion 只解释当前悬浮行。 */
+export function registerBlogArchive(): void {
+  if (customElements.get('blog-archive')) return;
 
-  class WritingArchive extends HTMLElement {
+  class BlogArchive extends HTMLElement {
     private cleanup?: () => void;
 
     connectedCallback() {
@@ -13,17 +13,9 @@ export function registerWritingArchive(): void {
       const controller = new AbortController();
       const { signal } = controller;
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-      const posts = [
-        ...this.querySelectorAll<HTMLElement>('[data-writing-post]'),
-      ];
+      const posts = [...this.querySelectorAll<HTMLElement>('[data-blog-post]')];
       const controls = new Map<HTMLElement, AnimationPlaybackControls>();
       let active: HTMLElement | undefined;
-      const back = this.querySelector<HTMLAnchorElement>('[data-writing-back]');
-      const backIcon = this.querySelector<HTMLElement>(
-        '[data-writing-back-icon]',
-      );
-      let backHovered = false;
-      let backFocused = false;
 
       const update = (
         element: HTMLElement,
@@ -32,7 +24,7 @@ export function registerWritingArchive(): void {
           y?: number;
           x?: number;
           backgroundColor?: string;
-          '--writing-highlight-progress'?: number;
+          '--blog-highlight-progress'?: number;
           color?: string;
           scale?: number;
           scaleX?: number;
@@ -56,41 +48,41 @@ export function registerWritingArchive(): void {
         posts.forEach((post) => {
           const selected = post === active;
           update(post, { backgroundColor: selected ? hover : 'transparent' });
-          const title = post.querySelector<HTMLElement>('[data-writing-title]');
+          const title = post.querySelector<HTMLElement>('[data-blog-title]');
           const highlight = post.querySelector<HTMLElement>(
-            '[data-writing-highlight]',
+            '[data-blog-highlight]',
           );
-          const arrow = post.querySelector<HTMLElement>('[data-writing-arrow]');
+          const arrow = post.querySelector<HTMLElement>('[data-blog-arrow]');
           const disc = post.querySelector<HTMLElement>(
-            '[data-writing-arrow-disc]',
+            '[data-blog-arrow-disc]',
           );
           const icon = post.querySelector<HTMLElement>(
-            '[data-writing-arrow-icon]',
+            '[data-blog-arrow-icon]',
           );
           if (title)
             update(title, {
               opacity:
                 active && !selected
-                  ? motionTokens.writing.inactiveTitleOpacity
+                  ? motionTokens.blog.inactiveTitleOpacity
                   : 1,
             });
           if (highlight)
             update(
               highlight,
               // 高度固定在 CSS 中，只插值横向进度，避免 px 与 em 混用。
-              { '--writing-highlight-progress': selected ? 1 : 0 },
-              motionTokens.writing.highlightDuration,
+              { '--blog-highlight-progress': selected ? 1 : 0 },
+              motionTokens.blog.highlightDuration,
             );
           if (disc)
             update(disc, {
               opacity: selected ? 1 : 0,
-              scale: selected ? 1 : motionTokens.writing.arrowRestingScale,
+              scale: selected ? 1 : motionTokens.blog.arrowRestingScale,
             });
           if (arrow)
             update(arrow, {
               x:
                 !reduced.matches && selected
-                  ? motionTokens.writing.arrowHoverDistance
+                  ? motionTokens.blog.arrowHoverDistance
                   : 0,
             });
           if (icon)
@@ -98,13 +90,6 @@ export function registerWritingArchive(): void {
               color: selected ? contrast : muted,
             });
         });
-        if (backIcon)
-          update(backIcon, {
-            x:
-              !reduced.matches && (backHovered || backFocused)
-                ? -motionTokens.distance.small
-                : 0,
-          });
       };
       posts.forEach((post) => {
         post.addEventListener(
@@ -126,9 +111,7 @@ export function registerWritingArchive(): void {
           { signal },
         );
       });
-      const tags = [
-        ...this.querySelectorAll<HTMLElement>('[data-writing-tag]'),
-      ];
+      const tags = [...this.querySelectorAll<HTMLElement>('[data-blog-tag]')];
       const selectedTags = new Set<HTMLElement>();
       const paintTag = (tag: HTMLElement, selected: boolean) => {
         const styles = getComputedStyle(document.documentElement);
@@ -138,7 +121,7 @@ export function registerWritingArchive(): void {
             .trim(),
         });
         const underline = tag.querySelector<HTMLElement>(
-          '[data-writing-tag-underline]',
+          '[data-blog-tag-underline]',
         );
         if (underline) update(underline, { scaleX: selected ? 1 : 0 });
       };
@@ -161,38 +144,6 @@ export function registerWritingArchive(): void {
           { signal },
         );
       });
-      back?.addEventListener(
-        'pointerenter',
-        () => {
-          backHovered = true;
-          paint();
-        },
-        { signal },
-      );
-      back?.addEventListener(
-        'pointerleave',
-        () => {
-          backHovered = false;
-          paint();
-        },
-        { signal },
-      );
-      back?.addEventListener(
-        'focus',
-        () => {
-          backFocused = true;
-          paint();
-        },
-        { signal },
-      );
-      back?.addEventListener(
-        'blur',
-        () => {
-          backFocused = false;
-          paint();
-        },
-        { signal },
-      );
       const syncPreferences = () => {
         paint();
         tags.forEach((tag) => paintTag(tag, selectedTags.has(tag)));
@@ -206,21 +157,19 @@ export function registerWritingArchive(): void {
           element.style.removeProperty('opacity');
           element.style.removeProperty('transform');
           element.style.removeProperty('background-color');
-          element.style.removeProperty('--writing-highlight-progress');
+          element.style.removeProperty('--blog-highlight-progress');
           element.style.removeProperty('color');
         });
         controls.clear();
         active = undefined;
-        backHovered = false;
-        backFocused = false;
         selectedTags.clear();
       };
       window.addEventListener('pagehide', reset, { signal });
-      this.dataset.writingReady = 'true';
+      this.dataset.blogReady = 'true';
       this.cleanup = () => {
         controller.abort();
         reset();
-        delete this.dataset.writingReady;
+        delete this.dataset.blogReady;
       };
     }
 
@@ -230,5 +179,5 @@ export function registerWritingArchive(): void {
     }
   }
 
-  customElements.define('writing-archive', WritingArchive);
+  customElements.define('blog-archive', BlogArchive);
 }

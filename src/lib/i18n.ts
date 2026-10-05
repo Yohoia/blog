@@ -7,13 +7,14 @@ export function getLocale(pathname: string): Locale {
 }
 
 export function unlocalizedPath(pathname: string): string {
-  const path = pathname.replace(/^\/en(?:\/|$)/, '/');
-  return `${path.replace(/\/+$/, '')}/`;
+  const path = pathname.replace(/^\/en(?=\/|$)/, '') || '/';
+  return path.replace(/\/+$/, '') || '/';
 }
 
 export function localizePath(pathname: string, locale: Locale): string {
-  return getRelativeLocaleUrl(
+  const localized = getRelativeLocaleUrl(
     locale,
     unlocalizedPath(pathname).replace(/^\/|\/$/g, ''),
   );
+  return localized.replace(/\/+$/, '') || '/';
 }

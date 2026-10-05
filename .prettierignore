@@ -9,6 +9,11 @@ docs/blog-tech-stack.md
 design.md
 references/
 yohoia-logo-v3/
-writing-preview.html
+blog-preview.html
 # Skill 生成的自包含对比页，保留模板原始格式。
 public/design-explorations/footer-round-02.html
+public/design-explorations/footer-round-03.html
+public/design-explorations/footer-round-03/
+public/design-explorations/footer-terminal-minimal.html
+public/design-explorations/background-round-01.html
+public/design-explorations/background-round-02.html

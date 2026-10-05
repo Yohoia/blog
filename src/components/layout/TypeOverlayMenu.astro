@@ -1,11 +1,7 @@
 ---
 import { randomUUID } from 'node:crypto';
 import { Menu, X } from '@lucide/astro';
-import {
-  mainNavigation,
-  secondaryNavigation,
-  sectionPaths,
-} from '@/config/navigation';
+import { mainNavigation, sectionPaths } from '@/config/navigation';
 import { iconTokens } from '@/config/icons';
 import { siteConfig } from '@/config/site';
 import { getLocale, localizePath, unlocalizedPath } from '@/lib/i18n';
@@ -18,10 +14,11 @@ const id = `site-menu-${randomUUID()}`;
 const entries = [
   { section: 'index', href: sectionPaths.index },
   ...mainNavigation,
-  ...secondaryNavigation,
 ] as const;
 const isCurrent = (href: string) =>
-  href === '/' ? pathname === '/' : pathname.startsWith(href);
+  href === '/'
+    ? pathname === '/'
+    : pathname === href || pathname.startsWith(`${href}/`);
 ---
 
 <type-overlay-menu

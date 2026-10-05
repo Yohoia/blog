@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "project": "Yohoia Footer",
+  "brief": "同一组 Yohoia 品牌、描述、版权与备案信息，在个人博客长页末尾比较不同的层级和交互反馈。",
+  "round": "03",
+  "serve": {
+    "command": "npm run dev -- --host 127.0.0.1",
+    "cwd": "/Users/yohoia/Desktop/blog",
+    "url": "http://127.0.0.1:4321"
+  },
+  "candidates": [
+    {
+      "id": "baseline",
+      "name": "现状 · 单行落款",
+      "concept": "保留现有规范，用更明确的组内间距和链接反馈整理末尾信息。",
+      "typography": "Geist Sans，品牌 20px / 500，辅助信息 14px / 400",
+      "palette": ["#f6f5f1", "#1b1b18", "#706f67"],
+      "traits": ["透明平铺", "桌面单行", "自然换行"],
+      "kind": "html",
+      "baseline": true,
+      "source": "baseline.html"
+    },
+    {
+      "id": "quiet-rail",
+      "name": "01 · 安静导轨",
+      "concept": "用一条很轻的竖向导轨把品牌与备案分成两端，链接悬停时只出现一枚小箭头。",
+      "typography": "Geist Sans，品牌 21px / 550，法律信息 13px / 450",
+      "palette": ["#f6f5f1", "#1b1b18", "#405dcb"],
+      "traits": ["单线结构", "备案入口更清楚", "箭头反馈"],
+      "kind": "html",
+      "source": "quiet-rail.html"
+    },
+    {
+      "id": "terminal-colophon",
+      "name": "02 · 终端刊尾",
+      "concept": "把首页的终端语气压缩成一行刊尾，让 Footer 像一次干净的会话结束。",
+      "typography": "Geist Mono 提示符 + Geist Sans 正文，等宽数字",
+      "palette": ["#111210", "#f1f0e9", "#56c878"],
+      "traits": ["暗色底带", "光标呼吸", "输入式备案链接"],
+      "kind": "html",
+      "source": "terminal-colophon.html"
+    },
+    {
+      "id": "editorial-wordmark",
+      "name": "03 · 编辑式刊尾",
+      "concept": "让 Yohoia 以大号空心字成为页面最后一个视觉句号，法律信息退到基线。",
+      "typography": "Space Grotesk 空心字标 + Geist Sans，标题与小字形成明显尺度差",
+      "palette": ["#f6f5f1", "#1b1b18", "#e2a84a"],
+      "traits": ["空心字标", "刊尾层级", "填充式悬停"],
+      "kind": "html",
+      "source": "editorial-wordmark.html"
+    },
+    {
+      "id": "signal-marker",
+      "name": "04 · 信号标记",
+      "concept": "用一个随悬停移动的浅黄色标记连接站名与外部备案入口，保留纸面气质。",
+      "typography": "Geist Sans + Geist Mono 元信息，品牌 20px / 500",
+      "palette": ["#f6f5f1", "#1b1b18", "#f3d76a"],
+      "traits": ["纸面标记", "状态来自位置", "移动端上下堆叠"],
+      "kind": "html",
+      "source": "signal-marker.html"
+    }
+  ]
+}

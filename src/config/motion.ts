@@ -22,8 +22,8 @@ export const motionTokens = {
     revealEase: [0.16, 1, 0.3, 1] as [number, number, number, number],
     blur: [8, 4, 0],
   },
-  /** Writing 期刊式归档：只弱化其余标题，元信息始终保持可读。 */
-  writing: {
+  /** Blog 期刊式归档：只弱化其余标题，元信息始终保持可读。 */
+  blog: {
     inactiveTitleOpacity: 0.72,
     arrowRestingScale: 0.6,
     arrowHoverDistance: 2,

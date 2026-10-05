@@ -18,7 +18,7 @@ import '@fontsource-variable/newsreader/wght.css';
 import './article.css';
 
 interface Props {
-  entry: CollectionEntry<'writing'>;
+  entry: CollectionEntry<'blog'>;
 }
 
 const { entry } = Astro.props;
@@ -30,13 +30,13 @@ const formatShortDate = (date: Date) =>
 const text =
   locale === 'zh'
     ? {
-        back: '返回写作',
+        back: '返回 Blog',
         words: '字',
         minutes: '分钟',
         updated: '更新于',
       }
     : {
-        back: 'Back to Writing',
+        back: 'Back to Blog',
         words: 'words',
         minutes: 'min',
         updated: 'Updated',
@@ -161,7 +161,7 @@ const readingTime =
 
       <footer class="article-footer" data-language-block="article-footer">
         <a
-          href={localizePath(sectionPaths.writing, locale)}
+          href={localizePath(sectionPaths.blog, locale)}
           class="article-back"
           aria-label={text.back}
           title={text.back}

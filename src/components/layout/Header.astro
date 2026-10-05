@@ -1,16 +1,19 @@
 ---
-import { sectionPaths } from '@/config/navigation';
+import { headerNavigation, sectionPaths } from '@/config/navigation';
 import { siteConfig } from '@/config/site';
 import ThemeToggle from '@/components/ui/ThemeToggle.astro';
 import Logo from '@/components/common/Logo.astro';
 import LanguageToggle from '@/components/ui/LanguageToggle.astro';
-import TypeOverlayMenu from './TypeOverlayMenu.astro';
 import { getLocale, localizePath, unlocalizedPath } from '@/lib/i18n';
 import { ui } from '@/i18n/ui';
 
 const locale = getLocale(Astro.url.pathname);
 const text = ui[locale];
 const pathname = unlocalizedPath(Astro.url.pathname);
+const isCurrent = (href: string) =>
+  href === '/'
+    ? pathname === '/'
+    : pathname === href || pathname.startsWith(`${href}/`);
 ---
 
 <header class="site-header">
@@ -24,8 +27,20 @@ const pathname = unlocalizedPath(Astro.url.pathname);
         data-navigation-transition
       />
 
+      <nav class="nav-focus" aria-label={text.primary}>
+        {headerNavigation.map(({ label, href }) => (
+          <a
+            href={localizePath(href, locale)}
+            lang="en"
+            aria-current={isCurrent(href) ? 'page' : undefined}
+            data-navigation-transition
+          >
+            {label}
+          </a>
+        ))}
+      </nav>
+
       <div class="header-actions">
-        <TypeOverlayMenu />
         <LanguageToggle />
         <ThemeToggle class="header-theme-toggle" />
       </div>
@@ -43,43 +58,121 @@ const pathname = unlocalizedPath(Astro.url.pathname);
   .header-shell {
     padding-block: var(--header-padding);
     padding-inline: clamp(1rem, 3vw, 3rem);
-    background: var(--header-surface);
-    -webkit-backdrop-filter: blur(var(--header-blur))
-      saturate(var(--header-saturation));
-    /* 标准属性置于前缀之后，防止构建压缩只保留旧前缀。 */
-    backdrop-filter: blur(var(--header-blur)) saturate(var(--header-saturation));
-    border-block-end: 1px solid transparent;
+    background: transparent;
   }
   .header-inner {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    display: flex;
     align-items: center;
-    gap: var(--item-gap);
+    gap: var(--inline-gap);
   }
   .header-inner :global(.site-name) {
-    justify-self: start;
+    margin-inline-end: auto;
     min-block-size: var(--header-content-height);
   }
+  .nav-focus {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.5rem, 1.5vw, 1.5rem);
+    white-space: nowrap;
+  }
+  .nav-focus a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-block-size: var(--touch-target);
+    color: var(--heading);
+    font-size: 1.125rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition:
+      filter 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .nav-focus a[aria-current='page'] {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.45em;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .nav-focus:hover a {
+      opacity: 0.25;
+      filter: blur(4px);
+    }
+    .nav-focus a:hover {
+      opacity: 1;
+      filter: blur(0);
+      transform: scale(1.15) translateY(-2px);
+    }
+  }
+  .nav-focus:has(a:focus-visible) a:not(:focus-visible) {
+    opacity: 0.25;
+    filter: blur(4px);
+  }
+  .nav-focus a:focus-visible {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1.15) translateY(-2px);
+  }
   .header-actions {
-    justify-self: end;
     display: flex;
     align-items: center;
     gap: 0.25rem;
+    margin-inline-start: var(--inline-gap);
   }
   .header-actions :global(.header-theme-toggle) {
     border-radius: var(--radius-pill);
   }
-  @media (max-width: 59.999rem) {
+  @media (max-width: 42rem) {
     .site-header {
       --header-padding: 0.75rem;
     }
+    .header-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      column-gap: 0.25rem;
+      row-gap: 0.25rem;
+    }
+    .header-inner :global(.site-name) {
+      grid-column: 1 / -1;
+      grid-row: 1;
+      margin-inline-end: 0;
+    }
+    .nav-focus {
+      grid-column: 1;
+      grid-row: 2;
+      gap: 0.25rem;
+      min-inline-size: 0;
+    }
+    .nav-focus a:hover,
+    .nav-focus a:focus-visible {
+      transform: none;
+    }
+    .header-actions {
+      grid-column: 2;
+      grid-row: 2;
+      gap: 0;
+      margin-inline-start: 0;
+    }
   }
   @media (max-width: 24rem) {
+    .header-shell {
+      padding-inline: 0.75rem;
+    }
     .header-inner {
-      gap: var(--inline-gap);
+      row-gap: var(--inline-gap);
     }
     .header-inner :global(.site-name) {
       --logo-width: 6.25rem;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nav-focus a {
+      transition: none;
+    }
+    .nav-focus a:hover,
+    .nav-focus a:focus-visible {
+      transform: none;
     }
   }
 </style>

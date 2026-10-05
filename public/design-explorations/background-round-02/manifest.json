@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "project": "Yohoia 网格动效",
+  "brief": "在相同的真实首页、低对比 40px 网格和鼠标光晕上比较不同的运动节奏；明暗主题与手机视口保持一致。",
+  "round": "02",
+  "serve": {
+    "command": "npm run dev -- --host 127.0.0.1",
+    "cwd": "/Users/yohoia/Desktop/blog",
+    "url": "http://127.0.0.1:4321"
+  },
+  "candidates": [
+    {
+      "id": "current",
+      "name": "现状 · 慢速漂移",
+      "concept": "保留已接入的网格，以几乎不打扰阅读的速度匀速移动。",
+      "typography": "现有 Geist Mono 与 Geist Sans，字号和内容不变",
+      "palette": ["#f6f5f1", "#111210", "#6b8cff"],
+      "traits": ["40px 网格", "48 秒位移一格", "加深后的指针光晕"],
+      "kind": "url",
+      "baseline": true,
+      "url": "http://127.0.0.1:4321/design-explorations/background/drift/"
+    },
+    {
+      "id": "rise",
+      "name": "01 · 轻盈上行",
+      "concept": "让水平线缓缓向上流动，竖线留在原位，带出安静的页面方向感。",
+      "typography": "现有 Geist Mono 与 Geist Sans，字号和内容不变",
+      "palette": ["#f6f5f1", "#111210", "#6b8cff"],
+      "traits": ["仅水平线运动", "14 秒位移一格", "光晕继续跟随"],
+      "kind": "url",
+      "url": "http://127.0.0.1:4321/design-explorations/background/rise/"
+    },
+    {
+      "id": "glide",
+      "name": "02 · 对角滑行",
+      "concept": "整张网格沿斜向连贯漂移，运动感比现状明确而仍保持轻量。",
+      "typography": "现有 Geist Mono 与 Geist Sans，字号和内容不变",
+      "palette": ["#f6f5f1", "#111210", "#6b8cff"],
+      "traits": ["双轴同步移动", "18 秒位移一格", "光晕继续跟随"],
+      "kind": "url",
+      "url": "http://127.0.0.1:4321/design-explorations/background/glide/"
+    },
+    {
+      "id": "scan",
+      "name": "03 · 柔光扫描",
+      "concept": "网格保持稳定，由一道很轻的蓝色横向光带从上到下经过页面。",
+      "typography": "现有 Geist Mono 与 Geist Sans，字号和内容不变",
+      "palette": ["#f6f5f1", "#111210", "#6b8cff"],
+      "traits": ["网格静止", "14 秒扫描一轮", "光晕继续跟随"],
+      "kind": "url",
+      "url": "http://127.0.0.1:4321/design-explorations/background/scan/"
+    }
+  ]
+}

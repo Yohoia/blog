@@ -1,12 +1,6 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
-import {
-  writingSchema,
-  skillSchema,
-  fragmentSchema,
-  staticPageSchema,
-  projectSchema,
-} from './lib/content/schemas';
+import { blogSchema, skillSchema, projectSchema } from './lib/content/schemas';
 
 const markdownLoader = (section: string) =>
   glob({ base: `./src/content/${section}`, pattern: '**/*.{md,mdx}' });
@@ -16,20 +10,12 @@ export const collections = {
     loader: markdownLoader('projects'),
     schema: projectSchema,
   }),
-  writing: defineCollection({
-    loader: markdownLoader('writing'),
-    schema: writingSchema,
-  }),
-  fragments: defineCollection({
-    loader: markdownLoader('fragments'),
-    schema: fragmentSchema,
+  blog: defineCollection({
+    loader: markdownLoader('blog'),
+    schema: blogSchema,
   }),
   skills: defineCollection({
     loader: markdownLoader('skills'),
     schema: skillSchema,
-  }),
-  now: defineCollection({
-    loader: markdownLoader('now'),
-    schema: staticPageSchema,
   }),
 };

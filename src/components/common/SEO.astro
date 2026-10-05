@@ -31,7 +31,7 @@ const {
 
 const pageTitle = title ? `${title} | ${siteConfig.name}` : siteConfig.name;
 const canonical = Astro.site
-  ? new URL(Astro.url.pathname, Astro.site)
+  ? new URL(Astro.url.pathname.replace(/\/+$/, '') || '/', Astro.site)
   : undefined;
 const ogImage =
   image && Astro.site ? new URL(image, Astro.site).href : undefined;

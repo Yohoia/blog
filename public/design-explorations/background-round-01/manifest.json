@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "project": "Yohoia 网站背景",
+  "brief": "在现有首页的真实终端内容、导航与 Footer 上比较简约背景，保持阅读清晰并兼顾明暗主题。",
+  "round": "01",
+  "serve": {
+    "command": "npm run dev -- --host 127.0.0.1",
+    "cwd": "/Users/yohoia/Desktop/blog",
+    "url": "http://127.0.0.1:4321"
+  },
+  "candidates": [
+    {
+      "id": "baseline",
+      "name": "现状 · 纯色画布",
+      "concept": "保持内容绝对优先，以暖白和近黑色承接终端信息。",
+      "typography": "现有 Geist Mono 与 Geist Sans；首页正文 14px 等宽",
+      "palette": ["#f6f5f1", "#111210", "#405dcb"],
+      "traits": ["无背景纹理", "静止", "对比基线"],
+      "kind": "url",
+      "baseline": true,
+      "url": "http://127.0.0.1:4321/design-explorations/background/baseline/"
+    },
+    {
+      "id": "paper",
+      "name": "01 · 微纹纸面",
+      "concept": "在保留纯色阅读感的同时，为大片留白增加接近纸纤维的细密触感。",
+      "typography": "复用现有 Geist Mono 与 Geist Sans，无字号变化",
+      "palette": ["#f6f5f1", "#111210", "#8a8982"],
+      "traits": ["两层微点纹理", "静止", "低对比阅读"],
+      "kind": "url",
+      "url": "http://127.0.0.1:4321/design-explorations/background/paper/"
+    },
+    {
+      "id": "grid",
+      "name": "02 · 低对比网格",
+      "concept": "让终端语言延伸成极淡的坐标纸，缓慢漂移但不改变内容的稳定性。",
+      "typography": "复用现有 Geist Mono 与 Geist Sans，无字号变化",
+      "palette": ["#f6f5f1", "#111210", "#405dcb"],
+      "traits": ["40px 细网格", "48 秒缓慢位移", "减少动画时静止"],
+      "kind": "url",
+      "url": "http://127.0.0.1:4321/design-explorations/background/grid/"
+    },
+    {
+      "id": "edge",
+      "name": "03 · 边缘信号",
+      "concept": "只在页面两侧出现稀疏蓝色信号点，让中间阅读区域继续安静。",
+      "typography": "复用现有 Geist Mono 与 Geist Sans，无字号变化",
+      "palette": ["#f6f5f1", "#111210", "#405dcb"],
+      "traits": ["两侧纵向刻度", "34 秒缓慢移动", "手机贴边避让正文"],
+      "kind": "url",
+      "url": "http://127.0.0.1:4321/design-explorations/background/edge/"
+    }
+  ]
+}

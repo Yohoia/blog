@@ -1,13 +1,11 @@
-/** 公共界面翻译；栏目代码标识符和路径保持英文。 */
+/** 公共界面翻译；公开栏目名称与导航保持一致。 */
 export const ui = {
   zh: {
     navigation: {
       index: '首页',
-      writing: '写作',
-      fragments: '碎片',
-      projects: '项目',
-      skills: 'Skills',
-      now: '近况',
+      blog: 'Blog',
+      project: 'Project',
+      skill: 'Skill',
     },
     home: '首页',
     skip: '跳转到主要内容',
@@ -20,23 +18,20 @@ export const ui = {
     switchLanguage: 'Switch to English',
     darkTheme: '切换为深色模式',
     lightTheme: '切换为浅色模式',
-    description: '文章、碎片笔记、项目与 Skills 组成的个人数字空间。',
+    description: 'Blog、Project 与 Skill 组成的个人数字空间。',
     earth: '地球，',
     utc: '协调世界时',
     recently: '最近更新',
     emptyTitle: '还没有发布内容。',
     emptyDescription: '新的文章和笔记会出现在这里。',
-    footer: '一处个人数字空间。',
     builtOn: '印于',
   },
   en: {
     navigation: {
       index: 'Index',
-      writing: 'Writing',
-      fragments: 'Fragments',
-      projects: 'Projects',
-      skills: 'Skills',
-      now: 'Now',
+      blog: 'Blog',
+      project: 'Project',
+      skill: 'Skill',
     },
     home: 'Home',
     skip: 'Skip to main content',
@@ -49,14 +44,12 @@ export const ui = {
     switchLanguage: '切换为中文',
     darkTheme: 'Switch to dark mode',
     lightTheme: 'Switch to light mode',
-    description:
-      'A personal digital space for writing, notes, projects, and skills.',
+    description: 'A personal digital space for Blog, Project, and Skill.',
     earth: 'Earth,',
     utc: 'Coordinated Universal Time',
     recently: 'Recently',
     emptyTitle: 'Nothing published yet.',
-    emptyDescription: 'New writing and notes will appear here.',
-    footer: 'A personal digital space.',
+    emptyDescription: 'New blog and notes will appear here.',
     builtOn: 'Built on',
   },
 } as const;

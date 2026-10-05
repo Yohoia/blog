@@ -22,7 +22,7 @@ export const terminalContent = {
   posts: {
     permissions: '-rw-r--r--',
     limit: 6,
-    hint: '// latest 6 posts — view all in Writing',
+    hint: '// latest 6 posts — view all in Blog',
   },
   tools: [
     {
@@ -85,7 +85,7 @@ export const terminalSequence = [
   { id: 'workflows', command: 'claude-code --stats' },
   {
     id: 'posts',
-    command: 'ls -ltr writing/ | tail -n 6',
+    command: 'ls -ltr blog/ | tail -n 6',
   },
   { id: 'tools', command: 'ls tools/' },
   { id: 'education', command: 'git log --oneline --reverse education/' },
