@@ -117,24 +117,26 @@ print(y_pred)
 
 设两个样本分别是
 
-```text
-\mathbf{x}=(x_1,x_2,\dots,x_n),\qquad
+$$
+\mathbf{x}=(x_1,x_2,\dots,x_n), \qquad
 \mathbf{y}=(y_1,y_2,\dots,y_n)
-```
+$$
 
-它们在 (n) 维特征空间中的欧式距离定义为：
+它们在 $n$ 维特征空间中的欧式距离定义为：
 
-```text
+$$
+d(\mathbf{x},\mathbf{y}) =
 \sqrt{\sum_{i=1}^{n}(x_i-y_i)^2}
-```
+$$
 
 也可以写成向量形式：
 
-```text
+$$
+d(\mathbf{x},\mathbf{y}) =
 |\mathbf{x}-\mathbf{y}|_2
-```
+$$
 
-这里的 ‖·‖₂ 就是 **L2 范数**。
+这里的 $\lVert \cdot \rVert_2$ 就是 **L2 范数**。
 
 ![欧式距离示意图](../../assets/images/blog/knn/euclidean-distance.png)
 
@@ -144,61 +146,38 @@ print(y_pred)
 
 简单理解，曼哈顿距离 = 对应维度差值的绝对值，求和。曼哈顿距离计算的是沿各个坐标轴方向移动时所经过的总距离
 
-设两个n维样本：
+设两个 $n$ 维样本：
 
-```text
-\mathbf{x}=(x_1,x_2,\dots,x_n)、
+$$
+\mathbf{x}=(x_1,x_2,\dots,x_n), \qquad
 \mathbf{y}=(y_1,y_2,\dots,y_n)
-```
+$$
 
 那么它们之间的曼哈顿距离定义为：
 
-```text
-{
-d(\mathbf{x},\mathbf{y})
+$$
+d(\mathbf{x},\mathbf{y}) =
 \sum_{i=1}^{n}|x_i-y_i|
-}
-```
+$$
 
 展开以后就是：
 
-```text
-{
-d(\mathbf{x},\mathbf{y})
-|x_1-y_1|
-
-+
-
-|x_2-y_2|
-
-+
-
-\cdots
-
-+
-
+$$
+d(\mathbf{x},\mathbf{y}) =
+|x_1-y_1| +
+|x_2-y_2| +
+\cdots +
 |x_n-y_n|
-
-}
-```
+$$
 
 从向量范数的角度，也可以写成：
 
-```text
-{
-d(\mathbf{x},\mathbf{y})
-\|\mathbf{x}-\mathbf{y}\|_1
+$$
+d(\mathbf{x},\mathbf{y}) =
+\lVert \mathbf{x}-\mathbf{y} \rVert_1
+$$
 
-}
-```
-
-这里的：
-
-```text
-\|\cdot\|_1
-```
-
-称为 **L1 范数（L1 Norm）**。
+这里的 $\lVert \cdot \rVert_1$ 称为 **L1 范数（L1 Norm）**。
 
 ---
 
@@ -206,33 +185,25 @@ d(\mathbf{x},\mathbf{y})
 
 两个样本之间的距离，不看所有维度差异的总和，而只看“差异最大的那个维度”。即对应维度的差值的绝对值，求最大值。
 
-设两个 (n) 维样本：
+设两个 $n$ 维样本：
 
-```text
-\mathbf{x}=(x_1,x_2,\dots,x_n)、\mathbf{y}=(y_1,y_2,\dots,y_n)
-```
+$$
+\mathbf{x}=(x_1,x_2,\dots,x_n), \qquad
+\mathbf{y}=(y_1,y_2,\dots,y_n)
+$$
 
 它们之间的切比雪夫距离定义为：
 
-```text
+$$
+d(\mathbf{x},\mathbf{y}) =
 \max_{1\le i\le n}|x_i-y_i|
-```
+$$
 
 也就是说：
 
 > 分别计算两个样本在每一个特征维度上的差异，然后取其中最大的那个差异。
 
-它也叫：
-
-```text
-{L_\infty\text{ Distance}}
-```
-
-或者：
-
-```text
-{L_\infty\text{ Norm Distance}}
-```
+它也叫 $L_\infty\text{ Distance}$，或写作 $L_\infty\text{ Norm Distance}$。
 
 ---
 
@@ -240,21 +211,21 @@ d(\mathbf{x},\mathbf{y})
 
 **曼哈顿距离、欧式距离、切比雪夫距离，其实都可以统一放进闵可夫斯基距离这个框架里**
 
-设两个 (n) 维样本：
+设两个 $n$ 维样本：
 
-```text
-\mathbf{x}=(x_1,x_2,\dots,x_n)、
+$$
+\mathbf{x}=(x_1,x_2,\dots,x_n), \qquad
 \mathbf{y}=(y_1,y_2,\dots,y_n)
-```
+$$
 
-```text
-{\left(
+$$
+d(\mathbf{x},\mathbf{y}) =
+\left(
 \sum_{i=1}^{n}|x_i-y_i|^p
 \right)^{1/p}
-}
-```
+$$
 
-其中， p ≥ 1。
+其中，$p \ge 1$。
 
 ## 4 特征预处理
 
@@ -265,45 +236,48 @@ d(\mathbf{x},\mathbf{y})
 
 **把不同量纲、不同数值范围的特征，压缩到一个相近的尺度上，从而避免某些特征仅仅因为数值大，就在模型中占据过大的影响。**通过原始数据进行变换把数据映射到【min，max】默认为【0，1】之间
 
-```text
-x'=\frac{x-x_{\min}}{x_{\max}-x_{\min}}
-```
+$$
+x' = \frac{x-x_{\min}}{x_{\max}-x_{\min}}
+$$
 
 归一化后常见的范围：
 
-```text
-x'\in[0,1]
-```
+$$
+x' \in [0, 1]
+$$
 
-范围有可能并不一定设置在（0，1）可以由公式 x'' = x' × (x_max - x_min) + x_min 来变换其范围。归一化存在弊端，容易受到最大值和最小值的影响，故一般用于小数据集。
+范围有可能并不一定设置在 $(0, 1)$，可以由公式 $x'' = x' \times (x_{\max} - x_{\min}) + x_{\min}$ 来变换其范围。归一化存在弊端，容易受到最大值和最小值的影响，故一般用于小数据集。
 
 ### 标准化
 
 把不同尺度的特征转换到统一尺度，使特征通常具有均值 0、标准差 1，避免数值范围大的特征对模型产生不合理的主导作用。
 
-```text
-z=\frac{x-\mu}{\sigma}
-```
+$$
+z = \frac{x-\mu}{\sigma}
+$$
 
 其中： x：原始数据；μ：该特征的均值；σ：该特征的标准差；z：标准化后的数据
 
 方差计算公式如下：
 
-```text
-\sigma^2 = \frac{1}{N}\sum_{i=1}^{N}(x_i-\mu)^2
-```
+$$
+\sigma^2 =
+\frac{1}{N}\sum_{i=1}^{N}(x_i-\mu)^2
+$$
 
 均值计算公式如下：
 
-```text
-\mu = \frac{1}{N}\sum_{i=1}^{N}x_i
-```
+$$
+\mu =
+\frac{1}{N}\sum_{i=1}^{N}x_i
+$$
 
 标准差计算公式如下：
 
-```text
-\sigma = \sqrt{\frac{1}{N}\sum_{i=1}^{N}(x_i-\mu)^2}
-```
+$$
+\sigma =
+\sqrt{\frac{1}{N}\sum_{i=1}^{N}(x_i-\mu)^2}
+$$
 
 ## 5 超参数选择方法
 
@@ -375,13 +349,12 @@ score5
 
 最终交叉验证分数通常取平均值：
 
-```text
-\text{CV Score}
-=
+$$
+\text{CV Score} =
 \frac{1}{K}
 \sum_{i=1}^{K}
 \text{Score}_i
-```
+$$
 
 例如：
 
@@ -395,13 +368,11 @@ score5
 
 那么：
 
-```text
-\text{CV Score}
-=
-\frac{0.86+0.90+0.88+0.91+0.85}{5}
-=
+$$
+\text{CV Score} =
+\frac{0.86+0.90+0.88+0.91+0.85}{5} =
 0.88
-```
+$$
 
 所以我们可以认为这个模型的平均验证表现大约是：
 

@@ -144,6 +144,12 @@
 .article-prose.prose .article-callout {
   margin-block: var(--item-gap);
 }
+.article-prose.prose .katex-display {
+  margin-block: 1.5em;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-block: 0.25rem;
+}
 .article-return {
   display: flex;
   justify-content: flex-start;

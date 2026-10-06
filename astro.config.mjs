@@ -3,6 +3,9 @@ import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import { unified } from '@astrojs/markdown-remark';
 import tailwindcss from '@tailwindcss/vite';
 import { loadEnv } from 'vite';
 import { fileURLToPath } from 'node:url';
@@ -72,6 +75,10 @@ export default defineConfig({
       : []),
   ],
   markdown: {
+    processor: unified({
+      remarkPlugins: [remarkMath],
+      rehypePlugins: [rehypeKatex],
+    }),
     syntaxHighlight: 'shiki',
     shikiConfig: {
       themes: { light: 'github-light', dark: 'github-dark' },
