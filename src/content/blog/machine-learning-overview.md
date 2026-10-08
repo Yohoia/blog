@@ -1,6 +1,7 @@
 ---
 title: '机器学习概述'
 description: '介绍机器学习的基本术语、方法分类、特征工程与模型拟合问题。'
+status: published
 publishedAt: 2026-09-30
 author: 'Get达人'
 language: zh

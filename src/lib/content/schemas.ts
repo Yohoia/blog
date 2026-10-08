@@ -4,9 +4,15 @@ import { z } from 'astro/zod';
 const title = z.string().trim().min(1);
 const tags = z.array(z.string().trim().min(1)).default([]);
 const httpUrl = z.url({ protocol: /^https?$/ });
+const articleStatus = z.enum(['draft', 'published']);
+
 const metadata = {
   title,
   description: z.string().trim().min(1),
+};
+
+const draftMetadata = {
+  ...metadata,
   draft: z.boolean().default(false),
 };
 
@@ -27,6 +33,7 @@ export const blogSchema = ({ image }: SchemaContext) =>
   z
     .object({
       ...metadata,
+      status: articleStatus.default('draft'),
       ...dates,
       tags,
       language: z.enum(['zh', 'en']).default('zh'),
@@ -39,7 +46,7 @@ export const blogSchema = ({ image }: SchemaContext) =>
 
 export const skillSchema = ({ image }: SchemaContext) =>
   z.object({
-    ...metadata,
+    ...draftMetadata,
     descriptionEn: title,
     subtitle: title,
     subtitleEn: title,
@@ -52,7 +59,7 @@ export const skillSchema = ({ image }: SchemaContext) =>
 
 export const projectSchema = ({ image }: SchemaContext) =>
   z.object({
-    ...metadata,
+    ...draftMetadata,
     descriptionEn: title,
     tagline: title,
     taglineEn: title,

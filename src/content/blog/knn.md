@@ -1,6 +1,7 @@
 ---
 title: 'KNN算法'
 description: '介绍 KNN 算法的核心思想、常用距离度量、特征预处理与超参数选择。'
+status: published
 publishedAt: 2026-10-01
 language: zh
 tags: [机器学习, KNN, 基础概念]

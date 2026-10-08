@@ -9,7 +9,12 @@ export async function getPublishedEntries<C extends CollectionKey>(
   collection: C,
   { includeDrafts = false }: ContentQueryOptions = {},
 ) {
-  return getCollection(collection, ({ data }) => includeDrafts || !data.draft);
+  return getCollection(collection, ({ data }) => {
+    if (includeDrafts) return true;
+    return 'status' in data
+      ? data.status === 'published'
+      : (data as { draft?: boolean }).draft !== true;
+  });
 }
 
 /** 返回新数组，避免修改调用方的数据。 */
