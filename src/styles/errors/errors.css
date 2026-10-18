@@ -1,0 +1,37 @@
+body.error-document {
+  min-block-size: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+.error-page {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding-block: var(--item-gap);
+}
+.error-content {
+  inline-size: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--item-gap);
+  text-align: center;
+}
+.error-illustration {
+  display: block;
+  inline-size: auto;
+  block-size: auto;
+  max-inline-size: 100%;
+  max-block-size: min(50svh, 30rem);
+  object-fit: contain;
+  /* 原插图含深色字样，固定纸色底使暗色模式也能完整辨认。 */
+  background: var(--illustration-canvas);
+  border-radius: var(--radius-media);
+}
+.error-message {
+  display: grid;
+  gap: var(--inline-gap);
+}
+.error-message p {
+  max-inline-size: 48ch;
+}

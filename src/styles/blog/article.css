@@ -1,0 +1,199 @@
+.article-page {
+  --article-reading-width: 57.5rem;
+  display: grid;
+  grid-template-columns: minmax(0, 59.5rem) 12.5rem;
+  inline-size: 100%;
+  max-inline-size: 72rem;
+  margin-inline: auto;
+  padding: 0 0.875rem;
+}
+.article-main {
+  grid-column: 1;
+  grid-row: 1;
+  min-inline-size: 0;
+  padding-inline: 1rem;
+}
+.article-side {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+  position: sticky;
+  inset-block-start: 7.5rem;
+  margin-block-start: 0;
+  inline-size: 12.5rem;
+}
+.article-title {
+  margin: 0 0 var(--inline-gap);
+  color: var(--heading);
+  font-size: var(--text-page);
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+}
+.article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  row-gap: 0.625rem;
+  color: var(--muted-text);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  line-height: var(--text-micro--line-height);
+  font-variant-numeric: tabular-nums;
+}
+.article-meta-item {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.35em;
+  white-space: nowrap;
+}
+.article-author {
+  color: var(--heading);
+}
+.article-author-avatar {
+  display: block;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px var(--border);
+}
+.article-meta-icon {
+  flex: none;
+  color: currentColor;
+  opacity: 0.85;
+}
+.article-tags {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.3rem;
+}
+.article-tag {
+  --article-tag-rule: var(--border-strong);
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  column-gap: 0.08em;
+  min-block-size: 1.25rem;
+  padding: 0.1875rem 0.125rem;
+  color: var(--muted-text);
+  white-space: nowrap;
+}
+.article-tag::after {
+  position: absolute;
+  inset-inline: 0.125rem;
+  inset-block-end: 0.125rem;
+  block-size: 1px;
+  background: var(--article-tag-rule);
+  content: "";
+}
+.article-tag:hover {
+  --article-tag-rule: var(--signal-text);
+  color: var(--signal-text);
+}
+.article-cover {
+  margin: var(--group-gap) 0 0;
+}
+.article-cover img {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  border-radius: var(--radius-media);
+}
+.article-cover figcaption {
+  margin-block-start: var(--inline-gap);
+  color: var(--muted-text);
+  font-size: var(--text-meta);
+}
+.article-prose.prose {
+  margin-block-start: 3.5rem;
+  font-size: var(--text-body);
+  line-height: 1.8;
+}
+.article-prose.prose :is(h2, h3, h4) {
+  color: var(--heading);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  scroll-margin-top: var(--item-gap);
+}
+.article-prose.prose h2 {
+  margin-block: 2.5em 1em;
+  font-size: var(--text-section);
+}
+.article-prose.prose h3 {
+  margin-block: 2.5em 1em;
+  font-size: var(--text-item);
+}
+.article-prose.prose pre {
+  padding: var(--item-gap);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--code-surface);
+}
+.article-prose.prose pre code {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+}
+.article-prose.prose .article-callout {
+  margin-block: var(--item-gap);
+}
+.article-prose.prose .katex-display {
+  margin-block: 1.5em;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-block: 0.25rem;
+}
+.article-return {
+  display: flex;
+  justify-content: flex-start;
+}
+.article-return a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--touch-target);
+  gap: var(--inline-gap);
+  color: var(--muted-text);
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  text-decoration: none;
+}
+.article-back-icon {
+  display: inline-flex;
+  color: inherit;
+}
+.article-return code {
+  font: inherit;
+  color: inherit;
+}
+.article-return a:hover {
+  color: var(--signal-text);
+}
+@media (min-width: 80rem) {
+  .article-page {
+    padding-inline: 0;
+  }
+}
+@media (max-width: 63.999rem) {
+  .article-page {
+    display: block;
+    max-inline-size: 60rem;
+    padding-inline: 0.875rem;
+  }
+  .article-main {
+    max-inline-size: var(--article-reading-width);
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  .article-side {
+    display: contents;
+  }
+}
+@media (max-width: 40rem) {
+  .article-prose.prose {
+    margin-block-start: var(--group-gap);
+  }
+}

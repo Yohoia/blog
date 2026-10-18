@@ -1,0 +1,160 @@
+/** design.md §10。Motion 的时长单位为秒；只在解释状态变化时使用。 */
+export const motionTokens = {
+  duration: {
+    micro: 0.15,
+    ui: 0.22,
+    page: 0.28,
+    fast: 0.15,
+    normal: 0.22,
+    slow: 0.3,
+  },
+  easing: [0.22, 1, 0.36, 1] as [number, number, number, number],
+  spring: {
+    soft: { type: "spring", stiffness: 180, damping: 24 },
+    snappy: { type: "spring", stiffness: 320, damping: 30 },
+  },
+  distance: { small: 4, medium: 8, large: 12 },
+  scale: { pressed: 0.98, resting: 1 },
+  reduced: { duration: 0.12 },
+  /** Theme-change.tsx 用户选定效果：rectangle / blur on / bottom-up。 */
+  theme: {
+    revealDuration: 0.7,
+    revealEase: [0.16, 1, 0.3, 1] as [number, number, number, number],
+    blur: [8, 4, 0],
+  },
+  /** Blog 期刊式归档：只弱化其余标题，元信息始终保持可读。 */
+  blog: {
+    inactiveTitleOpacity: 0.72,
+    highlightDuration: 0.38,
+  },
+  article: {
+    tocRevealDuration: 0.15,
+    railEnterDuration: 0.24,
+    railExitDuration: 0.18,
+    railHoverScale: 1.08,
+    railTipDistance: 4,
+    railIconDuration: 0.42,
+    railBellDuration: 0.5,
+    railIconTravel: 5,
+    railIconPopScale: 1.24,
+    railBellAngles: [-12, 9, -6, 3, 0],
+    railWiggleAngles: [-7, 5, -3, 0],
+  },
+  /** Skills：参考插图卡片的轻微倾斜、插图视差与链接反馈。 */
+  skills: {
+    enterDuration: 0.42,
+    enterDistance: 8,
+    stagger: 0.06,
+    hoverDuration: 0.35,
+    resetDuration: 0.5,
+    rotateX: 1.1,
+    rotateY: 1.6,
+    artX: 3,
+    artY: 2,
+    artScale: 1.035,
+    arrowDistance: 2,
+  },
+  /** Projects：链接反馈与项目专属功能演示。 */
+  projects: {
+    hoverDuration: 0.35,
+    linkDistance: 5,
+    checkDuration: 0.32,
+    checkScale: 1.15,
+    clipper: {
+      selectStart: 0.6,
+      selectEnd: 1.8,
+      extractStart: 2.2,
+      extractEnd: 3.1,
+      duration: 4.4,
+      holdDuration: 3,
+      resetDuration: 0.42,
+    },
+    voice: {
+      transcribeEnd: 3.6,
+      organizeEnd: 5.1,
+      taskStagger: 0.22,
+      taskRevealDuration: 0.42,
+      stageTransition: 0.42,
+      duration: 6.2,
+      holdDuration: 3,
+      resetDuration: 0.42,
+      waveFrequency: 2.4,
+      waveMinScale: 0.18,
+    },
+  },
+  /** navigation-lab Type Overlay：圆形展开与 Typography 逐项进入。 */
+  menu: {
+    revealDuration: 0.65,
+    closeDuration: 0.5,
+    revealEase: [0.75, 0, 0.2, 1] as [number, number, number, number],
+    itemDuration: 0.4,
+    itemDelay: 0.2,
+    stagger: 0.04,
+    itemDistance: 22,
+    exitDuration: 0.18,
+    hoverDuration: 0.18,
+    hoverDistance: 16,
+  },
+  /** 导航栏目专用：噪声网格铺满 → 页面交换 → 同一网格退场。 */
+  navigationTransition: {
+    fillDuration: 0.5,
+    clearDuration: 0.5,
+    cellSize: 14,
+    maxCells: 8000,
+    maxPixelRatio: 2,
+    framesPerSecond: 30,
+    shuffleInterval: 50,
+    dimOpacity: 0.35,
+    edgeWidth: 0.06,
+    noiseScale: 0.18,
+    timeout: 15000,
+  },
+  /** 首页快速匀速打字与整块输出；打字、输出和光标均由 Motion 驱动。 */
+  terminal: {
+    fontReadyTimeout: 1.5,
+    initialDelay: 0.5,
+    characterDelay: 0.035,
+    enterDelay: 0.16,
+    outputDelay: 0.35,
+    blockReveal: { duration: 0.5, distance: 8 },
+    cursorDuration: 1,
+  },
+  /** whoami 头像：与信息输出同步聚合；悬浮重播保留 HTML 预览的节奏。 */
+  avatar: {
+    duration: 1.05,
+    pointDuration: 0.75,
+    rowDelay: 0.18,
+    randomDelay: 0.1,
+    scatter: { min: 16, max: 48 },
+  },
+  /** 品牌书写时序保留 yohoia-logo-v3 的连续笔迹，区别于通用 UI 过渡。 */
+  logo: {
+    strokes: [
+      {
+        name: "opening",
+        at: 0.04,
+        duration: 0.32,
+        ease: [0.42, 0, 0.22, 1] as [number, number, number, number],
+      },
+      {
+        name: "junction",
+        at: 0.33,
+        duration: 0.42,
+        ease: [0.42, 0, 0.24, 1] as [number, number, number, number],
+      },
+      {
+        name: "body",
+        at: 0.69,
+        duration: 1.14,
+        ease: [0.58, 0, 0.25, 1] as [number, number, number, number],
+      },
+      {
+        name: "terminal",
+        at: 1.62,
+        duration: 0.4,
+        ease: [0.4, 0, 0.2, 1] as [number, number, number, number],
+      },
+    ],
+    dot: { at: 1.94, duration: 0.15, initialScale: 0.55 },
+  },
+} as const;

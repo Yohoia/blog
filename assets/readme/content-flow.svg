@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 620" role="img" aria-labelledby="flow-title flow-desc">
+  <title id="flow-title">Yohoia Blog content and rendering flow</title>
+  <desc id="flow-desc">Local Markdown or PageHush PostgreSQL content enters a read-only Next.js server, then exits as server-rendered article HTML, read-only Tiptap output, Sitemap entries, or verified image assets.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" markerUnits="strokeWidth" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#706f67"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="620" rx="28" fill="#fbfaf7"/>
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif">
+    <g transform="translate(54 76)">
+      <text x="0" y="0" fill="#706f67" font-size="21" font-weight="700" letter-spacing="3">CONTENT SOURCES</text>
+      <rect x="0" y="28" width="276" height="172" rx="20" fill="#f6f5f1" stroke="#1b1b18" stroke-opacity=".12"/>
+      <text x="26" y="76" fill="#1b1b18" font-size="27" font-weight="700">Local preview</text>
+      <text x="26" y="113" fill="#5f5e58" font-size="22">content/**/*.md</text>
+      <text x="26" y="149" fill="#5f5e58" font-size="22">gray-matter + Zod</text>
+      <rect x="0" y="226" width="276" height="172" rx="20" fill="#f6f5f1" stroke="#1b1b18" stroke-opacity=".12"/>
+      <text x="26" y="274" fill="#1b1b18" font-size="27" font-weight="700">PageHush</text>
+      <text x="26" y="311" fill="#5f5e58" font-size="22">PostgreSQL · published</text>
+      <text x="26" y="347" fill="#5f5e58" font-size="22">MinIO / S3 images</text>
+    </g>
+
+    <path d="M330 190 H420" fill="none" stroke="#706f67" stroke-width="2" marker-end="url(#arrow)"/>
+    <path d="M330 380 H420" fill="none" stroke="#706f67" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <g transform="translate(432 76)">
+      <rect x="0" y="28" width="324" height="370" rx="24" fill="#1b1b18"/>
+      <text x="28" y="84" fill="#f5f4ee" fill-opacity=".58" font-size="20" font-weight="700" letter-spacing="3">NEXT.JS SERVER</text>
+      <text x="28" y="134" fill="#f5f4ee" font-size="30" font-weight="740">Read-only publication gate</text>
+      <g fill="none" stroke="#f5f4ee" stroke-opacity=".24">
+        <rect x="28" y="170" width="268" height="48" rx="16"/>
+        <rect x="28" y="232" width="268" height="48" rx="16"/>
+        <rect x="28" y="294" width="268" height="48" rx="16"/>
+      </g>
+      <text x="50" y="201" fill="#f5f4ee" fill-opacity=".84" font-size="22">published &amp; not deleted</text>
+      <text x="50" y="263" fill="#f5f4ee" fill-opacity=".84" font-size="22">draft and archive filtered</text>
+      <text x="50" y="325" fill="#f5f4ee" fill-opacity=".84" font-size="22">request-time connection()</text>
+      <text x="28" y="376" fill="#a8bcff" font-size="21">No silent fallback to old snapshots</text>
+    </g>
+
+    <path d="M756 190 H846" fill="none" stroke="#706f67" stroke-width="2" marker-end="url(#arrow)"/>
+    <path d="M756 380 H846" fill="none" stroke="#706f67" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <g transform="translate(858 76)">
+      <text x="0" y="0" fill="#706f67" font-size="21" font-weight="700" letter-spacing="3">PUBLIC OUTPUT</text>
+      <rect x="0" y="28" width="288" height="96" rx="18" fill="#f6f5f1" stroke="#1b1b18" stroke-opacity=".12"/>
+      <text x="24" y="69" fill="#1b1b18" font-size="25" font-weight="700">Server-rendered HTML</text>
+      <text x="24" y="99" fill="#5f5e58" font-size="21">KaTeX · Shiki · no-JS reading</text>
+      <rect x="0" y="144" width="288" height="96" rx="18" fill="#f6f5f1" stroke="#1b1b18" stroke-opacity=".12"/>
+      <text x="24" y="185" fill="#1b1b18" font-size="25" font-weight="700">Read-only Tiptap</text>
+      <text x="24" y="215" fill="#5f5e58" font-size="21">Same schema after hydration</text>
+      <rect x="0" y="260" width="288" height="96" rx="18" fill="#f6f5f1" stroke="#1b1b18" stroke-opacity=".12"/>
+      <text x="24" y="301" fill="#1b1b18" font-size="25" font-weight="700">Sitemap &amp; redirects</text>
+      <text x="24" y="331" fill="#5f5e58" font-size="21">Base62 IDs · 308 old slugs</text>
+      <rect x="0" y="376" width="288" height="96" rx="18" fill="#eef1ff"/>
+      <text x="24" y="417" fill="#283c8c" font-size="25" font-weight="700">Verified image proxy</text>
+      <text x="24" y="447" fill="#4d5b91" font-size="21">Only published references</text>
+    </g>
+  </g>
+</svg>

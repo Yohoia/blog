@@ -1,0 +1,74 @@
+{
+  "/apple-touch-icon.png": {
+    "width": 180,
+    "height": 180
+  },
+  "/favicon.png": {
+    "width": 256,
+    "height": 256
+  },
+  "/images/404.png": {
+    "width": 1448,
+    "height": 1086
+  },
+  "/images/403.png": {
+    "width": 1448,
+    "height": 1086
+  },
+  "/images/502.png": {
+    "width": 1448,
+    "height": 1086
+  },
+  "/images/500.png": {
+    "width": 1448,
+    "height": 1086
+  },
+  "/media/projects/web-clipper-logo.png": {
+    "width": 1254,
+    "height": 1254
+  },
+  "/media/projects/dida-logo.png": {
+    "width": 480,
+    "height": 345
+  },
+  "/media/skills/yoho-speckit.png": {
+    "width": 1448,
+    "height": 1086
+  },
+  "/media/skills/yoho-retro-poster.png": {
+    "width": 1448,
+    "height": 1086
+  },
+  "/media/blog/machine-learning-overview/diagram-1.png": {
+    "width": 834,
+    "height": 584
+  },
+  "/media/blog/machine-learning-overview/diagram-2.png": {
+    "width": 834,
+    "height": 900
+  },
+  "/media/blog/machine-learning-overview/diagram-3.png": {
+    "width": 834,
+    "height": 616
+  },
+  "/media/blog/machine-learning-overview/cover.png": {
+    "width": 1672,
+    "height": 941
+  },
+  "/media/blog/knn/knn-fitting.png": {
+    "width": 1312,
+    "height": 1199
+  },
+  "/media/blog/knn/knn-example.png": {
+    "width": 878,
+    "height": 772
+  },
+  "/media/blog/knn/euclidean-distance.png": {
+    "width": 1312,
+    "height": 1199
+  },
+  "/media/blog/knn/cover.png": {
+    "width": 1672,
+    "height": 941
+  }
+}

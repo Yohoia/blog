@@ -1,0 +1,60 @@
+const email = "imyohoia@gmail.com";
+const github = "https://github.com/Yohoia";
+
+/** 站点资料和用户确认的联系方式在这里集中维护。 */
+export const siteConfig = {
+  name: "Yohoia",
+  description: "Blog、Project 与 Skill 组成的个人数字空间。",
+  timeZone: "Asia/Shanghai",
+  registration: {
+    icpNumber: "赣ICP备2025075792号-2",
+    icpUrl: "https://beian.miit.gov.cn/",
+  },
+  contact: {
+    email,
+    github,
+  },
+  repositoryUrl: `${github}/blog`,
+  contactLinks: [
+    {
+      icon: "gmail",
+      label: `Email: ${email}`,
+      href: `mailto:${email}`,
+    },
+    {
+      icon: "qq",
+      label: "QQ: 1109951287",
+      href: "https://wpa.qq.com/msgrd?v=3&uin=1109951287&site=qq&menu=yes",
+    },
+    {
+      icon: "x",
+      label: "X: @imYohoia",
+      href: "https://x.com/imYohoia",
+    },
+    {
+      icon: "xiaohongshu",
+      label: "小红书: Yohoia",
+      href: "https://xhslink.cn/o/2uKZjCQ4rPa",
+    },
+    {
+      icon: "bilibili",
+      label: "Bilibili: @Yohoia",
+      href: "https://b23.tv/cPvuHiv",
+    },
+    {
+      icon: "github",
+      label: "GitHub: @Yohoia",
+      href: github,
+    },
+    {
+      icon: "wechat",
+      label: "微信: 13870096885",
+      copyValue: "13870096885",
+    },
+    {
+      icon: "telegram",
+      label: "TG: @Yohoia",
+      href: "https://t.me/Yohoia",
+    },
+  ],
+} as const;

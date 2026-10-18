@@ -1,0 +1,87 @@
+.site-frame {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100dvh;
+}
+.site-frame > main {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  padding-block-end: clamp(2rem, 1.5rem + 0.625vw, 2.5rem);
+}
+.site-frame > .site-footer {
+  position: relative;
+  z-index: 1;
+  margin-block-start: auto;
+}
+.index-page {
+  padding-block-start: 0;
+}
+.pixel-svg,
+.pixel-svg svg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+.contact-brand svg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  fill: currentColor;
+}
+.prose .simple-editor {
+  outline: none;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.prose .simple-editor img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: var(--item-gap) auto;
+}
+.prose .simple-editor .tableWrapper {
+  max-width: 100%;
+  overflow: auto;
+}
+.prose .simple-editor ul[data-type="taskList"] {
+  list-style: none;
+  padding: 0;
+}
+.prose .simple-editor li[data-type="taskItem"] {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+}
+.prose .simple-editor li[data-type="taskItem"] > div {
+  flex: 1;
+  min-width: 0;
+}
+.prose .simple-editor li[data-type="taskItem"] p {
+  margin-block: 0.4rem;
+}
+.prose .simple-editor input[type="checkbox"] {
+  pointer-events: none;
+}
+.prose .simple-editor .tiptap-mathematics-render {
+  cursor: inherit;
+}
+.prose .simple-editor [data-type="block-math"] {
+  display: block;
+  overflow-x: auto;
+  margin-block: var(--item-gap);
+  text-align: center;
+}
+.prose .simple-editor pre {
+  white-space: pre;
+}
+.prose .simple-editor :where(h2, h3, h4) {
+  scroll-margin-top: 2rem;
+}
+
+.error-page {
+  min-block-size: 100svh;
+}
+:root[data-theme="dark"] .tiptap-code-block span {
+  color: var(--shiki-dark) !important;
+}

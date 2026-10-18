@@ -1,0 +1,4 @@
+import { ErrorPage } from "@/components/errors/ErrorPage";
+export default function NotFound() {
+  return <ErrorPage code={404} locale="zh" />;
+}
