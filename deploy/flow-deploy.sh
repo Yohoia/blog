@@ -79,7 +79,17 @@ systemctl start yoho-blog
 
 healthy=false
 for _ in {1..30}; do
-  if curl -fsS --max-time 3 http://127.0.0.1:3000/ >/dev/null 2>&1; then
+  article=$(curl -fsS --max-time 5 http://127.0.0.1:3000/sitemap.xml 2>/dev/null | grep -oE "https?://[^<]+/blog/[A-Za-z0-9_-]+" | head -n 1 || true)
+  paths=(/ /blog /sitemap.xml)
+  if [[ -n $article ]]; then paths+=("$article"); fi
+  checked=true
+  for path in "${paths[@]}"; do
+    if ! curl -fsS --max-time 5 "$path" >/dev/null 2>&1; then
+      checked=false
+      break
+    fi
+  done
+  if [[ $checked == true ]]; then
     healthy=true
     break
   fi
