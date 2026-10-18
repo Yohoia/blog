@@ -121,7 +121,7 @@ PageHush 模式不要在代理层缓存文章 HTML；撤稿、删除或素材引
 
 ### Flow 自动部署
 
-本地 `origin` 配置了两个 push URL：一次 `git push` 会同时更新 GitHub 与 Codeup 的 `main`。Flow 可监听 GitHub `Yohoia/blog`，也可监听 Codeup `blog` 仓库；两者内容保持一致。
+本地 `origin` 配置了两个 push URL：一次 `git push` 会同时更新 GitHub 与 Codeup 的 `main`。Flow 可监听 GitHub `Yohoia/yoho-blog`，也可监听 Codeup `blog` 仓库；两者内容保持一致。
 
 Flow 的 Node.js 构建步骤使用 Node.js 24：
 
