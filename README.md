@@ -119,6 +119,33 @@ HOSTNAME=127.0.0.1 PORT=3000 node server.js
 
 PageHush 模式不要在代理层缓存文章 HTML；撤稿、删除或素材引用变化都需要在下一次请求生效。上游返回的 403 / 404 / 500 保留应用响应；仅当 Node 上游不可用时由 Nginx 提供本地 502 兜底页。
 
+### Flow 自动部署
+
+本地 `origin` 配置了两个 push URL：一次 `git push` 会同时更新 GitHub 与 Codeup 的 `main`。Flow 可监听 GitHub `Yohoia/blog`，也可监听 Codeup `blog` 仓库；两者内容保持一致。
+
+Flow 的 Node.js 构建步骤使用 Node.js 24：
+
+```sh
+npm ci
+npm run check
+NODE_ENV=test npm test
+npm run format:check
+BLOG_CONTENT_SOURCE=local SITE_URL=https://yohoia.cn npm run build
+```
+
+构建物上传路径包含 `release/`、`deploy/yoho-blog.service` 与 `deploy/flow-deploy.sh`。主机部署下载路径设为 `/tmp/yoho-blog-release.tgz`，执行用户使用 `root`，部署脚本：
+
+```sh
+tmp=$(mktemp -d /tmp/yoho-blog-flow-input.XXXXXX)
+trap 'rm -rf "$tmp"' EXIT
+tar -xzf /tmp/yoho-blog-release.tgz -C "$tmp"
+script=$(find "$tmp" -type f -path "*/deploy/flow-deploy.sh" -print -quit)
+test -n "$script"
+sh "$script" /tmp/yoho-blog-release.tgz
+```
+
+`flow-deploy.sh` 会解包 standalone 发布目录、切换 `/var/www/yoho-blog/current`、重启 systemd 服务、执行本机健康检查，并在失败时回切上一版。PageHush 凭据继续只保存在服务器的 `/etc/yoho-blog.env`，不进入构建制品。
+
 ## 源码结构
 
 ```text

@@ -37,3 +37,6 @@ pnpm-debug.log*
 # Local project notes
 /docs/
 /references/
+
+# Firecrawl research cache
+/.firecrawl/
