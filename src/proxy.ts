@@ -29,10 +29,17 @@ export async function proxy(request: NextRequest) {
     return rewriteError(500);
   }
   function rewriteError(code: 404 | 500) {
+    // Nginx forwards https requests to the standalone HTTP server. Keep the
+    // internal rewrite on that HTTP origin so Next does not proxy itself over TLS.
     const url = request.nextUrl.clone();
+    url.protocol = "http:";
+    url.hostname = "127.0.0.1";
+    url.port = process.env.PORT ?? "3000";
     url.pathname = `/${code}`;
     const headers = new Headers(request.headers);
     headers.set("x-error-locale", match?.[1] ? "en" : "zh");
+    headers.set("x-forwarded-proto", "http");
+    headers.set("x-forwarded-port", url.port);
     return NextResponse.rewrite(url, { status: code, request: { headers } });
   }
 }
