@@ -96,7 +96,8 @@ Token 定义在 `src/styles/base/tokens.css`，Tailwind 通过 `@theme` 消费�
 - 透明磨砂层跟随主题
 - Logo、Index、Blog、Project、Skill 使用同一导航节奏
 - 当前栏目有明确 aria-current 与视觉状态
-- 移动端保持可读层级，不强行压缩文字
+- 桌面端 Logo 靠左、导航靠右；移动端 Logo 居中，主导航收纳为居中磨砂胶囊
+- 移动端四个栏目在居中胶囊内等分，当前项使用不透明黑底反色，触控目标不小于 2.75rem
 
 ### Footer
 
