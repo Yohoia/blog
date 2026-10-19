@@ -20,7 +20,7 @@ function syncErrorPage(doc: Document, pathname: string): void {
   const locale: Locale = /^\/en(?:\/|$)/.test(pathname) ? "en" : "zh";
   const home = locale === "en" ? "/en" : "/";
   const content = errorPages[code].content[locale];
-  const title = `${code} · ${content.heading} | ${siteConfig.name}`;
+  const title = `${code} | ${siteConfig.name}`;
 
   doc.documentElement.lang = localeMetadata[locale].language;
   doc.title = title;

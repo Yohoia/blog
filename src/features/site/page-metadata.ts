@@ -38,8 +38,10 @@ export async function getPageMetadata(pathname: string): Promise<Metadata> {
 
   const error = /^\/(403|404|500|502)$/.test(plain);
 
+  const absoluteTitle = plain === "/" ? "Index | Yohoia" : title;
+
   return {
-    title,
+    title: plain === "/" ? { absolute: absoluteTitle } : absoluteTitle,
     description,
     ...(error
       ? { robots: { index: false, follow: false } }
@@ -57,7 +59,7 @@ export async function getPageMetadata(pathname: string): Promise<Metadata> {
             : {}),
         }),
     openGraph: {
-      title,
+      title: absoluteTitle,
       description,
       locale: locale === "zh" ? "zh_CN" : "en_US",
       type: plain.startsWith("/blog/") ? "article" : "website",
